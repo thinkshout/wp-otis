@@ -249,12 +249,6 @@ class Otis_Importer {
 	 * @param array $assoc_args
 	 */
 	private function _import_pois( $assoc_args = array() ) {
-		if ( !empty( $assoc_args['start-page'] ) ) {
-			$assoc_args['page'] = $assoc_args['start-page'];
-			$assoc_args['all'] = TRUE;
-			unset($assoc_args['start-page']);
-		}
-
 		$params = array(
 			'set' => 'toonly',
 		);
