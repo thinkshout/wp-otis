@@ -110,6 +110,7 @@ class Otis_Importer {
 				$this->import( 'cities', $assoc_args );
 
 				$this->_import_pois( $assoc_args );
+				$this->_import_history( $assoc_args );
 
 				if ( isset( $assoc_args['all'] ) ) {
 					$this->logger->log( 'Import complete.' );
@@ -119,6 +120,7 @@ class Otis_Importer {
 
 			case 'pois-only':
 				$this->_import_pois( $assoc_args );
+				$this->_import_history( $assoc_args );
 
 				if ( isset( $assoc_args['all'] ) ) {
 					$this->logger->log( 'Import complete.' );
@@ -254,7 +256,7 @@ class Otis_Importer {
 		);
 		$params = apply_filters( 'wp_otis_listings', $params );
 
-		$params['page_size'] = 100;
+		$params['page_size'] = 200;
 		$params['page']      = $assoc_args['page'] ?? 1;
 
 		$label = 'POIs';
@@ -265,6 +267,7 @@ class Otis_Importer {
 		}
 
 		if ( isset( $assoc_args['modified'] ) ) {
+			$assoc_args['all']  = true;
 			$params['modified'] = date( 'Y-m-d\TH:i:s\Z', strtotime( $assoc_args['modified'] ) );
 		}
 
@@ -367,6 +370,106 @@ class Otis_Importer {
 		} else {
 			$this->logger->log( $status . ' POI: ' . $result['name'] );
 		}
+	}
+
+	/**
+	 * Import POI history, triggering publish, unpublish, and deletes on POIs.
+	 *
+	 * @param array $assoc_args
+	 */
+	private function _import_history( $assoc_args = [] ) {
+		$history = $this->_fetch_history( $assoc_args );
+
+		$uuids = array_keys( $history );
+
+		$the_query = new WP_Query( [
+			'no_found_rows'          => true,
+			'update_post_meta_cache' => false,
+			'update_post_term_cache' => false,
+			'posts_per_page'         => count( $uuids ),
+			'post_type'              => 'poi',
+			'meta_key'               => 'uuid',
+			'meta_value'             => $uuids,
+		] );
+
+		while ( $the_query->have_posts() ) {
+			$the_query->the_post();
+
+			$poi_history = $history[ get_field( 'uuid' ) ];
+			switch ( $poi_history['verb'] ) {
+				case 'updated':
+					$post_status = $this->_translate_status_value( $poi_history['isapproved'] );
+					if ( get_post_status() !== $post_status ) {
+						wp_update_post( [
+							'ID'          => get_the_ID(),
+							'post_status' => $post_status,
+						] );
+
+						$this->logger->log( 'Updated post ' . get_the_ID() . ', set status = ' . $post_status );
+					}
+					break;
+
+				case 'deleted':
+					wp_trash_post( get_the_ID() );
+
+					$this->logger->log( 'Trashed post ' . get_the_ID() );
+					break;
+			}
+		}
+
+		wp_reset_postdata();
+	}
+
+	/**
+	 * Fetch OTIS history (updates/deletes) since last import date.
+	 *
+	 * @param array $assoc_args
+	 *
+	 * @return array
+	 */
+	private function _fetch_history( $assoc_args = [] ) {
+		$params = [
+			'page_size' => 200,
+			'page'      => $assoc_args['page'] ?? 1,
+		];
+
+		if ( isset( $assoc_args['modified'] ) ) {
+			$params['after']   = date( 'Y-m-d', strtotime( $assoc_args['modified'] ) );
+			$assoc_args['all'] = true;
+		} else {
+			// Only import history relative to a recent import.
+			return [];
+		}
+
+		$listings = $this->otis->call( 'listings/history', $params );
+
+		$history = [];
+
+		if ( ! empty( $listings['results'] ) ) {
+			foreach ( $listings['results'] as $result ) {
+				$uuid = $result['uuid'];
+				$verb = $result['verb'];
+				if ( empty( $history[ $uuid ] ) && ( 'updated' === $verb || 'deleted' === $verb ) ) {
+					// Results are ordered by modified - only store the most recent update or delete for each uuid
+					$history[ $uuid ] = [
+						'verb'       => $verb,
+						'isapproved' => $result['data']['isapproved'] ?? '',
+					];
+				}
+			}
+
+			$total = ceil( $listings['count'] / $params['page_size'] );
+
+			unset( $listings );
+
+			if ( $params['page'] < $total ) {
+				$assoc_args['page'] = $params['page'] + 1;
+
+				return array_merge( $history, $this->_fetch_history( $assoc_args ) );
+			}
+		}
+
+		return $history;
 	}
 
 	/**
@@ -474,13 +577,14 @@ class Otis_Importer {
 
 		$upsert_status = $post_id ? self::UPSERT_STATUS_UPDATED : self::UPSERT_STATUS_INSERTED;
 
+		$post_status  = $this->_translate_status_value( $result['isapproved'] ?? '' );
 		$post_title   = $result['name'];
 		$post_content = empty( $result['description'] ) ? '' : $this->_sanitize_content( $result['description'] );
 		$post_date    = empty( $result['modified'] ) ? '' : date( 'Y-m-d H:i:s', strtotime( $result['modified'] ) );
 
 		$post_result = wp_insert_post( array(
 			'post_type'     => 'poi',
-			'post_status'   => 'publish', //TODO: how to set status?
+			'post_status'   => $post_status,
 			'ID'            => $post_id,
 			'post_title'    => $post_title,
 			'post_content'  => $post_content,
@@ -622,6 +726,22 @@ class Otis_Importer {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Convert an OTIS status value into a WordPress post status.
+	 *
+	 * @param string $otis_status
+	 *
+	 * @return string
+	 */
+	private function _translate_status_value( $otis_status ) {
+		switch ( strtolower( $otis_status ) ) {
+			case 'app':
+				return 'publish';
+		}
+
+		return 'draft';
 	}
 
 	/**
@@ -908,7 +1028,7 @@ class Otis_Importer {
 			$params = [];
 			$params = apply_filters( 'wp_otis_listings', $params );
 
-			$params['page_size'] = 100;
+			$params['page_size'] = 200;
 			$params['page']      = 1;
 		}
 

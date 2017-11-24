@@ -86,7 +86,6 @@ add_action( 'wp_otis_cron', function () {
 
 	try {
 		$importer->import( 'pois', array(
-			'all'      => true,
 			'modified' => $last_import_date,
 		) );
 	} catch ( Otis_Exception $e ) {
