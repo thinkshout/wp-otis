@@ -108,6 +108,25 @@
             "append": ""
         },
         {
+            "key": "field_5a0dd744a6190",
+            "label": "Geo Data",
+            "name": "geo_data",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "maxlength": "",
+            "rows": "",
+            "new_lines": ""
+        },
+        {
             "key": "field_58386ab59392b",
             "label": "Is Approved",
             "name": "isapproved",
@@ -542,28 +561,6 @@
             "placeholder": "",
             "prepend": "",
             "append": ""
-        },
-        {
-            "key": "field_otis_26",
-            "label": "Amenities (VCMW)",
-            "name": "vcwm_attributes",
-            "type": "taxonomy",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "taxonomy": "vcwm_attributes",
-            "field_type": "checkbox",
-            "multiple": 0,
-            "allow_null": 0,
-            "return_format": "id",
-            "add_term": 1,
-            "load_terms": 0,
-            "save_terms": 0
         },
         {
             "key": "field_otis_36",
@@ -1243,6 +1240,28 @@
             "ui_off_text": ""
         },
         {
+            "key": "field_otis_101",
+            "label": "Price",
+            "name": "price",
+            "type": "taxonomy",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "taxonomy": "price",
+            "field_type": "select",
+            "multiple": 0,
+            "allow_null": 0,
+            "return_format": "id",
+            "add_term": 1,
+            "load_terms": 0,
+            "save_terms": 0
+        },
+        {
             "key": "field_otis_3",
             "label": "Primary Address",
             "name": "address1",
@@ -1317,25 +1336,6 @@
             "placeholder": "",
             "prepend": "",
             "append": ""
-        },
-        {
-            "key": "field_otis_73",
-            "label": "Registered with Oregon State Marine Board",
-            "name": "oregon_state_marine_board",
-            "type": "true_false",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "default_value": 0,
-            "message": "",
-            "ui": 0,
-            "ui_on_text": "",
-            "ui_off_text": ""
         },
         {
             "key": "field_otis_40",
@@ -1733,6 +1733,25 @@
             "append": ""
         },
         {
+            "key": "field_otis_102",
+            "label": "True Tour URL",
+            "name": "true_tour",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
             "key": "field_otis_87",
             "label": "Vertical Drop",
             "name": "vertical_drop",
@@ -1769,6 +1788,28 @@
             "placeholder": "",
             "prepend": "",
             "append": ""
+        },
+        {
+            "key": "field_otis_26",
+            "label": "Visitor Center Amenities",
+            "name": "vcwm_attributes",
+            "type": "taxonomy",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "taxonomy": "vcwm_attributes",
+            "field_type": "checkbox",
+            "multiple": 0,
+            "allow_null": 0,
+            "return_format": "id",
+            "add_term": 1,
+            "load_terms": 0,
+            "save_terms": 0
         },
         {
             "key": "field_otis_35",
@@ -1867,5 +1908,5 @@
     "hide_on_screen": "",
     "active": 1,
     "description": "",
-    "modified": 1505500232
+    "modified": 1510856601
 }

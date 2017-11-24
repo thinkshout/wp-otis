@@ -440,6 +440,11 @@ class Otis_Importer {
 			}
 		}
 
+		// Prep geo data for field lookup.
+		if ( isset( $result['geo_data'] ) ) {
+			$result['geo_data'] = json_encode( $result['geo_data'] );
+		}
+
 		// Normalize and translate OTIS result data into WordPress field data.
 		$data = array();
 		foreach ( $result as $key => $value ) {
