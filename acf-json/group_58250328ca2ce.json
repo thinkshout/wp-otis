@@ -1221,6 +1221,25 @@
             "ui_off_text": ""
         },
         {
+            "key": "field_otis_103",
+            "label": "On the Snow Resort ID",
+            "name": "snow_resort_id",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
             "key": "field_otis_44",
             "label": "Oregon Scenic Bikeway",
             "name": "scenic_bikeway",
@@ -1908,5 +1927,5 @@
     "hide_on_screen": "",
     "active": 1,
     "description": "",
-    "modified": 1510856601
+    "modified": 1511906292
 }
