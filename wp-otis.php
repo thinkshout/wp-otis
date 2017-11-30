@@ -31,7 +31,7 @@ require_once 'src/Otis_Command.php';
  * @return false|int
  */
 function wp_otis_get_post_id_for_uuid( $uuid ) {
-	$the_query = new WP_Query( array(
+	$the_query = new WP_Query( [
 		'no_found_rows'          => true,
 		'update_post_meta_cache' => false,
 		'update_post_term_cache' => false,
@@ -39,7 +39,7 @@ function wp_otis_get_post_id_for_uuid( $uuid ) {
 		'post_type'              => 'poi',
 		'meta_key'               => 'uuid',
 		'meta_value'             => $uuid,
-	) );
+	] );
 
 	$post_id = null;
 
@@ -85,12 +85,55 @@ add_action( 'wp_otis_cron', function () {
 	$importer = new Otis_Importer( $otis, $logger );
 
 	try {
-		$importer->import( 'pois', array(
+		$importer->import( 'pois', [
 			'modified' => $last_import_date,
-		) );
+		] );
 	} catch ( Otis_Exception $e ) {
 		//TODO: How to log errors?
 	}
+} );
+
+if ( ! wp_next_scheduled( 'wp_otis_expire_events' ) ) {
+	wp_schedule_event( time(), 'daily', 'wp_otis_expire_events' );
+}
+
+add_action( 'wp_otis_expire_events', function () {
+	$logger = new Otis_Logger_Simple();
+
+	$query = new WP_Query( array(
+		'posts_per_page' => -1,
+		'post_type'      => 'poi',
+		'orderby'        => 'meta_value',
+		'order'          => 'ASC',
+		'meta_query'     => array(
+			array(
+				'key'     => 'end_date',
+				'type'    => 'DATE',
+				'value'   => date( 'Y-m-d' ),
+				'compare' => '<',
+			),
+		),
+		'tax_query'      => array(
+			array(
+				'taxonomy' => 'type',
+				'field'    => 'slug',
+				'terms'    => TROR_SLUG_EVENTS,
+			),
+		),
+	) );
+
+	while ( $query->have_posts() ) {
+		$query->the_post();
+
+		wp_update_post( [
+			'ID'          => get_the_ID(),
+			'post_status' => 'draft',
+		] );
+
+		$logger->log( 'Updated expired event ' . get_the_ID() . ', set status = draft' );
+	}
+
+	wp_reset_postdata();
 } );
 
 add_filter( 'manage_edit-type_columns', function ( $columns ) {
@@ -122,10 +165,10 @@ function wp_otis_meta_box_markup( $post, $box ) {
 	$uuids = get_post_meta( $post->ID, 'uuid' );
 	$uuid  = $uuids ? $uuids[0] : null;
 	if ( $uuid ) {
-		$import_url = add_query_arg( array(
+		$import_url = add_query_arg( [
 			'post'   => $post->ID,
 			'action' => 'otis_import',
-		), admin_url( 'post.php' ) );
+		], admin_url( 'post.php' ) );
 
 		echo '<a class="button button-primary button-large" href="' . esc_url( $import_url ) . '">Reimport Fields</a> ';
 
@@ -146,7 +189,7 @@ add_action( 'post_action_otis_import', function ( $post_id ) {
 		$importer = new Otis_Importer( $otis, $logger );
 
 		try {
-			$importer->import( array( 'poi', $uuid ), array() );
+			$importer->import( [ 'poi', $uuid ], [] );
 			//TODO: How to display import result?
 			$message = 4;
 		} catch ( Otis_Exception $e ) {
@@ -155,11 +198,11 @@ add_action( 'post_action_otis_import', function ( $post_id ) {
 		}
 	}
 
-	$url = add_query_arg( array(
+	$url = add_query_arg( [
 		'post'    => $post_id,
 		'action'  => 'edit',
 		'message' => $message,
-	), admin_url( 'post.php' ) );
+	], admin_url( 'post.php' ) );
 
 	wp_redirect( $url );
 	exit();
