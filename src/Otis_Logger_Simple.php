@@ -12,13 +12,10 @@ class Otis_Logger_Simple extends Otis_Logger {
 	private $logs = array();
 
 	/**
-	 * @param string $message
-	 * @param string $type Values: success, warning, error. Default: success.
-	 *
-	 * @return string The complete message that was logged.
+	 * @inheritdoc
 	 */
-	public function log( $message, $type = 'success' ) {
-		$full_message = parent::log( $message, $type );
+	public function log( $message, $parent = 0, $type = '' ) {
+		$full_message = parent::log( $message, $parent, $type );
 
 		$this->logs[] = $full_message;
 

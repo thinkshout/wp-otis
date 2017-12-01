@@ -7,18 +7,15 @@ require_once 'Otis_Logger.php';
  */
 class Otis_Logger_CLI extends Otis_Logger {
 	/**
-	 * @param string $message
-	 * @param string $type Values: success, warning, error. Default: success.
-	 *
-	 * @return string The complete message that was logged.
+	 * @inheritdoc
 	 */
-	public function log( $message, $type = 'success' ) {
-		$full_message = parent::log( $message, $type );
+	public function log( $message, $parent = 0, $type = '' ) {
+		$full_message = parent::log( $message, $parent, $type );
 
 		if ( is_callable( 'WP_CLI::' . $type ) ) {
-			WP_CLI::$type( $message );
+			WP_CLI::$type( $parent . "\t" . $message );
 		} else {
-			WP_CLI::log( $message );
+			WP_CLI::log( $parent . "\t" . $message );
 		}
 
 		return $full_message;

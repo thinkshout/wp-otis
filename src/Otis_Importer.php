@@ -366,7 +366,7 @@ class Otis_Importer {
 		$status = $this->_upsert_poi( $post_id, $result );
 
 		if ( self::UPSERT_STATUS_FAILED === $status ) {
-			$this->logger->log( 'Failed to process POI: ' . $result['name'], 'error' );
+			$this->logger->log( 'Failed to process POI: ' . $result['name'], 0, 'error' );
 		} else {
 			$this->logger->log( $status . ' POI: ' . $result['name'] );
 		}
@@ -925,9 +925,9 @@ class Otis_Importer {
 	function report() {
 		global $wpdb;
 
-		$this->logger->log( 'Current time: ' . date( 'c' ), 'log' );
+		$this->logger->log( 'Current time: ' . date( 'c' ), 0, 'log' );
 
-		$this->logger->log( 'OTIS last import time: ' . get_option( WP_OTIS_LAST_IMPORT_DATE, 'none' ), 'log' );
+		$this->logger->log( 'OTIS last import time: ' . get_option( WP_OTIS_LAST_IMPORT_DATE, 'none' ), 0, 'log' );
 
 		$results = $wpdb->get_results( '
 			SELECT wp_posts.ID,
@@ -974,10 +974,10 @@ class Otis_Importer {
 			}
 		}
 
-		$this->logger->log( 'Count of UUIDs found in OTIS: ' . $otis_count, 'log' );
-		$this->logger->log( 'Count of UUIDs found in WordPress: ' . $count, 'log' );
+		$this->logger->log( 'Count of UUIDs found in OTIS: ' . $otis_count, 0, 'log' );
+		$this->logger->log( 'Count of UUIDs found in WordPress: ' . $count, 0, 'log' );
 
-		$this->logger->log( PHP_EOL . 'Duplicates found in OTIS:', 'log' );
+		$this->logger->log( PHP_EOL . 'Duplicates found in OTIS:', 0, 'log' );
 
 		foreach ( $duplicate_otis_uuids as $otis_uuid => $value ) {
 			if ( empty( $uuid_map[ $otis_uuid ] ) ) {
@@ -987,7 +987,7 @@ class Otis_Importer {
 			}
 		}
 
-		$this->logger->log( PHP_EOL . 'Duplicates found in WordPress:', 'log' );
+		$this->logger->log( PHP_EOL . 'Duplicates found in WordPress:', 0, 'log' );
 
 		foreach ( $duplicate_uuids as $uuid => $result ) {
 			$edit_url = add_query_arg( [
@@ -995,20 +995,20 @@ class Otis_Importer {
 				'action' => 'edit',
 			], admin_url( 'post.php' ) );
 
-			$this->logger->log( $uuid . '	' . $edit_url . '	' . $result['post_title'] . '	' . $result['terms'], 'log' );
+			$this->logger->log( $uuid . '	' . $edit_url . '	' . $result['post_title'] . '	' . $result['terms'], 0, 'log' );
 		}
 
-		$this->logger->log( PHP_EOL . 'UUIDs from OTIS not found in WordPress:', 'log' );
+		$this->logger->log( PHP_EOL . 'UUIDs from OTIS not found in WordPress:', 0, 'log' );
 
 		foreach ( $otis_uuid_map as $otis_uuid => $value ) {
 			if ( empty( $uuid_map[ $otis_uuid ] ) ) {
-				$this->logger->log( $otis_uuid . '	' . Otis::API_ROOT . '/listings/' . $otis_uuid, 'log' );
+				$this->logger->log( $otis_uuid . '	' . Otis::API_ROOT . '/listings/' . $otis_uuid, 0, 'log' );
 			} else {
 				unset( $uuid_map[ $otis_uuid ] );
 			}
 		}
 
-		$this->logger->log( PHP_EOL . 'UUIDs from WordPress not found in OTIS:', 'log' );
+		$this->logger->log( PHP_EOL . 'UUIDs from WordPress not found in OTIS:', 0, 'log' );
 
 		foreach ( $uuid_map as $uuid => $result ) {
 			$edit_url = add_query_arg( [
@@ -1016,7 +1016,7 @@ class Otis_Importer {
 				'action' => 'edit',
 			], admin_url( 'post.php' ) );
 
-			$this->logger->log( $uuid . '	' . $edit_url . '	' . $result['post_title'] . '	' . $result['terms'], 'log' );
+			$this->logger->log( $uuid . '	' . $edit_url . '	' . $result['post_title'] . '	' . $result['terms'], 0, 'log' );
 		}
 	}
 
