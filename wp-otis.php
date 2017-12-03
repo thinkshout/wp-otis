@@ -88,8 +88,8 @@ add_action( 'wp_otis_cron', function () {
 		$importer->import( 'pois', [
 			'modified' => $last_import_date,
 		] );
-	} catch ( Otis_Exception $e ) {
-		//TODO: How to log errors?
+	} catch ( Exception $e ) {
+		$logger->log( $e->getMessage(), 0, 'error' );
 	}
 } );
 
@@ -190,9 +190,12 @@ add_action( 'post_action_otis_import', function ( $post_id ) {
 
 		try {
 			$importer->import( [ 'poi', $uuid ], [] );
+
 			//TODO: How to display import result?
 			$message = 4;
-		} catch ( Otis_Exception $e ) {
+		} catch ( Exception $e ) {
+			$logger->log( $e->getMessage(), 0, 'error' );
+
 			//TODO: How to show an error message?
 			$message = 0;
 		}

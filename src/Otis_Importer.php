@@ -248,11 +248,9 @@ class Otis_Importer {
 		$params['page_size'] = 200;
 		$params['page']      = $assoc_args['page'] ?? 1;
 
-		$label = 'POIs';
 
 		if ( isset( $assoc_args['type'] ) ) {
 			$params['type'] = $assoc_args['type'];
-			$label          = $assoc_args['type'];
 		}
 
 		if ( isset( $assoc_args['modified'] ) ) {

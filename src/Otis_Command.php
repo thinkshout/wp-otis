@@ -35,8 +35,8 @@ class Otis_Command extends WP_CLI_Command {
 		try {
 			$log = $this->importer->import( $args, $assoc_args );
 			WP_CLI::log( implode( PHP_EOL, $log ) );
-		} catch ( Otis_Exception $e ) {
-			WP_CLI::error( 'Importer Error: ' . $e );
+		} catch ( Exception $e ) {
+			WP_CLI::error( 'Importer Error: ' . $e->getMessage() );
 		}
 	}
 
@@ -52,8 +52,8 @@ class Otis_Command extends WP_CLI_Command {
 		try {
 			$log = $this->importer->generate_acf();
 			WP_CLI::log( implode( PHP_EOL, $log ) );
-		} catch ( Otis_Exception $e ) {
-			WP_CLI::error( 'Importer Error: ' . $e );
+		} catch ( Exception $e ) {
+			WP_CLI::error( 'Importer Error: ' . $e->getMessage() );
 		}
 	}
 
@@ -67,8 +67,8 @@ class Otis_Command extends WP_CLI_Command {
 		try {
 			$log = $this->importer->report();
 			WP_CLI::log( implode( PHP_EOL, $log ) );
-		} catch ( Otis_Exception $e ) {
-			WP_CLI::error( 'Importer Error: ' . $e );
+		} catch ( Exception $e ) {
+			WP_CLI::error( 'Importer Error: ' . $e->getMessage() );
 		}
 	}
 }
