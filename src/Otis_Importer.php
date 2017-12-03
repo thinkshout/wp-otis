@@ -6,11 +6,6 @@ require_once 'Otis.php';
  * Importer class for the OTIS API.
  */
 class Otis_Importer {
-	const UPSERT_STATUS_INSERTED = 'inserted';
-	const UPSERT_STATUS_UPDATED = 'updated';
-	const UPSERT_STATUS_FAILED = 'failed';
-	const UPSERT_STATUS_SKIPPED = 'skipped';
-
 	/**
 	 * @var Otis
 	 */
@@ -84,7 +79,9 @@ class Otis_Importer {
 			case 'terms':
 				$this->_import_terms( $assoc_args );
 
-				return;
+				$log[] = 'Terms import complete.';
+
+				return $log;
 
 			case 'regions':
 				$assoc_args['type'] = 'Regions';
@@ -93,7 +90,9 @@ class Otis_Importer {
 
 				$this->_import_pois( $assoc_args );
 
-				return;
+				$log[] = 'Regions import complete.';
+
+				return $log;
 
 			case 'cities':
 				$assoc_args['type'] = 'Cities';
@@ -102,7 +101,9 @@ class Otis_Importer {
 
 				$this->_import_pois( $assoc_args );
 
-				return;
+				$log[] = 'Cities import complete.';
+
+				return $log;
 
 			case 'pois':
 				$this->import( 'terms', $assoc_args );
@@ -112,21 +113,17 @@ class Otis_Importer {
 				$this->_import_pois( $assoc_args );
 				$this->_import_history( $assoc_args );
 
-				if ( isset( $assoc_args['all'] ) ) {
-					$this->logger->log( 'Import complete.' );
-				}
+				$log[] = 'POI import complete.';
 
-				return;
+				return $log;
 
 			case 'pois-only':
 				$this->_import_pois( $assoc_args );
 				$this->_import_history( $assoc_args );
 
-				if ( isset( $assoc_args['all'] ) ) {
-					$this->logger->log( 'Import complete.' );
-				}
+				$log[] = 'POI import complete.';
 
-				return;
+				return $log;
 
 			case 'poi':
 				if ( empty( $assoc_args['uuid'] ) ) {
@@ -138,7 +135,9 @@ class Otis_Importer {
 
 				$this->_import_poi( $assoc_args );
 
-				return;
+				$log[] = 'POI import complete.';
+
+				return $log;
 		} // End switch().
 
 		throw new Otis_Exception( 'Unknown command: ' . $args[0] );
@@ -186,8 +185,6 @@ class Otis_Importer {
 					'parent' => $collection_id,
 				) );
 			}
-
-			$this->logger->log( 'Processed collection ' . $collection['name'] . ', containing ' . count( $collection['types'] ) . ' types.' );
 		}
 
 		// Import activities.
@@ -207,8 +204,6 @@ class Otis_Importer {
 			) );
 		}
 
-		$this->logger->log( 'Processed collection ' . $activity_value['name'] . ', containing ' . $activities['count'] . ' types. ' );
-
 		// Import cycling_ride_type.
 		$cycling_ride_type = $this->otis->call( 'listings-attributes/30' );
 
@@ -219,8 +214,6 @@ class Otis_Importer {
 				'parent' => $cycling_ride_type_id,
 			) );
 		}
-
-		$this->logger->log( 'Processed collection ' . $cycling_ride_type['title'] . ', containing ' . count( $cycling_ride_type['choices'] ) . ' types. ' );
 
 		// Import event_type.
 		$event_type = $this->otis->call( 'listings-attributes/77' );
@@ -233,16 +226,12 @@ class Otis_Importer {
 			) );
 		}
 
-		$this->logger->log( 'Processed collection ' . $event_type['title'] . ', containing ' . count( $event_type['choices'] ) . ' types. ' );
-
 		// Import global categories.
 		$glocats = $this->otis->call( 'global-categories' );
 
 		foreach ( $glocats['results'] as $glocat ) {
 			$this->_identify_term( $glocat, 'glocats' );
 		}
-
-		$this->logger->log( 'Processed ' . $glocats['count'] . ' global categories.' );
 	}
 
 	/**
@@ -274,8 +263,6 @@ class Otis_Importer {
 		$listings = $this->otis->call( 'listings', $params );
 
 		if ( empty( $listings['results'] ) ) {
-			$this->logger->log( 'No ' . $label . ' available for import at this time.' );
-
 			return;
 		}
 
@@ -301,13 +288,6 @@ class Otis_Importer {
 
 		wp_reset_postdata();
 
-		$status_counts = array(
-			self::UPSERT_STATUS_INSERTED => 0,
-			self::UPSERT_STATUS_UPDATED  => 0,
-			self::UPSERT_STATUS_FAILED   => 0,
-			self::UPSERT_STATUS_SKIPPED  => 0,
-		);
-
 		foreach ( $listings['results'] as $result ) {
 			$uuid    = $result['uuid'];
 			$post_id = $uuid_map[ $uuid ] ?? 0;
@@ -317,27 +297,18 @@ class Otis_Importer {
 				if ( ! isset( $assoc_args['type'] ) ) {
 					// Regions and cities have already been populated...
 					// Skip those when populating the rest of the listing results.
-					$status_counts[ self::UPSERT_STATUS_SKIPPED ] ++;
 					continue;
 				}
 			}
 
-			$status = $this->_upsert_poi( $post_id, $result );
-			$status_counts[ $status ] ++;
-		}
-
-		$count = count( $listings['results'] );
-		$total = ceil( $listings['count'] / $params['page_size'] );
-
-		$status_log = 'Processed ' . $count . ' ' . $label . ' - ';
-		foreach ( $status_counts as $status => $status_count ) {
-			if ( $status_count ) {
-				$status_log .= $status . ': ' . $status_count . ', ';
+			try {
+				$post_id = $this->_upsert_poi( $post_id, $result );
+			} catch ( Exception $exception ) {
+				$this->logger->log( $exception->getMessage(), $post_id, 'error' );
 			}
 		}
-		$status_log .= 'page ' . $params['page'] . ' of ' . $total;
 
-		$this->logger->log( $status_log );
+		$total = ceil( $listings['count'] / $params['page_size'] );
 
 		if ( isset( $assoc_args['all'] ) ) {
 			if ( $params['page'] < $total ) {
@@ -363,12 +334,10 @@ class Otis_Importer {
 
 		$post_id = wp_otis_get_post_id_for_uuid( $result['uuid'] );
 
-		$status = $this->_upsert_poi( $post_id, $result );
-
-		if ( self::UPSERT_STATUS_FAILED === $status ) {
-			$this->logger->log( 'Failed to process POI: ' . $result['name'], 0, 'error' );
-		} else {
-			$this->logger->log( $status . ' POI: ' . $result['name'] );
+		try {
+			$post_id = $this->_upsert_poi( $post_id, $result );
+		} catch ( Exception $exception ) {
+			$this->logger->log( $exception->getMessage(), $post_id, 'error' );
 		}
 	}
 
@@ -395,7 +364,8 @@ class Otis_Importer {
 		while ( $the_query->have_posts() ) {
 			$the_query->the_post();
 
-			$poi_history = $history[ get_field( 'uuid' ) ];
+			$uuid        = get_field( 'uuid' );
+			$poi_history = $history[ $uuid ];
 			switch ( $poi_history['verb'] ) {
 				case 'updated':
 					$post_status = $this->_translate_status_value( $poi_history['isapproved'] );
@@ -405,14 +375,14 @@ class Otis_Importer {
 							'post_status' => $post_status,
 						] );
 
-						$this->logger->log( 'Updated post ' . get_the_ID() . ', set status = ' . $post_status );
+						$this->logger->log( 'Updated POI (set status ' . $post_status . ') with UUID: ' . $uuid, get_the_ID() );
 					}
 					break;
 
 				case 'deleted':
 					wp_trash_post( get_the_ID() );
 
-					$this->logger->log( 'Trashed post ' . get_the_ID() );
+					$this->logger->log( 'Deleted POI with UUID: ' . $uuid, get_the_ID() );
 					break;
 			}
 		}
@@ -575,7 +545,7 @@ class Otis_Importer {
 			}
 		}
 
-		$upsert_status = $post_id ? self::UPSERT_STATUS_UPDATED : self::UPSERT_STATUS_INSERTED;
+		$upsert_status = $post_id ? 'updated' : 'created';
 
 		$post_status  = $this->_translate_status_value( $result['isapproved'] ?? '' );
 		$post_title   = $result['name'];
@@ -591,15 +561,12 @@ class Otis_Importer {
 			'post_date_gmt' => $post_date,
 		), true );
 
-		if ( is_wp_error( $post_result ) ) {
-			$post_id = null;
-			throw new Otis_Exception( 'WP Error: uuid ' . $result['uuid'] . ', ' . $post_result->get_error_message() );
+		if ( ! $post_result ) {
+			throw new Otis_Exception( 'Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid'] );
+		} elseif ( is_wp_error( $post_result ) ) {
+			throw new Otis_Exception( 'Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid'] . ', ' . $post_result->get_error_message() );
 		} else {
 			$post_id = $post_result;
-		}
-
-		if ( ! $post_id ) {
-			$upsert_status = self::UPSERT_STATUS_FAILED;
 		}
 
 		foreach ( $field_map as $name => $field ) {
@@ -607,10 +574,7 @@ class Otis_Importer {
 				$return = update_field( $name, $data[ $name ], $post_id );
 
 				if ( is_wp_error( $return ) ) {
-					/**
-					 * @var WP_Error $return
-					 */
-					throw new Otis_Exception( 'Error: ' . $name . ', post id ' . $post_id . ', ' . $return->get_error_message() );
+					throw new Otis_Exception( 'Error: field ' . $name . ', post id ' . $post_id . ', ' . $return->get_error_message() );
 				}
 			}
 		}
@@ -619,17 +583,19 @@ class Otis_Importer {
 		$return = wp_set_object_terms( $post_id, $data['type'], 'type' );
 
 		if ( is_wp_error( $return ) ) {
-			throw new Otis_Exception( 'Error: type, post id ' . $post_id . ', ' . $return->get_error_message() );
+			throw new Otis_Exception( 'Error: taxonomy type, post id ' . $post_id . ', ' . $return->get_error_message() );
 		}
 
 		// Save global categories.
 		$return = wp_set_object_terms( $post_id, $data['glocats'], 'glocats' );
 
 		if ( is_wp_error( $return ) ) {
-			throw new Otis_Exception( 'Error: glocats, post id ' . $post_id . ', ' . $return->get_error_message() );
+			throw new Otis_Exception( 'Error: taxonomy glocats, post id ' . $post_id . ', ' . $return->get_error_message() );
 		}
 
-		return $upsert_status;
+		$this->logger->log( ucfirst( $upsert_status ) . ' POI with UUID: ' . $result['uuid'], $post_id );
+
+		return $post_id;
 	}
 
 	/**
@@ -835,7 +801,7 @@ class Otis_Importer {
 				$result = wp_insert_term( $name, $taxonomy, $args );
 
 				if ( is_wp_error( $result ) ) {
-					throw new Otis_Exception( 'Taxonomy Error: ' . $result->get_error_message() );
+					throw new Otis_Exception( 'Error: taxonomy ' . $taxonomy . ', ' . $result->get_error_message() );
 				}
 
 				$term_id = $result['term_id'];
@@ -845,7 +811,7 @@ class Otis_Importer {
 				$meta_result = add_term_meta( $term_id, 'otis_path', $otis_path );
 
 				if ( is_wp_error( $meta_result ) ) {
-					throw new Otis_Exception( 'Taxonomy Meta Error: term id: ' . $term_id . ', ' . $meta_result->get_error_message() );
+					throw new Otis_Exception( 'Error: taxonomy ' . $taxonomy . ', term id: ' . $term_id . ', ' . $meta_result->get_error_message() );
 				}
 			}
 		}
@@ -916,7 +882,9 @@ class Otis_Importer {
 
 		wp_otis_fields_save( $field_group );
 
-		$this->logger->log( 'Processed ' . $attributes['count'] . ' attributes, generated ' . $fields_count . ' fields.' );
+		$log[] = 'Processed ' . $attributes['count'] . ' attributes, generated ' . $fields_count . ' fields.';
+
+		return $log;
 	}
 
 	/**
@@ -925,9 +893,9 @@ class Otis_Importer {
 	function report() {
 		global $wpdb;
 
-		$this->logger->log( 'Current time: ' . date( 'c' ), 0, 'log' );
+		$log[] = 'Current time: ' . date( 'c' );
 
-		$this->logger->log( 'OTIS last import time: ' . get_option( WP_OTIS_LAST_IMPORT_DATE, 'none' ), 0, 'log' );
+		$log[] = 'OTIS last import time: ' . get_option( WP_OTIS_LAST_IMPORT_DATE, 'none' );
 
 		$results = $wpdb->get_results( '
 			SELECT wp_posts.ID,
@@ -974,20 +942,20 @@ class Otis_Importer {
 			}
 		}
 
-		$this->logger->log( 'Count of UUIDs found in OTIS: ' . $otis_count, 0, 'log' );
-		$this->logger->log( 'Count of UUIDs found in WordPress: ' . $count, 0, 'log' );
+		$log[] = 'Count of UUIDs found in OTIS: ' . $otis_count;
+		$log[] = 'Count of UUIDs found in WordPress: ' . $count;
 
-		$this->logger->log( PHP_EOL . 'Duplicates found in OTIS:', 0, 'log' );
+		$log[] = PHP_EOL . 'Duplicates found in OTIS:';
 
 		foreach ( $duplicate_otis_uuids as $otis_uuid => $value ) {
 			if ( empty( $uuid_map[ $otis_uuid ] ) ) {
-				$this->logger->log( $otis_uuid . '	' . Otis::API_ROOT . '/listings/' . $otis_uuid, 'log' );
+				$log[] = $otis_uuid . '	' . Otis::API_ROOT . '/listings/' . $otis_uuid;
 			} else {
 				unset( $uuid_map[ $otis_uuid ] );
 			}
 		}
 
-		$this->logger->log( PHP_EOL . 'Duplicates found in WordPress:', 0, 'log' );
+		$log[] = PHP_EOL . 'Duplicates found in WordPress:';
 
 		foreach ( $duplicate_uuids as $uuid => $result ) {
 			$edit_url = add_query_arg( [
@@ -995,20 +963,20 @@ class Otis_Importer {
 				'action' => 'edit',
 			], admin_url( 'post.php' ) );
 
-			$this->logger->log( $uuid . '	' . $edit_url . '	' . $result['post_title'] . '	' . $result['terms'], 0, 'log' );
+			$log[] = $uuid . '	' . $edit_url . '	' . $result['post_title'] . '	' . $result['terms'];
 		}
 
-		$this->logger->log( PHP_EOL . 'UUIDs from OTIS not found in WordPress:', 0, 'log' );
+		$log[] = PHP_EOL . 'UUIDs from OTIS not found in WordPress:';
 
 		foreach ( $otis_uuid_map as $otis_uuid => $value ) {
 			if ( empty( $uuid_map[ $otis_uuid ] ) ) {
-				$this->logger->log( $otis_uuid . '	' . Otis::API_ROOT . '/listings/' . $otis_uuid, 0, 'log' );
+				$log[] = $otis_uuid . '	' . Otis::API_ROOT . '/listings/' . $otis_uuid;
 			} else {
 				unset( $uuid_map[ $otis_uuid ] );
 			}
 		}
 
-		$this->logger->log( PHP_EOL . 'UUIDs from WordPress not found in OTIS:', 0, 'log' );
+		$log[] = PHP_EOL . 'UUIDs from WordPress not found in OTIS:';
 
 		foreach ( $uuid_map as $uuid => $result ) {
 			$edit_url = add_query_arg( [
@@ -1016,8 +984,10 @@ class Otis_Importer {
 				'action' => 'edit',
 			], admin_url( 'post.php' ) );
 
-			$this->logger->log( $uuid . '	' . $edit_url . '	' . $result['post_title'] . '	' . $result['terms'], 0, 'log' );
+			$log[] = $uuid . '	' . $edit_url . '	' . $result['post_title'] . '	' . $result['terms'];
 		}
+
+		return $log;
 	}
 
 	/**

@@ -130,7 +130,7 @@ add_action( 'wp_otis_expire_events', function () {
 			'post_status' => 'draft',
 		] );
 
-		$logger->log( 'Updated expired event ' . get_the_ID() . ', set status = draft' );
+		$logger->log( 'Updated expired event (set status draft) with UUID: ' . get_field( 'uuid' ), get_the_ID() );
 	}
 
 	wp_reset_postdata();
