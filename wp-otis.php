@@ -194,7 +194,7 @@ add_action( 'post_action_otis_import', function ( $post_id ) {
 			//TODO: How to display import result?
 			$message = 4;
 		} catch ( Exception $e ) {
-			$logger->log( $e->getMessage(), 0, 'error' );
+			$logger->log( $e->getMessage(), $post_id, 'error' );
 
 			//TODO: How to show an error message?
 			$message = 0;
