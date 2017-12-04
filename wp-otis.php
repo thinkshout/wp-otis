@@ -164,18 +164,18 @@ add_action( 'add_meta_boxes', function () {
 function wp_otis_meta_box_markup( $post, $box ) {
 	$uuids = get_post_meta( $post->ID, 'uuid' );
 	$uuid  = $uuids ? $uuids[0] : null;
-	if ( $uuid ) {
-		$import_url = add_query_arg( [
+	if ( $uuid ) :
+		$view_url = 'https://otis.traveloregon.com/listing-view/' . $uuid . '/'; ?>
+		<a class="button" href="<?php echo esc_url( $view_url ) ?>" target="_blank">View OTIS</a>
+
+		<?php $import_url = add_query_arg( [
 			'post'   => $post->ID,
 			'action' => 'otis_import',
-		], admin_url( 'post.php' ) );
-
-		echo '<a class="button button-primary button-large" href="' . esc_url( $import_url ) . '">Reimport Fields</a> ';
-
-		$view_url = 'https://otis.traveloregon.com/listing-view/' . $uuid . '/';
-
-		echo '<a class="button" href="' . esc_url( $view_url ) . '" target="_blank">View OTIS</a> ';
-	}
+		], admin_url( 'post.php' ) ); ?>
+		<p>
+			<a class="button button-primary button-large" href="<?php echo esc_url( $import_url ) ?>">Reimport Fields</a>
+		</p>
+	<?php endif;
 }
 
 add_action( 'post_action_otis_import', function ( $post_id ) {
