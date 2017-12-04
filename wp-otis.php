@@ -172,7 +172,7 @@ function wp_otis_meta_box_markup( $post, $box ) {
 
 		echo '<a class="button button-primary button-large" href="' . esc_url( $import_url ) . '">Reimport Fields</a> ';
 
-		$view_url = Otis::API_ROOT . '/listings/' . $uuid;
+		$view_url = 'https://otis.traveloregon.com/listing-view/' . $uuid . '/';
 
 		echo '<a class="button" href="' . esc_url( $view_url ) . '" target="_blank">View OTIS</a> ';
 	}
