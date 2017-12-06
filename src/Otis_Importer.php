@@ -242,6 +242,7 @@ class Otis_Importer {
 	private function _import_pois( $assoc_args = array() ) {
 		$params = array(
 			'set' => 'toonly',
+			'showexpired' => 'true',
 		);
 		$params = apply_filters( 'wp_otis_listings', $params );
 
@@ -995,7 +996,10 @@ class Otis_Importer {
 	 */
 	function _fetch_otis_uuids( $params = [] ) {
 		if ( ! $params ) {
-			$params = [];
+			$params = array(
+				'set' => 'toonly',
+				'showexpired' => 'false',
+			);
 			$params = apply_filters( 'wp_otis_listings', $params );
 
 			$params['page_size'] = 200;
