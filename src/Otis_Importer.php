@@ -326,7 +326,10 @@ class Otis_Importer {
 	 * @param array $assoc_args
 	 */
 	private function _import_poi( $assoc_args = array() ) {
-		$result = $this->otis->call( 'listings/' . $assoc_args['uuid'] );
+		$params = array(
+			'showexpired' => 'true',
+		);
+		$result = $this->otis->call( 'listings/' . $assoc_args['uuid'], $params );
 
 		if ( empty( $result['uuid'] ) ) {
 			throw new Otis_Exception( 'WP Error: POI not found for uuid ' . $assoc_args['uuid'] );
