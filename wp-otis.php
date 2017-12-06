@@ -36,6 +36,7 @@ function wp_otis_get_post_id_for_uuid( $uuid ) {
 		'update_post_meta_cache' => false,
 		'update_post_term_cache' => false,
 		'posts_per_page'         => 1,
+		'post_status'            => 'any',
 		'post_type'              => 'poi',
 		'meta_key'               => 'uuid',
 		'meta_value'             => $uuid,
