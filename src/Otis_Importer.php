@@ -368,7 +368,7 @@ class Otis_Importer {
 			$poi_history = $history[ $uuid ];
 			switch ( $poi_history['verb'] ) {
 				case 'updated':
-					$post_status = $this->_translate_status_value( $poi_history['isapproved'] );
+					$post_status = $this->_get_post_status( $poi_history );
 					if ( get_post_status() !== $post_status ) {
 						wp_update_post( [
 							'ID'          => get_the_ID(),
@@ -421,9 +421,21 @@ class Otis_Importer {
 				$verb = $result['verb'];
 				if ( empty( $history[ $uuid ] ) && ( 'updated' === $verb || 'deleted' === $verb ) ) {
 					// Results are ordered by modified - only store the most recent update or delete for each uuid
+					$isapproved = $result['data']['isapproved'] ?? '';
+
+					$end_date = '';
+					if ( ! empty( $result['attributes'] ) ) {
+						foreach ( $result['attributes'] as $attribute ) {
+							if ( ! empty( $attribute['schema']['name'] ) && 'end_date' === $attribute['schema']['name'] ) {
+								$end_date = $attribute['value'];
+							}
+						}
+					}
+
 					$history[ $uuid ] = [
 						'verb'       => $verb,
-						'isapproved' => $result['data']['isapproved'] ?? '',
+						'isapproved' => $isapproved,
+						'end_date'   => $end_date,
 					];
 				}
 			}
@@ -547,7 +559,7 @@ class Otis_Importer {
 
 		$upsert_status = $post_id ? 'updated' : 'created';
 
-		$post_status  = $this->_translate_status_value( $result['isapproved'] ?? '' );
+		$post_status  = $this->_get_post_status( $result );
 		$post_title   = $result['name'];
 		$post_content = empty( $result['description'] ) ? '' : $this->_sanitize_content( $result['description'] );
 		$post_date    = empty( $result['modified'] ) ? '' : date( 'Y-m-d H:i:s', strtotime( $result['modified'] ) );
@@ -695,19 +707,27 @@ class Otis_Importer {
 	}
 
 	/**
-	 * Convert an OTIS status value into a WordPress post status.
+	 * Calculate the WordPress post status value for an OTIS result array.
 	 *
-	 * @param string $otis_status
+	 * @param string $otis_result
 	 *
 	 * @return string
 	 */
-	private function _translate_status_value( $otis_status ) {
-		switch ( strtolower( $otis_status ) ) {
-			case 'app':
-				return 'publish';
+	private function _get_post_status( $otis_result ) {
+		if ( ! empty( $otis_result['end_date'] ) ) {
+			$end_timestamp = strtotime( $otis_result['end_date'] );
+			if ( time() - $end_timestamp > DAY_IN_SECONDS ) {
+				return 'draft';
+			}
 		}
 
-		return 'draft';
+		if ( ! empty( $otis_result['isapproved'] ) ) {
+			if ( 'app' !== strtolower( $otis_result['isapproved'] ) ) {
+				return 'draft';
+			}
+		}
+
+		return 'publish';
 	}
 
 	/**
