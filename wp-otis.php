@@ -75,9 +75,12 @@ if ( ! wp_next_scheduled( 'wp_otis_cron' ) ) {
 }
 
 add_action( 'wp_otis_cron', function () {
+	$current_date     = date( 'c' );
 	$last_import_date = get_option( WP_OTIS_LAST_IMPORT_DATE, '' );
+
 	if ( ! $last_import_date ) {
-		// Only run incremental imports after at least one full import has completed.
+		// Start pulling in updates from the point after the plugin was installed.
+		update_option( WP_OTIS_LAST_IMPORT_DATE, $current_date );
 		return;
 	}
 
@@ -89,6 +92,8 @@ add_action( 'wp_otis_cron', function () {
 		$importer->import( 'pois', [
 			'modified' => $last_import_date,
 		] );
+
+		update_option( WP_OTIS_LAST_IMPORT_DATE, $current_date );
 	} catch ( Exception $e ) {
 		$logger->log( $e->getMessage(), 0, 'error' );
 	}

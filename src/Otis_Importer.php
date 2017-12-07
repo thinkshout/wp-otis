@@ -310,13 +310,9 @@ class Otis_Importer {
 
 		$total = ceil( $listings['count'] / $params['page_size'] );
 
-		if ( isset( $assoc_args['all'] ) ) {
-			if ( $params['page'] < $total ) {
-				$assoc_args['page'] = $params['page'] + 1;
-				$this->_import_pois( $assoc_args );
-			} else {
-				update_option( WP_OTIS_LAST_IMPORT_DATE, date( 'c' ) );
-			}
+		if ( isset( $assoc_args['all'] ) && $params['page'] < $total ) {
+			$assoc_args['page'] = $params['page'] + 1;
+			$this->_import_pois( $assoc_args );
 		}
 	}
 
