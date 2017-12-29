@@ -6,6 +6,7 @@ require_once 'Otis.php';
  * Importer class for the OTIS API.
  */
 class Otis_Importer {
+
 	/**
 	 * @var Otis
 	 */
@@ -21,7 +22,7 @@ class Otis_Importer {
 	 *
 	 * @var array
 	 */
-	private $attribute_map = array(
+	private $attribute_map = [
 		'last_updated'                          => null,
 		'start_time'                            => null,
 		'end_time'                              => null,
@@ -47,7 +48,7 @@ class Otis_Importer {
 		'event_type'                            => 'type',
 		'primary_city'                          => 'city',
 		'primary_region'                        => 'region',
-	);
+	];
 
 	/**
 	 * Otis_Importer constructor.
@@ -70,9 +71,9 @@ class Otis_Importer {
 	 */
 	function import( $args, $assoc_args ) {
 		if ( ! $args ) {
-			$args = array( 'pois' );
+			$args = [ 'pois' ];
 		} elseif ( ! is_array( $args ) ) {
-			$args = array( $args );
+			$args = [ $args ];
 		}
 
 		switch ( $args[0] ) {
@@ -173,7 +174,7 @@ class Otis_Importer {
 	 *
 	 * @param array $assoc_args
 	 */
-	private function _import_terms( $assoc_args = array() ) {
+	private function _import_terms( $assoc_args = [] ) {
 		// Import collections and types.
 		$collections = $this->otis->call( 'listings-collections' );
 
@@ -181,9 +182,9 @@ class Otis_Importer {
 			$collection_id = $this->_identify_term( $collection, 'type' );
 
 			foreach ( $collection['types'] as $type ) {
-				$this->_identify_term( $type, 'type', array(
+				$this->_identify_term( $type, 'type', [
 					'parent' => $collection_id,
-				) );
+				] );
 			}
 		}
 
@@ -191,17 +192,17 @@ class Otis_Importer {
 		$activities = $this->otis->call( 'listings-activities' );
 
 		// Fake an activity parent term link so that this term can be renamed in the UI.
-		$activity_value = array(
+		$activity_value = [
 			'name' => 'Activities',
 			'uri'  => '/listings-activities/parent/',
-		);
+		];
 
 		$activity_id = $this->_identify_term( $activity_value, 'type' );
 
 		foreach ( $activities['results'] as $activity ) {
-			$this->_identify_term( $activity, 'type', array(
+			$this->_identify_term( $activity, 'type', [
 				'parent' => $activity_id,
-			) );
+			] );
 		}
 
 		// Import cycling_ride_type.
@@ -210,9 +211,9 @@ class Otis_Importer {
 		$cycling_ride_type_id = $this->_identify_term( $cycling_ride_type, 'type' );
 
 		foreach ( $cycling_ride_type['choices'] as $cycling_ride_choice ) {
-			$this->_identify_term( $cycling_ride_choice, 'type', array(
+			$this->_identify_term( $cycling_ride_choice, 'type', [
 				'parent' => $cycling_ride_type_id,
-			) );
+			] );
 		}
 
 		// Import event_type.
@@ -221,9 +222,9 @@ class Otis_Importer {
 		$event_type_id = $this->_identify_term( $event_type, 'type' );
 
 		foreach ( $event_type['choices'] as $event_choice ) {
-			$this->_identify_term( $event_choice, 'type', array(
+			$this->_identify_term( $event_choice, 'type', [
 				'parent' => $event_type_id,
-			) );
+			] );
 		}
 
 		// Import global categories.
@@ -239,11 +240,11 @@ class Otis_Importer {
 	 *
 	 * @param array $assoc_args
 	 */
-	private function _import_pois( $assoc_args = array() ) {
-		$params = array(
-			'set' => 'toonly',
+	private function _import_pois( $assoc_args = [] ) {
+		$params = [
+			'set'         => 'toonly',
 			'showexpired' => 'true',
-		);
+		];
 		$params = apply_filters( 'wp_otis_listings', $params );
 
 		$params['page_size'] = 200;
@@ -267,18 +268,18 @@ class Otis_Importer {
 
 		$uuids = array_pluck( $listings['results'], 'uuid' );
 
-		$the_query = new WP_Query( array(
+		$the_query = new WP_Query( [
 			'no_found_rows'          => true,
 			'update_post_meta_cache' => false,
 			'update_post_term_cache' => false,
-			'posts_per_page'         => -1,
+			'posts_per_page'         => - 1,
 			'post_status'            => 'any',
 			'post_type'              => 'poi',
 			'meta_key'               => 'uuid',
 			'meta_value'             => $uuids,
-		) );
+		] );
 
-		$uuid_map = array();
+		$uuid_map = [];
 
 		while ( $the_query->have_posts() ) {
 			$the_query->the_post();
@@ -321,10 +322,10 @@ class Otis_Importer {
 	 *
 	 * @param array $assoc_args
 	 */
-	private function _import_poi( $assoc_args = array() ) {
-		$params = array(
+	private function _import_poi( $assoc_args = [] ) {
+		$params = [
 			'showexpired' => 'true',
-		);
+		];
 		$result = $this->otis->call( 'listings/' . $assoc_args['uuid'], $params );
 
 		if ( empty( $result['uuid'] ) ) {
@@ -354,7 +355,7 @@ class Otis_Importer {
 			'no_found_rows'          => true,
 			'update_post_meta_cache' => false,
 			'update_post_term_cache' => false,
-			'posts_per_page'         => -1,
+			'posts_per_page'         => - 1,
 			'post_status'            => 'any',
 			'post_type'              => 'poi',
 			'meta_key'               => 'uuid',
@@ -455,8 +456,9 @@ class Otis_Importer {
 	}
 
 	/**
-	 * Create/update a WordPress POI based on OTIS result data. If post_id is empty,
-	 * a new POI will be created. Otherwise the specified POI will be updated.
+	 * Create/update a WordPress POI based on OTIS result data. If post_id is
+	 * empty, a new POI will be created. Otherwise the specified POI will be
+	 * updated.
 	 *
 	 * @param int $post_id
 	 * @param array $result
@@ -465,7 +467,7 @@ class Otis_Importer {
 	 */
 	private function _upsert_poi( $post_id, $result ) {
 		$field_group = wp_otis_fields_load();
-		$field_map   = array();
+		$field_map   = [];
 		foreach ( $field_group['fields'] as $field ) {
 			$field_map[ $field['name'] ] = $field;
 		}
@@ -490,8 +492,8 @@ class Otis_Importer {
 		// Prep media data for field lookup.
 		foreach ( $result['media'] as $media_type => $items ) {
 			// Stable sort, obeying 'ordering' value if it's set.
-			$orderings = array();
-			$indexes   = array();
+			$orderings = [];
+			$indexes   = [];
 			foreach ( $items as $index => $item ) {
 				$orderings[ $index ] = $item['ordering'] ?? 0;
 				$indexes[ $index ]   = $index;
@@ -531,7 +533,7 @@ class Otis_Importer {
 		}
 
 		// Normalize and translate OTIS result data into WordPress field data.
-		$data = array();
+		$data = [];
 		foreach ( $result as $key => $value ) {
 			$name    = $this->_translate_field_name( $key );
 			$is_term = null;
@@ -564,14 +566,14 @@ class Otis_Importer {
 		$post_content = empty( $result['description'] ) ? '' : $this->_sanitize_content( $result['description'] );
 		$post_date    = empty( $result['modified'] ) ? '' : date( 'Y-m-d H:i:s', strtotime( $result['modified'] ) );
 
-		$post_result = wp_insert_post( array(
+		$post_result = wp_insert_post( [
 			'post_type'     => 'poi',
 			'post_status'   => $post_status,
 			'ID'            => $post_id,
 			'post_title'    => $post_title,
 			'post_content'  => $post_content,
 			'post_date_gmt' => $post_date,
-		), true );
+		], true );
 
 		if ( ! $post_result ) {
 			throw new Otis_Exception( 'Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid'] );
@@ -693,12 +695,12 @@ class Otis_Importer {
 					break;
 
 				case 'photos':
-					$value = array(
+					$value = [
 						'image_url'     => $value['image'],
 						'image_name'    => $value['name'],
 						'image_caption' => $value['caption'],
 						'image_credit'  => $value['photo_credit'],
-					);
+					];
 					break;
 			}
 		}
@@ -749,7 +751,7 @@ class Otis_Importer {
 			$terms = null;
 
 			if ( is_array( $value ) ) {
-				$terms = array( $value );
+				$terms = [ $value ];
 			} else {
 				$terms = array_filter( explode( ',', $value ) );
 			}
@@ -765,10 +767,11 @@ class Otis_Importer {
 	}
 
 	/**
-	 * Fetch WordPress term_id and term_taxonomy_id details for an OTIS field value.
-	 * This method will add a new term if it does not exist.
+	 * Fetch WordPress term_id and term_taxonomy_id details for an OTIS field
+	 * value. This method will add a new term if it does not exist.
 	 *
-	 * @param array|string $value The term to identify - a string, or OTIS value structure.
+	 * @param array|string $value The term to identify - a string, or OTIS value
+	 *   structure.
 	 * @param string $taxonomy The taxonomy to which to add the term.
 	 * @param array|string $args {
 	 *     Optional. Array or string of arguments for inserting a term.
@@ -783,17 +786,17 @@ class Otis_Importer {
 	 * @throws \Otis_Exception
 	 * @internal param int $parent The id of the parent term. Default 0.
 	 */
-	private function _identify_term( $value, $taxonomy, $args = array() ) {
+	private function _identify_term( $value, $taxonomy, $args = [] ) {
 		$result    = null;
 		$otis_path = null;
 		$name      = null;
 
-		$term_args = array(
+		$term_args = [
 			'hide_empty' => false,
 			'number'     => 1,
 			'fields'     => 'ids',
 			'taxonomy'   => $taxonomy,
-		);
+		];
 
 		if ( is_array( $value ) ) {
 			$url = wp_parse_url( str_replace( Otis::API_ROOT, '', $value['uri'] ) );
@@ -815,7 +818,7 @@ class Otis_Importer {
 		if ( ! $term_id ) {
 			// Check for an unmapped Type term.
 			$term_exists = term_exists( $name, $taxonomy );
-			if ($term_exists) {
+			if ( $term_exists ) {
 				$term_id = intval( $term_exists['term_id'] );
 			} else {
 				$result = wp_insert_term( $name, $taxonomy, $args );
@@ -844,7 +847,7 @@ class Otis_Importer {
 	 */
 	function generate_acf() {
 		$field_group = wp_otis_fields_load();
-		$field_map   = array();
+		$field_map   = [];
 		foreach ( $field_group['fields'] as $field ) {
 			$field_map[ $field['name'] ] = $field;
 		}
@@ -862,11 +865,11 @@ class Otis_Importer {
 				continue;
 			}
 
-			$field = array(
+			$field = [
 				'key'   => $key,
-				'label' => str_replace('_', ' ', $attribute['title']),
+				'label' => str_replace( '_', ' ', $attribute['title'] ),
 				'name'  => $name,
-			);
+			];
 
 			switch ( $attribute['datatype'] ) {
 				case 'text':
@@ -949,7 +952,7 @@ class Otis_Importer {
 
 		unset( $results );
 
-		$otis_uuids = $this->_fetch_otis_uuids();
+		$otis_uuids           = $this->_fetch_otis_uuids();
 		$otis_uuid_map        = [];
 		$duplicate_otis_uuids = [];
 		$otis_count           = count( $otis_uuids );
@@ -1015,10 +1018,10 @@ class Otis_Importer {
 	 */
 	function _fetch_otis_uuids( $params = [] ) {
 		if ( ! $params ) {
-			$params = array(
-				'set' => 'toonly',
+			$params = [
+				'set'         => 'toonly',
 				'showexpired' => 'false',
-			);
+			];
 			$params = apply_filters( 'wp_otis_listings', $params );
 
 			$params['page_size'] = 200;
