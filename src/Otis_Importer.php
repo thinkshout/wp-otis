@@ -571,6 +571,7 @@ class Otis_Importer {
 			'post_status'   => $post_status,
 			'ID'            => $post_id,
 			'post_title'    => $post_title,
+			'post_name'     => '', // Empty = auto-generate.
 			'post_content'  => $post_content,
 			'post_date_gmt' => $post_date,
 		], true );
