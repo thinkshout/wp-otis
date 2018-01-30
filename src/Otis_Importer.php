@@ -243,6 +243,7 @@ class Otis_Importer {
 	private function _import_pois( $assoc_args = [] ) {
 		$params = [
 			'set' => 'toonly',
+			'geo_data' => 'true',
 		];
 
 		if ( empty( $assoc_args['all'] ) || isset( $assoc_args['modified'] ) ) {
