@@ -246,8 +246,8 @@ class Otis_Importer {
 			'geo_data' => 'true',
 		];
 
-		if ( empty( $assoc_args['all'] ) || isset( $assoc_args['modified'] ) ) {
-			// Only pull expired listings when fetching a subset of results.
+		if ( isset( $assoc_args['modified'] ) ) {
+			// Only pull expired listings relative to a recent import.
 			$params['showexpired'] = 'true';
 		}
 
