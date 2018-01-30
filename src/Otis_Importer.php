@@ -242,9 +242,14 @@ class Otis_Importer {
 	 */
 	private function _import_pois( $assoc_args = [] ) {
 		$params = [
-			'set'         => 'toonly',
-			'showexpired' => 'true',
+			'set' => 'toonly',
 		];
+
+		if ( empty( $assoc_args['all'] ) || isset( $assoc_args['modified'] ) ) {
+			// Only pull expired listings when fetching a subset of results.
+			$params['showexpired'] = 'true';
+		}
+
 		$params = apply_filters( 'wp_otis_listings', $params );
 
 		$params['page_size'] = 200;
