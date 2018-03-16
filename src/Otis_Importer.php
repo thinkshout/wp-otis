@@ -46,6 +46,7 @@ class Otis_Importer {
 		'activities'                            => 'type',
 		'cycling_ride_type'                     => 'type',
 		'event_type'                            => 'type',
+		'additional_lodging_types'              => 'type',
 		'primary_city'                          => 'city',
 		'primary_region'                        => 'region',
 	];
