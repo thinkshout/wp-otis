@@ -100,46 +100,61 @@ add_action( 'wp_otis_cron', function () {
 } );
 
 if ( ! wp_next_scheduled( 'wp_otis_expire_events' ) ) {
-	wp_schedule_event( time(), 'daily', 'wp_otis_expire_events' );
+  wp_schedule_event( time(), 'daily', 'wp_otis_expire_events' );
 }
 
 add_action( 'wp_otis_expire_events', function () {
-	$logger = new Otis_Logger_Simple();
+  $logger = new Otis_Logger_Simple();
 
-	$query = new WP_Query( array(
-		'posts_per_page' => -1,
-		'post_type'      => 'poi',
-		'orderby'        => 'meta_value',
-		'order'          => 'ASC',
-		'meta_query'     => array(
-			array(
-				'key'     => 'end_date',
-				'type'    => 'DATE',
-				'value'   => date( 'Y-m-d' ),
-				'compare' => '<',
-			),
-		),
-		'tax_query'      => array(
-			array(
-				'taxonomy' => 'type',
-				'field'    => 'slug',
-				'terms'    => TROR_SLUG_EVENTS,
-			),
-		),
-	) );
+  $logger->log( 'Checking for expired posts -----------------------');
 
-	while ( $query->have_posts() ) {
-		$query->the_post();
+  $query = new WP_Query( array(
+    'posts_per_page' => -1,
+    'post_type'      => 'poi',
+    'orderby'        => 'meta_value',
+    'order'          => 'ASC',
+    'post_status'    => 'published',
+    'meta_query'     => array(
+      array(
+        'key'     => 'end_date',
+        'type'    => 'DATE',
+        'value'   => date( 'Y-m-d' ),
+        'compare' => '<',
+      ),
+    ),
+    'tax_query'      => array(
+      'relation' => 'OR',
+      array(
+        'taxonomy' => 'type',
+        'field'    => 'slug',
+        'terms'    => 'events',
+      ),
+      array(
+        'taxonomy' => 'type',
+        'field'    => 'slug',
+        'terms'    => 'deals',
+      ),
+    ),
+  ) );
 
-		wp_update_post( [
-			'ID'          => get_the_ID(),
-			'post_status' => 'draft',
-		] );
+  while ( $query->have_posts() ) {
+    $query->the_post();
 
-		$logger->log( 'Updated expired event (set status draft) with UUID: ' . get_field( 'uuid' ), get_the_ID() );
-	}
+    $this_post_type = 'unknown';
+    if (has_term('deals','type')) { $this_post_type = 'deal'; }
+    if (has_term('events','type')) { $this_post_type = 'event'; }
 
-	wp_reset_postdata();
+    wp_update_post( [
+      'ID'          => get_the_ID(),
+      'post_status' => 'draft',
+    ] );
+
+    $logger->log( 'Updated expired '.$this_post_type.' to draft | UUID: ' . get_field( 'uuid' ), get_the_ID() );
+  }
+
+  $logger->log( 'Expired post cleanup complete -----------------------');
+
+  wp_reset_postdata();
 } );
 
 add_filter( 'manage_edit-type_columns', function ( $columns ) {
