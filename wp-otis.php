@@ -113,11 +113,8 @@ add_action( 'wp_otis_expire_events', function () {
     'post_type'      => 'poi',
     'orderby'        => 'meta_value',
     'order'          => 'ASC',
+    'post_status'    => 'published',
     'meta_query'     => array(
-      'relation' => 'AND',
-      array(
-        'post_status'    => 'published',
-      ),
       array(
         'key'     => 'end_date',
         'type'    => 'DATE',
