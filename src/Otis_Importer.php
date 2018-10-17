@@ -761,7 +761,15 @@ class Otis_Importer {
 			if ( is_array( $value ) ) {
 				$terms = [ $value ];
 			} else {
-				$terms = array_filter( explode( ',', $value ) );
+                if ($taxonomy == "amenities") {
+                    if (strpos($value, '| ') === true) {
+                        $terms = array_filter( explode( '| ', $value ) );
+                    } else {
+                        $terms = array_filter( explode( ',', $value ) );
+                    }
+                } else {
+                    $terms = array_filter( explode( ',', $value ) );
+                }
 			}
 
 			$value = array_filter( array_map( function ( $term_name ) use ( $taxonomy ) {
