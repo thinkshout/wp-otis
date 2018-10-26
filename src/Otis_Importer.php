@@ -758,11 +758,15 @@ class Otis_Importer {
 
 			$terms = null;
 
-			if ( is_array( $value ) ) {
-				$terms = [ $value ];
-			} else {
-				$terms = array_filter( explode( ',', $value ) );
-			}
+            if ( is_array( $value ) ) {
+                $terms = [ $value ];
+            } else {
+                if ((strpos($value, '| ') !== false)  || (strpos($value, ', ') === false)) {
+                    $terms = array_filter( explode( '| ', $value ) );
+                } else {
+                    $terms = array_filter( explode( ', ', $value ) );
+                }
+            }
 
 			$value = array_filter( array_map( function ( $term_name ) use ( $taxonomy ) {
 				return $this->_identify_term( $term_name, $taxonomy );
