@@ -15,11 +15,8 @@ class WpOtisDebug {
     public function action_handle_post( ) {
         if ( isset( $_POST ) ) {
 
-            if ( ! current_user_can( 'manage_options' ) ) {
-                wp_die( "Unauthorized User" );
-            }
-
             if ( isset( $_POST['term_removal']['termids'] ) ) {
+
                 foreach ($_POST['term_removal']['termids'] as $term_id) {
 
                     if (is_numeric($term_id)) {
