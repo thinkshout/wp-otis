@@ -455,7 +455,7 @@ class Otis_Importer {
 			if ( $params['page'] < $total ) {
 				$assoc_args['page'] = $params['page'] + 1;
 
-				return array_merge( $history, $this->_fetch_history( $assoc_args ) );
+				return array_merge( $this->_fetch_history( $assoc_args ), $history );
 			}
 		}
 
