@@ -661,7 +661,10 @@ class Otis_Importer {
 			throw new Otis_Exception( 'Error: taxonomy glocats, post id ' . $post_id . ', ' . $return->get_error_message() );
 		}
 
-		$this->logger->log( ucfirst( $upsert_status ) . ' POI with UUID: ' . $result['uuid'], $post_id );
+        $bulking = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
+        if (!$bulking) {
+            $this->logger->log( ucfirst( $upsert_status ) . ' POI with UUID: ' . $result['uuid'], $post_id );
+        }
 
 		return $post_id;
 	}
