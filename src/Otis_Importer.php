@@ -528,6 +528,12 @@ class Otis_Importer {
 					}
 					break;
 
+                case 'Another Listing':
+                    $other_id = wp_otis_get_post_id_for_uuid($relation['uuid']);
+                    $relation['post_id'] = $other_id;
+                    $result[ $relationship_type ][] = $relation;
+                    break;
+
 				default:
 					$result[ $relationship_type ][] = $relation;
 					break;
