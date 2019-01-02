@@ -115,7 +115,7 @@ class Otis_Importer {
                 $this->_import_pois( $assoc_args );
                 $this->_import_history( $assoc_args );
 
-                if ($bulk === false) {
+                if (!$bulk) {
                     $log[] = 'POI import complete.';
                 } else {
                     $log[] = 'Bulk import: chapter complete.';
@@ -127,7 +127,7 @@ class Otis_Importer {
                 $this->_import_pois( $assoc_args );
                 $this->_import_history( $assoc_args );
 
-                if ($bulk === false) {
+                if (!$bulk) {
                     $log[] = 'POI import complete.';
                 } else {
                     $log[] = 'Bulk import: chapter complete.';
@@ -389,7 +389,7 @@ class Otis_Importer {
 
         $bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
 
-        if ($bulk === false) {
+        if (!$bulk) {
 
             $this->logger->log("Importing OTIS history");
 
