@@ -586,6 +586,18 @@ class Otis_Importer {
 			}
 		}
 
+        // Prep reverse relations data for field lookup.
+        foreach ( $result['reverse_relations'] as $relation ) {
+            $relationship_type = $relation['relationship_type']['name'];
+            switch ( $relationship_type ) {
+                case 'Another Listing':
+                    $other_id = wp_otis_get_post_id_for_uuid($relation['uuid']);
+                    $relation['post_id'] = $other_id;
+                    $result[ $relationship_type ][] = $relation;
+                    break;
+            }
+        }
+
 		// Prep geo data for field lookup.
 		if ( isset( $result['geo_data'] ) ) {
 			$result['geo_data'] = json_encode( $result['geo_data'] );
