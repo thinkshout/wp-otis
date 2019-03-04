@@ -148,8 +148,6 @@ class Otis_Importer {
                 return $log;
                 
 			case 'poi':
-			    
-                update_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
 
 				if ( empty( $assoc_args['uuid'] ) ) {
 					if ( empty( $args[1] ) ) {
@@ -613,14 +611,18 @@ class Otis_Importer {
 		}
 
         // Prep reverse relations data for field lookup.
-        foreach ( $result['reverse_relations'] as $relation ) {
-            $relationship_type = $relation['relationship_type']['name'];
-            switch ( $relationship_type ) {
-                case 'Another Listing':
-                    $other_id = wp_otis_get_post_id_for_uuid($relation['uuid']);
-                    $relation['post_id'] = $other_id;
-                    $result[ $relationship_type ][] = $relation;
-                    break;
+
+        if (isset($result['reverse_relations'])) {
+            // Prep reverse relations data for field lookup.
+            foreach ( $result['reverse_relations'] as $relation ) {
+                $relationship_type = $relation['relationship_type']['name'];
+                switch ( $relationship_type ) {
+                    case 'Another Listing':
+                        $other_id = wp_otis_get_post_id_for_uuid($relation['uuid']);
+                        $relation['post_id'] = $other_id;
+                        $result[ $relationship_type ][] = $relation;
+                        break;
+                }
             }
         }
 
