@@ -308,6 +308,10 @@ class Otis_Importer {
             return;
         }
 
+        if (isset($assoc_args['related_only'])) {
+            $this->logger->log("Importing POIs with relationships only");
+        }
+
         $uuids = array_pluck( $listings['results'], 'uuid' );
 
         /* First page of an import that will require multiple chapters */
@@ -351,7 +355,7 @@ class Otis_Importer {
             }
 
             try {
-                $post_id = $this->_upsert_poi( $post_id, $result );
+                $post_id = $this->_upsert_poi( $post_id, $result, isset($assoc_args['related_only']) );
             } catch ( Exception $exception ) {
                 $this->logger->log( $exception->getMessage(), $post_id, 'error' );
             }
@@ -542,7 +546,7 @@ class Otis_Importer {
 	 *
 	 * @throws \Otis_Exception
 	 */
-	private function _upsert_poi( $post_id, $result ) {
+    private function _upsert_poi( $post_id, $result, $related_only = false ) {
 		$field_group = wp_otis_fields_load();
 		$field_map   = [];
 		foreach ( $field_group['fields'] as $field ) {
@@ -565,6 +569,8 @@ class Otis_Importer {
 		foreach ( $result['attributes'] as $attribute ) {
 			$result[ $attribute['schema']['name'] ] = $attribute['value'];
 		}
+
+        $has_related_pois = false;
 
 		// Prep media data for field lookup.
 		foreach ( $result['media'] as $media_type => $items ) {
@@ -599,6 +605,7 @@ class Otis_Importer {
 					break;
 
                 case 'Another Listing':
+                    $has_related_pois = true;
                     $other_id = wp_otis_get_post_id_for_uuid($relation['uuid']);
                     $relation['post_id'] = $other_id;
                     $result[ $relationship_type ][] = $relation;
@@ -618,6 +625,7 @@ class Otis_Importer {
                 $relationship_type = $relation['relationship_type']['name'];
                 switch ( $relationship_type ) {
                     case 'Another Listing':
+                        $has_related_pois = true;
                         $other_id = wp_otis_get_post_id_for_uuid($relation['uuid']);
                         $relation['post_id'] = $other_id;
                         $result[ $relationship_type ][] = $relation;
@@ -625,94 +633,96 @@ class Otis_Importer {
                 }
             }
         }
+        if (!$related_only || ($related_only && $has_related_pois)) {
 
-		// Prep geo data for field lookup.
-		if ( isset( $result['geo_data'] ) ) {
-			$result['geo_data'] = json_encode( $result['geo_data'] );
-		}
+            // Prep geo data for field lookup.
+            if (isset($result['geo_data'])) {
+                $result['geo_data'] = json_encode($result['geo_data']);
+            }
 
-		// Normalize and translate OTIS result data into WordPress field data.
-		$data = [];
-		foreach ( $result as $key => $value ) {
-			$name    = $this->_translate_field_name( $key );
-			$is_term = null;
+            // Normalize and translate OTIS result data into WordPress field data.
+            $data = [];
+            foreach ($result as $key => $value) {
+                $name = $this->_translate_field_name($key);
+                $is_term = null;
 
-			switch ( $name ) {
-				case 'type':
-				case 'glocats':
-					$value   = $this->_translate_taxonomy_value( $name, $value );
-					$is_term = true;
-					break;
+                switch ($name) {
+                    case 'type':
+                    case 'glocats':
+                        $value = $this->_translate_taxonomy_value($name, $value);
+                        $is_term = true;
+                        break;
 
-				default:
-					$field   = $field_map[ $name ] ?? null;
-					$value   = $this->_translate_field_value( $field, $value );
-					$is_term = ( 'taxonomy' === $field['type'] );
-					break;
-			}
+                    default:
+                        $field = $field_map[$name] ?? null;
+                        $value = $this->_translate_field_value($field, $value);
+                        $is_term = ('taxonomy' === $field['type']);
+                        break;
+                }
 
-			if ( ! empty( $data[ $name ] ) && $is_term ) {
-				$data[ $name ] = array_merge( $data[ $name ], $value );
-			} else {
-				$data[ $name ] = $value;
-			}
-		}
+                if (!empty($data[$name]) && $is_term) {
+                    $data[$name] = array_merge($data[$name], $value);
+                } else {
+                    $data[$name] = $value;
+                }
+            }
 
-		$upsert_status = $post_id ? 'updated' : 'created';
+            $upsert_status = $post_id ? 'updated' : 'created';
 
-		$post_status  = $this->_get_post_status( $result );
-		$post_title   = $result['name'];
-		$post_content = empty( $result['description'] ) ? '' : $this->_sanitize_content( $result['description'] );
-		$post_date    = empty( $result['modified'] ) ? '' : date( 'Y-m-d H:i:s', strtotime( $result['modified'] ) );
+            $post_status = $this->_get_post_status($result);
+            $post_title = $result['name'];
+            $post_content = empty($result['description']) ? '' : $this->_sanitize_content($result['description']);
+            $post_date = empty($result['modified']) ? '' : date('Y-m-d H:i:s', strtotime($result['modified']));
 
-		$post_result = wp_insert_post( [
-			'post_type'     => 'poi',
-			'post_status'   => $post_status,
-			'ID'            => $post_id,
-			'post_title'    => $post_title,
-			'post_name'     => '', // Empty = auto-generate.
-			'post_content'  => $post_content,
-			'post_date_gmt' => $post_date,
-		], true );
+            $post_result = wp_insert_post([
+                'post_type' => 'poi',
+                'post_status' => $post_status,
+                'ID' => $post_id,
+                'post_title' => $post_title,
+                'post_name' => '', // Empty = auto-generate.
+                'post_content' => $post_content,
+                'post_date_gmt' => $post_date,
+            ], true);
 
-		if ( ! $post_result ) {
-			throw new Otis_Exception( 'Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid'] );
-		} elseif ( is_wp_error( $post_result ) ) {
-			throw new Otis_Exception( 'Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid'] . ', ' . $post_result->get_error_message() );
-		} else {
-			$post_id = $post_result;
-		}
+            if (!$post_result) {
+                throw new Otis_Exception('Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid']);
+            } elseif (is_wp_error($post_result)) {
+                throw new Otis_Exception('Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid'] . ', ' . $post_result->get_error_message());
+            } else {
+                $post_id = $post_result;
+            }
 
-		foreach ( $field_map as $name => $field ) {
-			if ( isset( $data[ $name ] ) ) {
-				$return = update_field( $name, $data[ $name ], $post_id );
+            foreach ($field_map as $name => $field) {
+                if (isset($data[$name])) {
+                    $return = update_field($name, $data[$name], $post_id);
 
-				if ( is_wp_error( $return ) ) {
-					throw new Otis_Exception( 'Error: field ' . $name . ', post id ' . $post_id . ', ' . $return->get_error_message() );
-				}
-			}
-		}
+                    if (is_wp_error($return)) {
+                        throw new Otis_Exception('Error: field ' . $name . ', post id ' . $post_id . ', ' . $return->get_error_message());
+                    }
+                }
+            }
 
-		// Save collection, type, and activities.
-		$return = wp_set_object_terms( $post_id, $data['type'], 'type' );
+            // Save collection, type, and activities.
+            $return = wp_set_object_terms($post_id, $data['type'], 'type');
 
-		if ( is_wp_error( $return ) ) {
-			throw new Otis_Exception( 'Error: taxonomy type, post id ' . $post_id . ', ' . $return->get_error_message() );
-		}
+            if (is_wp_error($return)) {
+                throw new Otis_Exception('Error: taxonomy type, post id ' . $post_id . ', ' . $return->get_error_message());
+            }
 
-		// Save global categories.
-		$return = wp_set_object_terms( $post_id, $data['glocats'], 'glocats' );
+            // Save global categories.
+            $return = wp_set_object_terms($post_id, $data['glocats'], 'glocats');
 
-		if ( is_wp_error( $return ) ) {
-			throw new Otis_Exception( 'Error: taxonomy glocats, post id ' . $post_id . ', ' . $return->get_error_message() );
-		}
+            if (is_wp_error($return)) {
+                throw new Otis_Exception('Error: taxonomy glocats, post id ' . $post_id . ', ' . $return->get_error_message());
+            }
 
-        $bulking = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
-        if (!$bulking) {
-            $this->logger->log( ucfirst( $upsert_status ) . ' POI with UUID: ' . $result['uuid'], $post_id );
+            $bulking = get_option(WP_OTIS_BULK_IMPORT_ACTIVE, false);
+            if (!$bulking) {
+                $this->logger->log(ucfirst($upsert_status) . ' POI with UUID: ' . $result['uuid'], $post_id);
+            }
+
+            return $post_id;
         }
-
-		return $post_id;
 	}
 
 	/**
