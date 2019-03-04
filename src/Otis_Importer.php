@@ -148,6 +148,9 @@ class Otis_Importer {
                 return $log;
                 
 			case 'poi':
+			    
+                update_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
+
 				if ( empty( $assoc_args['uuid'] ) ) {
 					if ( empty( $args[1] ) ) {
 						throw new Otis_Exception( 'Missing argument: uuid' );
