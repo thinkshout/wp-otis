@@ -165,6 +165,17 @@ class Otis_Importer {
 		throw new Otis_Exception( 'Unknown command: ' . $args[0] );
 	}
 
+    /**
+     * Sets bulk importer flag to false
+     *
+     * @return array
+     */
+    function nobulk() {
+        update_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
+        $log[] = 'OTIS bulk import flag set to false';
+        return $log;
+    }
+
 	/**
 	 * Fetches the full attribute schema for an OTIS type.
 	 *

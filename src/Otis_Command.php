@@ -40,6 +40,21 @@ class Otis_Command extends WP_CLI_Command {
 		}
 	}
 
+    /**
+     * Remove bulk import status from OTIS.
+     *
+     * @param array $args
+     * @param array $assoc_args
+     */
+    function nobulk( ) {
+        try {
+            $log = $this->importer->nobulk( );
+            WP_CLI::log( implode( PHP_EOL, $log ) );
+        } catch ( Exception $e ) {
+            WP_CLI::error( 'Importer Error: ' . $e->getMessage() );
+        }
+    }
+
 	/**
 	 * Generate ACF from OTIS.
 	 *
