@@ -135,6 +135,18 @@ class Otis_Importer {
 
                 return $log;
 
+            case 'related-pois-only':
+                $assoc_args['related_only'] = true;
+                $this->_import_pois( $assoc_args );
+
+                if (!$bulk) {
+                    $log[] = 'POI import complete.';
+                } else {
+                    $log[] = 'Bulk import: chapter complete.';
+                }
+
+                return $log;
+                
 			case 'poi':
 				if ( empty( $assoc_args['uuid'] ) ) {
 					if ( empty( $args[1] ) ) {
@@ -342,7 +354,7 @@ class Otis_Importer {
             $assoc_args['page'] = $params['page'] + 1;
 
             if ($next_chapter) {
-                wp_schedule_single_event( time(), 'wp_otis_bulk_importer', array($assoc_args['modified'],$assoc_args['all'],$assoc_args['page']) );
+                wp_schedule_single_event( time(), 'wp_otis_bulk_importer', array($assoc_args['modified'],$assoc_args['all'],$assoc_args['page']),isset($assoc_args['related_only']) );
             } else {
                 $this->_import_pois( $assoc_args );
             }

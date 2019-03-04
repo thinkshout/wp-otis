@@ -123,6 +123,7 @@ add_action( 'wp_otis_bulk_importer', function($modified, $all, $page) {
         $importer->import( 'pois-only', [
             'modified' => $modified,
             'page' => $page,
+            'related_only' => $related_only,
             'all' => $all
         ] );
     } catch ( Exception $e ) {
