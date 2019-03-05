@@ -76,7 +76,9 @@ class Otis_Importer {
 		} elseif ( ! is_array( $args ) ) {
 			$args = [ $args ];
 		}
+
         $bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
+
 		switch ( $args[0] ) {
 			case 'terms':
 				$this->_import_terms( $assoc_args );
@@ -117,8 +119,6 @@ class Otis_Importer {
 
                 if (!$bulk) {
                     $log[] = 'POI import complete.';
-                } else {
-                    $log[] = 'Bulk import: chapter complete.';
                 }
 
                 return $log;
@@ -129,8 +129,6 @@ class Otis_Importer {
 
                 if (!$bulk) {
                     $log[] = 'POI import complete.';
-                } else {
-                    $log[] = 'Bulk import: chapter complete.';
                 }
 
                 return $log;
@@ -141,8 +139,6 @@ class Otis_Importer {
 
                 if (!$bulk) {
                     $log[] = 'POI import complete.';
-                } else {
-                    $log[] = 'Bulk import: chapter complete.';
                 }
 
                 return $log;
@@ -279,6 +275,7 @@ class Otis_Importer {
         $params = [
             'set' => 'toonly',
             'geo_data' => 'true',
+	        'reverse_relations' => 'true'
         ];
 
         if ( isset( $assoc_args['modified'] ) ) {
@@ -293,6 +290,10 @@ class Otis_Importer {
         $chapter_size        = 5; // pages per chapter
         $next_chapter        = $params['page'] % $chapter_size == 0 ? true : false;
 
+	    if (isset($assoc_args['related_only']) && $params['page'] == 1) {
+		    $this->logger->log("Importing POIs with relationships only");
+	    }
+
         if ( isset( $assoc_args['type'] ) ) {
             $params['type'] = $assoc_args['type'];
         }
@@ -306,10 +307,6 @@ class Otis_Importer {
 
         if ( empty( $listings['results'] ) ) {
             return;
-        }
-
-        if (isset($assoc_args['related_only'])) {
-            $this->logger->log("Importing POIs with relationships only");
         }
 
         $uuids = array_pluck( $listings['results'], 'uuid' );
