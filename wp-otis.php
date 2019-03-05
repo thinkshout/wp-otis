@@ -112,7 +112,7 @@ add_action( 'wp_otis_cron', function () {
 
 } );
 
-add_action( 'wp_otis_bulk_importer', function($modified, $all, $page) {
+add_action( 'wp_otis_bulk_importer', function($modified, $all, $page, $related_only = false) {
 
     $otis     = new Otis();
     $logger   = new Otis_Logger_Simple();

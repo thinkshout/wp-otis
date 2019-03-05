@@ -76,7 +76,7 @@ class Otis_Importer {
 		} elseif ( ! is_array( $args ) ) {
 			$args = [ $args ];
 		}
-
+        $bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
 		switch ( $args[0] ) {
 			case 'terms':
 				$this->_import_terms( $assoc_args );
