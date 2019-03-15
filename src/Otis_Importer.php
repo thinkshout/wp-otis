@@ -290,10 +290,6 @@ class Otis_Importer {
         $chapter_size        = 5; // pages per chapter
         $next_chapter        = $params['page'] % $chapter_size == 0 ? true : false;
 
-	    if (isset($assoc_args['related_only']) && $params['page'] == 1) {
-		    $this->logger->log("Importing POIs with relationships only");
-	    }
-
         if ( isset( $assoc_args['type'] ) ) {
             $params['type'] = $assoc_args['type'];
         }
@@ -308,6 +304,11 @@ class Otis_Importer {
         if ( empty( $listings['results'] ) ) {
             return;
         }
+
+	    if (isset($assoc_args['related_only']) && $params['page'] == 1) {
+		    $params[] = ['reverse_relations' => 'true'];
+		    $this->logger->log("Importing POIs with relationships only");
+	    }
 
         $uuids = array_pluck( $listings['results'], 'uuid' );
 
@@ -416,11 +417,10 @@ class Otis_Importer {
 
         if (!$bulk) {
 
-            $this->logger->log("Importing OTIS history");
+	        $history = $this->_fetch_history( $assoc_args );
+	        $uuids = array_keys( $history );
 
-            $history = $this->_fetch_history( $assoc_args );
-
-            $uuids = array_keys( $history );
+	        $this->logger->log("Importing OTIS history: ". count($history). " updates found to ".count($uuids)." POIs.");
 
             $the_query = new WP_Query([
                 'no_found_rows'          => true,
