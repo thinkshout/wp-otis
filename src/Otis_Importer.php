@@ -1199,6 +1199,29 @@ class Otis_Importer {
 			}
 		}
 
+		$log[] = 'Checking Winter Campaign region listings';
+
+		$winter_campaign_post_id = 5671523;
+
+		for( $i= 0 ; $i <= 10 ; $i++ ) {
+			$start_field = 'regions_'.$i.'_start_date';
+			$active_field = 'regions_'.$i.'_active_date';
+
+			$region_active_date = get_field($active_field,$winter_campaign_post_id);
+			if (! $region_active_date) {
+				$region_start_date = get_field($start_field,$winter_campaign_post_id);
+				if ($region_start_date) {
+					$updated = update_field($active_field,$region_start_date,$winter_campaign_post_id);
+					$log[] = 'Region '.$i.' updated: '.$updated;
+				} else {
+					$log[] = 'Region '.$i.' not found';
+				}
+			} else {
+				$log[] = 'Region '.$i.' already updated';
+			}
+
+		}
+
 		return $log;
 	}
 }
