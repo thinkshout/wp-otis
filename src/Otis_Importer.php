@@ -1164,4 +1164,41 @@ class Otis_Importer {
 
 		return $uuids;
 	}
+
+	function start_dates( $args )
+	{
+		$log[] = '['.date('Y-m-d').'] Checking start_date for imported POIs';
+
+		if (!$args) {
+			$args = ['pois'];
+		} elseif (!is_array($args)) {
+			$args = [$args];
+		}
+
+
+		if ($args[0] == 'fix') {
+			$log[] = 'we bout to fix this up.';
+		}
+		global $wpdb;
+
+		$results = $wpdb->get_results( '
+			SELECT * FROM wp_postmeta WHERE meta_key = \'_start_date\' && meta_value = \'field_5bbbda8dc2807\';
+
+		', ARRAY_A );
+
+		$count = count( $results );
+
+		$log[] = 'Total posts affected: '.$count;
+
+		foreach ( $results as $result ) {
+			$log[] = $result['meta_id']. ' | ' .$result['post_id'];
+
+			if ($args[0] == 'fix') {
+				$update = $wpdb->update('wp_postmeta', array('meta_value' => 'field_otis_51'), array('meta_id' => $result['meta_id']));
+				$log[] = 'updated: ' . $update;
+			}
+		}
+
+		return $log;
+	}
 }

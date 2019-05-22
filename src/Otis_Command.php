@@ -42,9 +42,6 @@ class Otis_Command extends WP_CLI_Command {
 
     /**
      * Remove bulk import status from OTIS.
-     *
-     * @param array $args
-     * @param array $assoc_args
      */
     function nobulk( ) {
         try {
@@ -54,6 +51,21 @@ class Otis_Command extends WP_CLI_Command {
             WP_CLI::error( 'Importer Error: ' . $e->getMessage() );
         }
     }
+
+	/**
+	 * Fix errant ACF start_date relationships
+	 *
+	 * @param array $args
+	 * @param array $assoc_args
+	 */
+	function start_dates( $args, $assoc_args ) {
+		try {
+			$log = $this->importer->start_dates( $args, $assoc_args );
+			WP_CLI::log( implode( PHP_EOL, $log ) );
+		} catch ( Exception $e ) {
+			WP_CLI::error( 'Importer Error: ' . $e->getMessage() );
+		}
+	}
 
 	/**
 	 * Generate ACF from OTIS.
