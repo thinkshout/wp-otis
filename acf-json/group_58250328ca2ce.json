@@ -638,6 +638,25 @@
             ]
         },
         {
+            "key": "field_5d49c9eba32a6",
+            "label": "Hide Media",
+            "name": "hide_media",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 0,
+            "ui": 0,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
             "key": "field_otis_88",
             "label": "Acres Of Terrain",
             "name": "acres_terrain",
