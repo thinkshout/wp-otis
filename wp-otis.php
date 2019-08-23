@@ -17,11 +17,13 @@ define( 'WP_OTIS_FIELDS_PATH', plugin_dir_path( __FILE__ ) . 'acf-json/group_582
 
 define( 'WP_OTIS_TOKEN', 'wp_otis_token' );
 define( 'WP_OTIS_LAST_IMPORT_DATE', 'wp_otis_last_import_date' );
+define( 'WP_OTIS_BULK_IMPORT_ACTIVE', 'wp_otis_bulk_import_active' );
 
 require_once 'wp-otis-poi.php';
 require_once 'src/Otis_Importer.php';
 require_once 'src/Otis_Logger_Simple.php';
 require_once 'src/Otis_Command.php';
+// require_once 'wp-otis-debug.php';
 
 /**
  * Look up the wordpress post id for a given OTIS UUID value.
@@ -70,34 +72,65 @@ function wp_otis_acf_json_load_point( $paths ) {
 
 add_filter( 'acf/settings/load_json', 'wp_otis_acf_json_load_point' );
 
+// On initial plugin installation or restart after a bulk import, begin hourly update schedule one minute later
 if ( ! wp_next_scheduled( 'wp_otis_cron' ) ) {
-	wp_schedule_event( time(), 'hourly', 'wp_otis_cron' );
+    $bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, '' );
+    if ( ! wp_next_scheduled( 'wp_otis_bulk_importer' ) && !($bulk)) {
+        wp_schedule_event(time() + 60 * 1, 'hourly', 'wp_otis_cron');
+    }
 }
 
 add_action( 'wp_otis_cron', function () {
-	$current_date     = date( 'c' );
-	$last_import_date = get_option( WP_OTIS_LAST_IMPORT_DATE, '' );
 
-	if ( ! $last_import_date ) {
-		// Start pulling in updates from the point after the plugin was installed.
-		update_option( WP_OTIS_LAST_IMPORT_DATE, $current_date );
-		return;
-	}
+    $bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
 
-	$otis     = new Otis();
-	$logger   = new Otis_Logger_Simple();
-	$importer = new Otis_Importer( $otis, $logger );
+    if ($bulk == false) {
+        $current_date     = date( 'c' );
+        $last_import_date = get_option( WP_OTIS_LAST_IMPORT_DATE, '' );
 
-	try {
-		$importer->import( 'pois', [
-			'modified' => $last_import_date,
-		] );
 
-		update_option( WP_OTIS_LAST_IMPORT_DATE, $current_date );
-	} catch ( Exception $e ) {
-		$logger->log( $e->getMessage(), 0, 'error' );
-	}
+        if ( ! $last_import_date ) {
+            // Start pulling in updates from the point after the plugin was installed.
+            update_option( WP_OTIS_LAST_IMPORT_DATE, $current_date );
+            return;
+        }
+
+        $otis     = new Otis();
+        $logger   = new Otis_Logger_Simple();
+        $importer = new Otis_Importer( $otis, $logger );
+
+        try {
+            $importer->import( 'pois', [
+                'modified' => $last_import_date,
+            ] );
+            update_option( WP_OTIS_LAST_IMPORT_DATE, $current_date );
+
+        } catch ( Exception $e ) {
+            $logger->log( $e->getMessage(), 0, 'error' );
+        }
+    }
+
 } );
+
+add_action( 'wp_otis_bulk_importer', function($modified, $all, $page, $related_only = false) {
+
+    $otis     = new Otis();
+    $logger   = new Otis_Logger_Simple();
+    $importer = new Otis_Importer( $otis, $logger );
+    $logger->log( "Bulk OTIS import continuing on page ".$page.". (".$modified.")");
+
+    try {
+        $importer->import( 'pois-only', [
+            'modified' => $modified,
+            'page' => $page,
+            'related_only' => $related_only,
+            'all' => $all
+        ] );
+    } catch ( Exception $e ) {
+        $logger->log( $e->getMessage(), 0, 'error' );
+    }
+
+}, 10, 3 );
 
 if ( ! wp_next_scheduled( 'wp_otis_expire_events' ) ) {
   wp_schedule_event( time(), 'daily', 'wp_otis_expire_events' );

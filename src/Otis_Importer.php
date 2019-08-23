@@ -77,6 +77,8 @@ class Otis_Importer {
 			$args = [ $args ];
 		}
 
+        $bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
+
 		switch ( $args[0] ) {
 			case 'terms':
 				$this->_import_terms( $assoc_args );
@@ -107,27 +109,42 @@ class Otis_Importer {
 
 				return $log;
 
-			case 'pois':
-				$this->import( 'terms', $assoc_args );
-				$this->import( 'regions', $assoc_args );
-				$this->import( 'cities', $assoc_args );
+            case 'pois':
+                $this->import( 'terms', $assoc_args );
+                $this->import( 'regions', $assoc_args );
+                $this->import( 'cities', $assoc_args );
 
-				$this->_import_pois( $assoc_args );
-				$this->_import_history( $assoc_args );
+                $this->_import_pois( $assoc_args );
+                $this->_import_history( $assoc_args );
 
-				$log[] = 'POI import complete.';
+                if (!$bulk) {
+                    $log[] = 'POI import complete.';
+                }
 
-				return $log;
+                return $log;
 
-			case 'pois-only':
-				$this->_import_pois( $assoc_args );
-				$this->_import_history( $assoc_args );
+            case 'pois-only':
+                $this->_import_pois( $assoc_args );
+                $this->_import_history( $assoc_args );
 
-				$log[] = 'POI import complete.';
+                if (!$bulk) {
+                    $log[] = 'POI import complete.';
+                }
 
-				return $log;
+                return $log;
 
+            case 'related-pois-only':
+                $assoc_args['related_only'] = true;
+                $this->_import_pois( $assoc_args );
+
+                if (!$bulk) {
+                    $log[] = 'POI import complete.';
+                }
+
+                return $log;
+                
 			case 'poi':
+
 				if ( empty( $assoc_args['uuid'] ) ) {
 					if ( empty( $args[1] ) ) {
 						throw new Otis_Exception( 'Missing argument: uuid' );
@@ -144,6 +161,17 @@ class Otis_Importer {
 
 		throw new Otis_Exception( 'Unknown command: ' . $args[0] );
 	}
+
+    /**
+     * Sets bulk importer flag to false
+     *
+     * @return array
+     */
+    function nobulk() {
+        update_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
+        $log[] = 'OTIS bulk import flag set to false';
+        return $log;
+    }
 
 	/**
 	 * Fetches the full attribute schema for an OTIS type.
@@ -236,93 +264,123 @@ class Otis_Importer {
 		}
 	}
 
-	/**
-	 * Import OTIS POIs.
-	 *
-	 * @param array $assoc_args
-	 */
-	private function _import_pois( $assoc_args = [] ) {
-		$params = [
-			'set' => 'toonly',
-			'geo_data' => 'true',
-		];
 
-		if ( isset( $assoc_args['modified'] ) ) {
-			// Only pull expired listings relative to a recent import.
-			$params['showexpired'] = 'true';
-		}
+    /**
+     * Import OTIS POIs.
+     *
+     * @param array $assoc_args
+     */
+    private function _import_pois( $assoc_args = [] ) {
 
-		$params = apply_filters( 'wp_otis_listings', $params );
+        $params = [
+            'set' => 'toonly',
+            'geo_data' => 'true',
+	        'reverse_relations' => 'true'
+        ];
 
-		$params['page_size'] = 200;
-		$params['page']      = $assoc_args['page'] ?? 1;
+        if ( isset( $assoc_args['modified'] ) ) {
+            // Only pull expired listings relative to a recent import.
+            $params['showexpired'] = 'true';
+        }
 
+        $params = apply_filters( 'wp_otis_listings', $params );
 
-		if ( isset( $assoc_args['type'] ) ) {
-			$params['type'] = $assoc_args['type'];
-		}
+        $params['page_size'] = 50;  // POIs per page
+        $params['page']      = $assoc_args['page'] ?? 1;
+        $chapter_size        = 5; // pages per chapter
+        $next_chapter        = $params['page'] % $chapter_size == 0 ? true : false;
 
-		if ( isset( $assoc_args['modified'] ) ) {
-			$assoc_args['all']  = true;
-			$params['modified'] = date( 'Y-m-d\TH:i:s\Z', strtotime( $assoc_args['modified'] ) );
-		}
+        if ( isset( $assoc_args['type'] ) ) {
+            $params['type'] = $assoc_args['type'];
+        }
 
-		$listings = $this->otis->call( 'listings', $params );
+        if ( isset( $assoc_args['modified'] ) ) {
+            $assoc_args['all']  = true;
+            $params['modified'] = date( 'Y-m-d\TH:i:s\Z', strtotime( $assoc_args['modified'] ) );
+        }
 
-		if ( empty( $listings['results'] ) ) {
-			return;
-		}
+        $listings = $this->otis->call( 'listings', $params );
 
-		$uuids = array_pluck( $listings['results'], 'uuid' );
+        if ( empty( $listings['results'] ) ) {
+            return;
+        }
 
-		$the_query = new WP_Query( [
-			'no_found_rows'          => true,
-			'update_post_meta_cache' => false,
-			'update_post_term_cache' => false,
-			'posts_per_page'         => - 1,
-			'post_status'            => 'any',
-			'post_type'              => 'poi',
-			'meta_key'               => 'uuid',
-			'meta_value'             => $uuids,
-		] );
+	    if (isset($assoc_args['related_only']) && $params['page'] == 1) {
+		    $params[] = ['reverse_relations' => 'true'];
+		    $this->logger->log("Importing POIs with relationships only");
+	    }
 
-		$uuid_map = [];
+        $uuids = array_pluck( $listings['results'], 'uuid' );
 
-		while ( $the_query->have_posts() ) {
-			$the_query->the_post();
+        /* First page of an import that will require multiple chapters */
+        if ((($listings['count'] / $params['page_size']) > $chapter_size) && ($params['page'] == 1)) {
+            update_option( WP_OTIS_BULK_IMPORT_ACTIVE, true );
+            $this->logger->log("OTIS bulk import detected: ".$listings['count']." updates. (".date( 'Y-m-d', strtotime( $assoc_args['modified'] ) ).")");
+        }
 
-			$uuid_map[ get_field( 'uuid' ) ] = get_the_ID();
-		}
+        $the_query = new WP_Query( [
+            'no_found_rows'          => true,
+            'update_post_meta_cache' => false,
+            'update_post_term_cache' => false,
+            'posts_per_page'         => - 1,
+            'post_status'            => 'any',
+            'post_type'              => 'poi',
+            'meta_key'               => 'uuid',
+            'meta_value'             => $uuids,
+        ] );
 
-		wp_reset_postdata();
+        $uuid_map = [];
 
-		foreach ( $listings['results'] as $result ) {
-			$uuid    = $result['uuid'];
-			$post_id = $uuid_map[ $uuid ] ?? 0;
+        while ( $the_query->have_posts() ) {
+            $the_query->the_post();
 
-			$type = strtolower( $result['type']['name'] );
-			if ( 'regions' === $type || 'cities' === $type ) {
-				if ( ! isset( $assoc_args['type'] ) ) {
-					// Regions and cities have already been populated...
-					// Skip those when populating the rest of the listing results.
-					continue;
-				}
-			}
+            $uuid_map[ get_field( 'uuid' ) ] = get_the_ID();
+        }
 
-			try {
-				$post_id = $this->_upsert_poi( $post_id, $result );
-			} catch ( Exception $exception ) {
-				$this->logger->log( $exception->getMessage(), $post_id, 'error' );
-			}
-		}
+        wp_reset_postdata();
 
-		$total = ceil( $listings['count'] / $params['page_size'] );
+        foreach ( $listings['results'] as $result ) {
+            $uuid    = $result['uuid'];
+            $post_id = $uuid_map[ $uuid ] ?? 0;
 
-		if ( isset( $assoc_args['all'] ) && $params['page'] < $total ) {
-			$assoc_args['page'] = $params['page'] + 1;
-			$this->_import_pois( $assoc_args );
-		}
-	}
+            $type = strtolower( $result['type']['name'] );
+            if ( 'regions' === $type || 'cities' === $type ) {
+                if ( ! isset( $assoc_args['type'] ) ) {
+                    // Regions and cities have already been populated...
+                    // Skip those when populating the rest of the listing results.
+                    continue;
+                }
+            }
+
+            try {
+                $post_id = $this->_upsert_poi( $post_id, $result, isset($assoc_args['related_only']) );
+            } catch ( Exception $exception ) {
+                $this->logger->log( $exception->getMessage(), $post_id, 'error' );
+            }
+
+        }
+
+        $total = ceil( $listings['count'] / $params['page_size'] );
+
+        if ( isset( $assoc_args['all'] ) && $params['page'] < $total ) {
+            $this->logger->log($params['page'] * $params['page_size'] ." out of ".$listings['count']. " records evaluated.");
+
+            $assoc_args['page'] = $params['page'] + 1;
+
+            if ($next_chapter) {
+                wp_schedule_single_event( time(), 'wp_otis_bulk_importer', array($assoc_args['modified'],$assoc_args['all'],$assoc_args['page']),isset($assoc_args['related_only']) );
+            } else {
+                $this->_import_pois( $assoc_args );
+            }
+        }
+
+        if (isset( $assoc_args['all'] ) && ($params['page'] == $total) && $total > $chapter_size ) {
+            $this->logger->log($listings['count'] ." out of ".$listings['count']. " records evaluated.");
+
+            update_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
+            $this->logger->log("OTIS bulk import complete.");
+        }
+    }
 
 	/**
 	 * Import a single OTIS POI.
@@ -353,50 +411,56 @@ class Otis_Importer {
 	 *
 	 * @param array $assoc_args
 	 */
-	private function _import_history( $assoc_args = [] ) {
-		$history = $this->_fetch_history( $assoc_args );
+    private function _import_history( $assoc_args = [] ) {
 
-		$uuids = array_keys( $history );
+        $bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
 
-		$the_query = new WP_Query( [
-			'no_found_rows'          => true,
-			'update_post_meta_cache' => false,
-			'update_post_term_cache' => false,
-			'posts_per_page'         => - 1,
-			'post_status'            => 'any',
-			'post_type'              => 'poi',
-			'meta_key'               => 'uuid',
-			'meta_value'             => $uuids,
-		] );
+        if (!$bulk) {
 
-		while ( $the_query->have_posts() ) {
-			$the_query->the_post();
+	        $history = $this->_fetch_history( $assoc_args );
+	        $uuids = array_keys( $history );
 
-			$uuid        = get_field( 'uuid' );
-			$poi_history = $history[ $uuid ];
-			switch ( $poi_history['verb'] ) {
-				case 'updated':
-					$post_status = $this->_get_post_status( $poi_history );
-					if ( get_post_status() !== $post_status ) {
-						wp_update_post( [
-							'ID'          => get_the_ID(),
-							'post_status' => $post_status,
-						] );
+	        $this->logger->log("Importing OTIS history: ". count($history). " updates found to ".count($uuids)." POIs.");
 
-						$this->logger->log( 'Updated POI (set status ' . $post_status . ') with UUID: ' . $uuid, get_the_ID() );
-					}
-					break;
+            $the_query = new WP_Query([
+                'no_found_rows'          => true,
+                'update_post_meta_cache' => false,
+                'update_post_term_cache' => false,
+                'posts_per_page'         => - 1,
+                'post_status'            => 'any',
+                'post_type'              => 'poi',
+                'meta_key'               => 'uuid',
+                'meta_value'             => $uuids,
+            ]);
 
-				case 'deleted':
-					wp_trash_post( get_the_ID() );
+            while ( $the_query->have_posts() ) {
+                $the_query->the_post();
 
-					$this->logger->log( 'Deleted POI with UUID: ' . $uuid, get_the_ID() );
-					break;
-			}
-		}
+                $uuid        = get_field( 'uuid' );
+                $poi_history = $history[ $uuid ];
 
-		wp_reset_postdata();
-	}
+                switch ( $poi_history['verb'] ) {
+                    case 'updated':
+                        $post_status = $this->_get_post_status( $poi_history );
+                        if ( get_post_status() !== $post_status ) {
+                            wp_update_post( [
+                                'ID'          => get_the_ID(),
+                                'post_status' => $post_status,
+                            ] );
+                            $this->logger->log( 'Updated POI (set status ' . $post_status . ') with UUID: ' . $uuid, get_the_ID() );
+
+                        }
+                        break;
+
+                    case 'deleted':
+                        wp_trash_post( get_the_ID() );
+                        $this->logger->log('Deleted POI with UUID: ' . $uuid, get_the_ID());
+                        break;
+                }
+            }
+            wp_reset_postdata();
+        }
+    }
 
 	/**
 	 * Fetch OTIS history (updates/deletes) since last import date.
@@ -405,62 +469,69 @@ class Otis_Importer {
 	 *
 	 * @return array
 	 */
-	private function _fetch_history( $assoc_args = [] ) {
-		$params = [
-			'page_size' => 200,
-			'page'      => $assoc_args['page'] ?? 1,
-		];
+    private function _fetch_history( $assoc_args = [] ) {
+        $params = [
+            'page_size' => 500,
+            'history-page'      => $assoc_args['history-page'] ?? 1,
+        ];
 
-		if ( isset( $assoc_args['modified'] ) ) {
-			$params['after']   = date( 'Y-m-d', strtotime( $assoc_args['modified'] ) );
-			$assoc_args['all'] = true;
-		} else {
-			// Only import history relative to a recent import.
-			return [];
-		}
+        if ( isset( $assoc_args['modified'] ) ) {
+            $params['after']   = date( 'Y-m-d', strtotime( $assoc_args['modified'] ) );
+            $assoc_args['all'] = true;
+        } else {
+            // Only import history relative to a recent import.
+            return [];
+        }
 
-		$listings = $this->otis->call( 'listings/history', $params );
+        $listings = $this->otis->call( 'listings/history', $params );
 
-		$history = [];
+        $history = [];
 
-		if ( ! empty( $listings['results'] ) ) {
-			foreach ( $listings['results'] as $result ) {
-				$uuid = $result['uuid'];
-				$verb = $result['verb'];
-				if ( empty( $history[ $uuid ] ) && ( 'updated' === $verb || 'deleted' === $verb ) ) {
-					// Results are ordered by modified - only store the most recent update or delete for each uuid
-					$isapproved = $result['data']['isapproved'] ?? '';
+        if ( ! empty( $listings['results'] ) ) {
+            foreach ( $listings['results'] as $result ) {
+                $uuid = $result['uuid'];
+                $verb = $result['verb'];
 
-					$end_date = '';
-					if ( ! empty( $result['attributes'] ) ) {
-						foreach ( $result['attributes'] as $attribute ) {
-							if ( ! empty( $attribute['schema']['name'] ) && 'end_date' === $attribute['schema']['name'] ) {
-								$end_date = $attribute['value'];
-							}
-						}
-					}
+                if ( !array_key_exists( $uuid, $history ) && ( 'updated' === $verb || 'deleted' === $verb ) ) {
 
-					$history[ $uuid ] = [
-						'verb'       => $verb,
-						'isapproved' => $isapproved,
-						'end_date'   => $end_date,
-					];
-				}
-			}
+                    // Results are ordered by modified - only store the most recent update or delete for each uuid
+                    $isapproved = $result['data']['isapproved'] ?? '';
 
-			$total = ceil( $listings['count'] / $params['page_size'] );
+                    $end_date = '';
+                    if ( ! empty( $result['attributes'] ) ) {
+                        foreach ( $result['attributes'] as $attribute ) {
+                            if ( ! empty( $attribute['schema']['name'] ) && 'end_date' === $attribute['schema']['name'] ) {
+                                $end_date = $attribute['value'];
+                            }
+                        }
+                    }
 
-			unset( $listings );
+                    $history[$uuid] = [
+                        'verb' => $verb,
+                        'isapproved' => $isapproved,
+                        'end_date' => $end_date,
+                    ];
 
-			if ( $params['page'] < $total ) {
-				$assoc_args['page'] = $params['page'] + 1;
+                }
+            }
 
-				return array_merge( $this->_fetch_history( $assoc_args ), $history );
-			}
-		}
+            $total = ceil( $listings['count'] / $params['page_size'] );
 
-		return $history;
-	}
+            unset( $listings );
+
+            if ($total > 1) {
+                $this->logger->log("History import page ".$params['history-page']." of ".$total." complete.");
+            }
+
+            if ( $params['history-page'] < $total ) {
+                $assoc_args['history-page'] = $params['history-page'] + 1;
+                return array_merge( $this->_fetch_history( $assoc_args ), $history );
+            }
+
+        }
+
+        return $history;
+    }
 
 	/**
 	 * Create/update a WordPress POI based on OTIS result data. If post_id is
@@ -472,7 +543,7 @@ class Otis_Importer {
 	 *
 	 * @throws \Otis_Exception
 	 */
-	private function _upsert_poi( $post_id, $result ) {
+    private function _upsert_poi( $post_id, $result, $related_only = false ) {
 		$field_group = wp_otis_fields_load();
 		$field_map   = [];
 		foreach ( $field_group['fields'] as $field ) {
@@ -495,6 +566,8 @@ class Otis_Importer {
 		foreach ( $result['attributes'] as $attribute ) {
 			$result[ $attribute['schema']['name'] ] = $attribute['value'];
 		}
+
+        $has_related_pois = false;
 
 		// Prep media data for field lookup.
 		foreach ( $result['media'] as $media_type => $items ) {
@@ -528,96 +601,125 @@ class Otis_Importer {
 					}
 					break;
 
+                case 'Another Listing':
+                    $has_related_pois = true;
+                    $other_id = wp_otis_get_post_id_for_uuid($relation['uuid']);
+                    $relation['post_id'] = $other_id;
+                    $result[ $relationship_type ][] = $relation;
+                    break;
+
 				default:
 					$result[ $relationship_type ][] = $relation;
 					break;
 			}
 		}
 
-		// Prep geo data for field lookup.
-		if ( isset( $result['geo_data'] ) ) {
-			$result['geo_data'] = json_encode( $result['geo_data'] );
-		}
+        // Prep reverse relations data for field lookup.
 
-		// Normalize and translate OTIS result data into WordPress field data.
-		$data = [];
-		foreach ( $result as $key => $value ) {
-			$name    = $this->_translate_field_name( $key );
-			$is_term = null;
+        if (isset($result['reverse_relations'])) {
+            // Prep reverse relations data for field lookup.
+            foreach ( $result['reverse_relations'] as $relation ) {
+                $relationship_type = $relation['relationship_type']['name'];
+                switch ( $relationship_type ) {
+                    case 'Another Listing':
+                        $has_related_pois = true;
+                        $other_id = wp_otis_get_post_id_for_uuid($relation['uuid']);
+                        $relation['post_id'] = $other_id;
+                        $result[ $relationship_type ][] = $relation;
+                        break;
+                }
+            }
+        }
+        if (!$related_only || ($related_only && $has_related_pois)) {
 
-			switch ( $name ) {
-				case 'type':
-				case 'glocats':
-					$value   = $this->_translate_taxonomy_value( $name, $value );
-					$is_term = true;
-					break;
+            // Prep geo data for field lookup.
+            if (isset($result['geo_data'])) {
+                $result['geo_data'] = json_encode($result['geo_data']);
+            }
 
-				default:
-					$field   = $field_map[ $name ] ?? null;
-					$value   = $this->_translate_field_value( $field, $value );
-					$is_term = ( 'taxonomy' === $field['type'] );
-					break;
-			}
+            // Normalize and translate OTIS result data into WordPress field data.
+            $data = [];
+            foreach ($result as $key => $value) {
+                $name = $this->_translate_field_name($key);
+                $is_term = null;
 
-			if ( ! empty( $data[ $name ] ) && $is_term ) {
-				$data[ $name ] = array_merge( $data[ $name ], $value );
-			} else {
-				$data[ $name ] = $value;
-			}
-		}
+                switch ($name) {
+                    case 'type':
+                    case 'glocats':
+                        $value = $this->_translate_taxonomy_value($name, $value);
+                        $is_term = true;
+                        break;
 
-		$upsert_status = $post_id ? 'updated' : 'created';
+                    default:
+                        $field = $field_map[$name] ?? null;
+                        $value = $this->_translate_field_value($field, $value);
+                        $is_term = ('taxonomy' === $field['type']);
+                        break;
+                }
 
-		$post_status  = $this->_get_post_status( $result );
-		$post_title   = $result['name'];
-		$post_content = empty( $result['description'] ) ? '' : $this->_sanitize_content( $result['description'] );
-		$post_date    = empty( $result['modified'] ) ? '' : date( 'Y-m-d H:i:s', strtotime( $result['modified'] ) );
+                if (!empty($data[$name]) && $is_term) {
+                    $data[$name] = array_merge($data[$name], $value);
+                } else {
+                    $data[$name] = $value;
+                }
+            }
 
-		$post_result = wp_insert_post( [
-			'post_type'     => 'poi',
-			'post_status'   => $post_status,
-			'ID'            => $post_id,
-			'post_title'    => $post_title,
-			'post_name'     => '', // Empty = auto-generate.
-			'post_content'  => $post_content,
-			'post_date_gmt' => $post_date,
-		], true );
+            $upsert_status = $post_id ? 'updated' : 'created';
 
-		if ( ! $post_result ) {
-			throw new Otis_Exception( 'Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid'] );
-		} elseif ( is_wp_error( $post_result ) ) {
-			throw new Otis_Exception( 'Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid'] . ', ' . $post_result->get_error_message() );
-		} else {
-			$post_id = $post_result;
-		}
+            $post_status = $this->_get_post_status($result);
+            $post_title = $result['name'];
+            $post_content = empty($result['description']) ? '' : $this->_sanitize_content($result['description']);
+            $post_date = empty($result['modified']) ? '' : date('Y-m-d H:i:s', strtotime($result['modified']));
 
-		foreach ( $field_map as $name => $field ) {
-			if ( isset( $data[ $name ] ) ) {
-				$return = update_field( $name, $data[ $name ], $post_id );
+            $post_result = wp_insert_post([
+                'post_type' => 'poi',
+                'post_status' => $post_status,
+                'ID' => $post_id,
+                'post_title' => $post_title,
+                'post_name' => '', // Empty = auto-generate.
+                'post_content' => $post_content,
+                'post_date_gmt' => $post_date,
+            ], true);
 
-				if ( is_wp_error( $return ) ) {
-					throw new Otis_Exception( 'Error: field ' . $name . ', post id ' . $post_id . ', ' . $return->get_error_message() );
-				}
-			}
-		}
+            if (!$post_result) {
+                throw new Otis_Exception('Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid']);
+            } elseif (is_wp_error($post_result)) {
+                throw new Otis_Exception('Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid'] . ', ' . $post_result->get_error_message());
+            } else {
+                $post_id = $post_result;
+            }
 
-		// Save collection, type, and activities.
-		$return = wp_set_object_terms( $post_id, $data['type'], 'type' );
+            foreach ($field_map as $name => $field) {
+                if (isset($data[$name])) {
+                    $return = update_field($name, $data[$name], $post_id);
 
-		if ( is_wp_error( $return ) ) {
-			throw new Otis_Exception( 'Error: taxonomy type, post id ' . $post_id . ', ' . $return->get_error_message() );
-		}
+                    if (is_wp_error($return)) {
+                        throw new Otis_Exception('Error: field ' . $name . ', post id ' . $post_id . ', ' . $return->get_error_message());
+                    }
+                }
+            }
 
-		// Save global categories.
-		$return = wp_set_object_terms( $post_id, $data['glocats'], 'glocats' );
+            // Save collection, type, and activities.
+            $return = wp_set_object_terms($post_id, $data['type'], 'type');
 
-		if ( is_wp_error( $return ) ) {
-			throw new Otis_Exception( 'Error: taxonomy glocats, post id ' . $post_id . ', ' . $return->get_error_message() );
-		}
+            if (is_wp_error($return)) {
+                throw new Otis_Exception('Error: taxonomy type, post id ' . $post_id . ', ' . $return->get_error_message());
+            }
 
-		$this->logger->log( ucfirst( $upsert_status ) . ' POI with UUID: ' . $result['uuid'], $post_id );
+            // Save global categories.
+            $return = wp_set_object_terms($post_id, $data['glocats'], 'glocats');
 
-		return $post_id;
+            if (is_wp_error($return)) {
+                throw new Otis_Exception('Error: taxonomy glocats, post id ' . $post_id . ', ' . $return->get_error_message());
+            }
+
+            $bulking = get_option(WP_OTIS_BULK_IMPORT_ACTIVE, false);
+            if (!$bulking) {
+                $this->logger->log(ucfirst($upsert_status) . ' POI with UUID: ' . $result['uuid'], $post_id);
+            }
+
+            return $post_id;
+        }
 	}
 
 	/**
@@ -758,11 +860,15 @@ class Otis_Importer {
 
 			$terms = null;
 
-			if ( is_array( $value ) ) {
-				$terms = [ $value ];
-			} else {
-				$terms = array_filter( explode( ',', $value ) );
-			}
+            if ( is_array( $value ) ) {
+                $terms = [ $value ];
+            } else {
+                if ((strpos($value, '| ') !== false)  || (strpos($value, ', ') === false)) {
+                    $terms = array_filter( explode( '| ', $value ) );
+                } else {
+                    $terms = array_filter( explode( ', ', $value ) );
+                }
+            }
 
 			$value = array_filter( array_map( function ( $term_name ) use ( $taxonomy ) {
 				return $this->_identify_term( $term_name, $taxonomy );
@@ -1054,5 +1160,65 @@ class Otis_Importer {
 		}
 
 		return $uuids;
+	}
+
+	function start_dates( $args )
+	{
+		$log[] = '['.date('Y-m-d').'] Checking start_date for imported POIs';
+
+		if (!$args) {
+			$args = ['pois'];
+		} elseif (!is_array($args)) {
+			$args = [$args];
+		}
+
+
+		if ($args[0] == 'fix') {
+			$log[] = 'we bout to fix this up.';
+		}
+		global $wpdb;
+
+		$results = $wpdb->get_results( '
+			SELECT * FROM wp_postmeta WHERE meta_key = \'_start_date\' && meta_value = \'field_5bbbda8dc2807\';
+
+		', ARRAY_A );
+
+		$count = count( $results );
+
+		$log[] = 'Total posts affected: '.$count;
+
+		foreach ( $results as $result ) {
+			$log[] = $result['meta_id']. ' | ' .$result['post_id'];
+
+			if ($args[0] == 'fix') {
+				$update = $wpdb->update('wp_postmeta', array('meta_value' => 'field_otis_51'), array('meta_id' => $result['meta_id']));
+				$log[] = 'updated: ' . $update;
+			}
+		}
+
+		$log[] = 'Checking Winter Campaign region listings';
+
+		$winter_campaign_post_id = 5671523;
+
+		for( $i= 0 ; $i <= 10 ; $i++ ) {
+			$start_field = 'regions_'.$i.'_start_date';
+			$active_field = 'regions_'.$i.'_active_date';
+
+			$region_active_date = get_field($active_field,$winter_campaign_post_id);
+			if (! $region_active_date) {
+				$region_start_date = get_field($start_field,$winter_campaign_post_id);
+				if ($region_start_date) {
+					$updated = update_field($active_field,$region_start_date,$winter_campaign_post_id);
+					$log[] = 'Region '.$i.' updated: '.$updated;
+				} else {
+					$log[] = 'Region '.$i.' not found';
+				}
+			} else {
+				$log[] = 'Region '.$i.' already updated';
+			}
+
+		}
+
+		return $log;
 	}
 }
