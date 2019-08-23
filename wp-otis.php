@@ -23,7 +23,7 @@ require_once 'wp-otis-poi.php';
 require_once 'src/Otis_Importer.php';
 require_once 'src/Otis_Logger_Simple.php';
 require_once 'src/Otis_Command.php';
-require_once 'wp-otis-debug.php';
+// require_once 'wp-otis-debug.php';
 
 /**
  * Look up the wordpress post id for a given OTIS UUID value.
