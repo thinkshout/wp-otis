@@ -420,7 +420,7 @@ class Otis_Importer {
 	        $history = $this->_fetch_history( $assoc_args );
 	        $uuids = array_keys( $history );
 
-	        $this->logger->log("Importing OTIS history: ". count($history). " updates found to ".count($uuids)." POIs.");
+	        $this->logger->log("Importing OTIS history: ". count($history). " updates found.");
 
             $the_query = new WP_Query([
                 'no_found_rows'          => true,
