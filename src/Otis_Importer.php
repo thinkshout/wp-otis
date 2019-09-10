@@ -273,7 +273,6 @@ class Otis_Importer {
     private function _import_pois( $assoc_args = [] ) {
 
         $params = [
-            'set' => 'toonly',
             'geo_data' => 'true',
 	        'reverse_relations' => 'true'
         ];
@@ -1133,7 +1132,6 @@ class Otis_Importer {
 	function _fetch_otis_uuids( $params = [] ) {
 		if ( ! $params ) {
 			$params = [
-				'set'         => 'toonly',
 				'showexpired' => 'false',
 			];
 			$params = apply_filters( 'wp_otis_listings', $params );
