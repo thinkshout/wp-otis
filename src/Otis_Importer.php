@@ -562,6 +562,11 @@ class Otis_Importer {
 			}
 		}
 
+	    if ( ! empty( $result['listing_credit'] ) ) {
+		    $listing_credit = $result['listing_credit'];
+		    unset($result['listing_credit']);
+	    }
+
 		// Prep attribute data for field lookup.
 		foreach ( $result['attributes'] as $attribute ) {
 			$result[ $attribute['schema']['name'] ] = $attribute['value'];
@@ -698,6 +703,13 @@ class Otis_Importer {
                     }
                 }
             }
+
+	        if ($listing_credit) {
+		        update_field('listing_credit_id', $listing_credit['id'], $post_id);
+		        update_field('listing_credit_name', $listing_credit['name'], $post_id);
+		        update_field('listing_credit_caption', $listing_credit['caption'], $post_id);
+		        update_field('listing_credit_url', $listing_credit['url'], $post_id);
+	        }
 
             // Save collection, type, and activities.
             $return = wp_set_object_terms($post_id, $data['type'], 'type');
