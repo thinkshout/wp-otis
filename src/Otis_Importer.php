@@ -273,7 +273,6 @@ class Otis_Importer {
     private function _import_pois( $assoc_args = [] ) {
 
         $params = [
-            'set' => 'toonly',
             'geo_data' => 'true',
 	        'reverse_relations' => 'true'
         ];
@@ -1145,7 +1144,6 @@ class Otis_Importer {
 	function _fetch_otis_uuids( $params = [] ) {
 		if ( ! $params ) {
 			$params = [
-				'set'         => 'toonly',
 				'showexpired' => 'false',
 			];
 			$params = apply_filters( 'wp_otis_listings', $params );
@@ -1174,63 +1172,4 @@ class Otis_Importer {
 		return $uuids;
 	}
 
-	function start_dates( $args )
-	{
-		$log[] = '['.date('Y-m-d').'] Checking start_date for imported POIs';
-
-		if (!$args) {
-			$args = ['pois'];
-		} elseif (!is_array($args)) {
-			$args = [$args];
-		}
-
-
-		if ($args[0] == 'fix') {
-			$log[] = 'we bout to fix this up.';
-		}
-		global $wpdb;
-
-		$results = $wpdb->get_results( '
-			SELECT * FROM wp_postmeta WHERE meta_key = \'_start_date\' && meta_value = \'field_5bbbda8dc2807\';
-
-		', ARRAY_A );
-
-		$count = count( $results );
-
-		$log[] = 'Total posts affected: '.$count;
-
-		foreach ( $results as $result ) {
-			$log[] = $result['meta_id']. ' | ' .$result['post_id'];
-
-			if ($args[0] == 'fix') {
-				$update = $wpdb->update('wp_postmeta', array('meta_value' => 'field_otis_51'), array('meta_id' => $result['meta_id']));
-				$log[] = 'updated: ' . $update;
-			}
-		}
-
-		$log[] = 'Checking Winter Campaign region listings';
-
-		$winter_campaign_post_id = 5671523;
-
-		for( $i= 0 ; $i <= 10 ; $i++ ) {
-			$start_field = 'regions_'.$i.'_start_date';
-			$active_field = 'regions_'.$i.'_active_date';
-
-			$region_active_date = get_field($active_field,$winter_campaign_post_id);
-			if (! $region_active_date) {
-				$region_start_date = get_field($start_field,$winter_campaign_post_id);
-				if ($region_start_date) {
-					$updated = update_field($active_field,$region_start_date,$winter_campaign_post_id);
-					$log[] = 'Region '.$i.' updated: '.$updated;
-				} else {
-					$log[] = 'Region '.$i.' not found';
-				}
-			} else {
-				$log[] = 'Region '.$i.' already updated';
-			}
-
-		}
-
-		return $log;
-	}
 }
