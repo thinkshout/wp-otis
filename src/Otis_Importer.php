@@ -142,7 +142,7 @@ class Otis_Importer {
                 }
 
                 return $log;
-                
+
 			case 'poi':
 
 				if ( empty( $assoc_args['uuid'] ) ) {
@@ -157,6 +157,14 @@ class Otis_Importer {
 				$log[] = 'POI import complete.';
 
 				return $log;
+
+			case 'history-only':
+				$this->_import_history( $assoc_args );
+
+				$log[] = 'History import complete.';
+
+				return $log;
+				
 		} // End switch().
 
 		throw new Otis_Exception( 'Unknown command: ' . $args[0] );
