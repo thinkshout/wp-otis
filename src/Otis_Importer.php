@@ -471,7 +471,7 @@ class Otis_Importer {
     private function _fetch_history( $assoc_args = [] ) {
         $params = [
             'page_size' => 500,
-            'history-page'      => $assoc_args['history-page'] ?? 1,
+            'page'      => $assoc_args['history-page'] ?? 1,
         ];
 
         if ( isset( $assoc_args['modified'] ) ) {
@@ -519,11 +519,11 @@ class Otis_Importer {
             unset( $listings );
 
             if ($total > 1) {
-                $this->logger->log("History import page ".$params['history-page']." of ".$total." complete.");
+                $this->logger->log("History import page ".$params['page']." of ".$total." complete.");
             }
 
-            if ( $params['history-page'] < $total ) {
-                $assoc_args['history-page'] = $params['history-page'] + 1;
+            if ( $params['page'] < $total ) {
+                $assoc_args['history-page'] = $params['page'] + 1;
                 return array_merge( $this->_fetch_history( $assoc_args ), $history );
             }
 
