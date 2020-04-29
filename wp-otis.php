@@ -23,6 +23,7 @@ require_once 'wp-otis-poi.php';
 require_once 'src/Otis_Importer.php';
 require_once 'src/Otis_Logger_Simple.php';
 require_once 'src/Otis_Command.php';
+require_once 'wp-logging/WP_Logging.php';
 // require_once 'wp-otis-debug.php';
 
 /**
@@ -348,4 +349,173 @@ if ( ! function_exists('array_flatten'))
 
 		return $return;
 	}
+}
+
+/**
+ * Log OTIS results.
+ */
+add_action( 'wp_otis_log', function ( $message, $parent, $type ) {
+	WP_Logging::add( '', $message, $parent, $type );
+}, 10, 3 );
+
+/**
+ * TROR POI Menu items.
+ */
+add_action( 'admin_menu', function ( $context ) {
+	add_submenu_page( 'edit.php?post_type=poi', 'Import Log', 'Import Log', 'edit_posts', 'tror_poi_otis_log', 'tror_poi_otis_log' );
+} );
+
+add_action( 'do_meta_boxes', function ( $post_type, $priority, $post ) {
+	global $wp_meta_boxes;
+
+	$wp_meta_boxes['poi']['side']['high']['wp-otis-meta-box']['callback'] = 'tror_poi_otis_meta_box_markup';
+
+	return $wp_meta_boxes;
+}, 10, 3 );
+
+/**
+ * Customize OTIS meta box
+ */
+function tror_poi_otis_meta_box_markup( $post, $box ) {
+	$uuids = get_post_meta( $post->ID, 'uuid' );
+	$uuid  = $uuids ? $uuids[0] : null;
+	if ( $uuid ) :
+		$log_url = add_query_arg( [
+			'post_type'   => 'poi',
+			'page'        => 'tror_poi_otis_log',
+			'post_parent' => $post->ID,
+		], admin_url( 'edit.php' ) ); ?>
+		<a class="button" href="<?php echo esc_url( $log_url ) ?>" target="_blank">Import
+			Log</a>
+	<?php endif;
+
+	wp_otis_meta_box_markup( $post, $box );
+}
+
+/**
+ * Page callback for OTIS Log.
+ */
+function tror_poi_otis_log() {
+	$last_import_date = tror_poi_get_otis_date( get_option( WP_OTIS_LAST_IMPORT_DATE ) );
+	$next_import_date = tror_poi_get_otis_date( date( 'c', wp_next_scheduled( 'wp_otis_cron' ) ) );
+	$next_expire_date = tror_poi_get_otis_date( date( 'c', wp_next_scheduled( 'wp_otis_expire_events' ) ) );
+	$bulk_import_running = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
+
+	$list_table = new Otis_Log_List_Table();
+	$list_table->prepare_items();
+
+	?>
+	<div class="wrap">
+		<h1>OTIS Import Log (past 30 days)</h1>
+		<table style="width: 100%;">
+			<tr style="width: 50%;">
+				<td width="200"><strong>Last successful import:</strong></td>
+				<td><strong><?php echo esc_html( $last_import_date ) ?></strong></td>
+				<td width="200">Next scheduled import:</td>
+				<td><?php echo esc_html( $next_import_date ) ?></td>
+			</tr>
+			<tr>
+				<td>Next expired event update:</td>
+				<td><?php echo esc_html( $next_expire_date ) ?></td>
+				<td>Bulk importer active:</td>
+				<td><?php echo esc_html( $bulk_import_running ) ? '<strong>Yes</strong>' : 'No'; ?></td>
+			</tr>
+		</table>
+		<?php $list_table->display(); ?>
+	</div>
+	<?php
+}
+
+if ( ! class_exists( 'WP_List_Table' ) ) {
+	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
+}
+
+class Otis_Log_List_Table extends WP_List_Table {
+
+	public function prepare_items() {
+		global $post;
+
+		$posts_per_page = 100;
+
+		$args = [
+			'posts_per_page' => $posts_per_page,
+			'paged'          => $this->get_pagenum(),
+			'post_type'      => 'wp_log',
+		];
+
+		if ( ! empty( $_REQUEST['post_parent'] ) ) {
+			$args['post_parent'] = $_REQUEST['post_parent'];
+		}
+
+		$the_query = new WP_Query( $args );
+
+		$this->set_pagination_args( [
+			'total_items' => $the_query->found_posts,
+			'per_page'    => $posts_per_page,
+		] );
+
+		$columns = $this->get_columns();
+		$data    = [];
+
+		while ( $the_query->have_posts() ) {
+			$the_query->the_post();
+
+			$post_date = tror_poi_get_otis_date( $post->post_date_gmt );
+			$log_type  = has_term( 'error', 'wp_log_type' ) ? 'Error' : '';
+			$post_link = '';
+			if ( $post->post_parent ) {
+				$post_link = '<a href="' . get_permalink( $post->post_parent ) . '">' . get_the_title( $post->post_parent ) . '</a>';
+			}
+
+			$data[] = [
+				'date'    => $post_date,
+				'message' => get_the_content(),
+				'parent'  => $post_link,
+				'type'    => $log_type,
+			];
+		}
+
+		wp_reset_postdata();
+
+		$this->_column_headers = [ $columns, [], [] ];
+		$this->items           = $data;
+	}
+
+	public function get_columns() {
+		$columns = [
+			'date'    => 'Date',
+			'message' => 'Message',
+			'parent'  => 'Post',
+			'type'    => 'Type',
+		];
+
+		return $columns;
+	}
+
+	function column_default( $item, $column_name ) {
+		return $item[ $column_name ] ?? '';
+	}
+}
+
+/**
+ * Utility for displaying a formatted date, for OTIS logs.
+ */
+function tror_poi_get_otis_date( $timestamp, $timezone = 'UTC' ) {
+	$date = new DateTime( $timestamp, new DateTimeZone( $timezone ) );
+	$date->setTimezone( new DateTimeZone( 'America/Los_Angeles' ) );
+
+	return $date->format( 'n-j-Y, g:i a' );
+}
+
+/**
+ * WP_Logging prune logs after 1 month.
+ */
+add_filter( 'wp_logging_should_we_prune', '__return_true' );
+
+add_filter( 'wp_logging_prune_when', function ( $time ) {
+	return '1 month ago';
+} );
+
+if ( ! wp_next_scheduled( 'wp_logging_prune_routine' ) ) {
+	wp_schedule_event( time(), 'hourly', 'wp_logging_prune_routine' );
 }
