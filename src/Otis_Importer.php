@@ -505,8 +505,8 @@ class Otis_Importer {
                     $isapproved = $result['data']['isapproved'] ?? '';
 
                     $end_date = '';
-                    if ( ! empty( $result['attributes'] ) ) {
-                        foreach ( $result['attributes'] as $attribute ) {
+                    if ( ! empty( $result['data']['attributes'] ) ) {
+                        foreach ( $result['data']['attributes'] as $attribute ) {
                             if ( ! empty( $attribute['schema']['name'] ) && 'end_date' === $attribute['schema']['name'] ) {
                                 $end_date = $attribute['value'];
                             }
