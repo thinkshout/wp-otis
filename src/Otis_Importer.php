@@ -514,6 +514,7 @@ class Otis_Importer {
                     }
 
                     $history[$uuid] = [
+	                    'uuid' => $uuid, // for _get_post_status() logging
                         'verb' => $verb,
                         'isapproved' => $isapproved,
                         'end_date' => $end_date,
