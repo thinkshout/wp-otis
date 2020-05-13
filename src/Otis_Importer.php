@@ -164,7 +164,7 @@ class Otis_Importer {
 				$log[] = 'History import complete.';
 
 				return $log;
-				
+
 		} // End switch().
 
 		throw new Otis_Exception( 'Unknown command: ' . $args[0] );
@@ -505,8 +505,8 @@ class Otis_Importer {
                     $isapproved = $result['data']['isapproved'] ?? '';
 
                     $end_date = '';
-                    if ( ! empty( $result['attributes'] ) ) {
-                        foreach ( $result['attributes'] as $attribute ) {
+                    if ( ! empty( $result['data']['attributes'] ) ) {
+                        foreach ( $result['data']['attributes'] as $attribute ) {
                             if ( ! empty( $attribute['schema']['name'] ) && 'end_date' === $attribute['schema']['name'] ) {
                                 $end_date = $attribute['value'];
                             }
@@ -514,6 +514,7 @@ class Otis_Importer {
                     }
 
                     $history[$uuid] = [
+	                    'uuid' => $uuid, // for _get_post_status() logging
                         'verb' => $verb,
                         'isapproved' => $isapproved,
                         'end_date' => $end_date,
@@ -845,20 +846,38 @@ class Otis_Importer {
 	 * @return string
 	 */
 	private function _get_post_status( $otis_result ) {
+
+		$toonly = false;
+
+		$assoc_args = apply_filters( 'wp_otis_listings', array() );
+		if ( ! empty( $assoc_args['set'] ) && 'toonly' === $assoc_args['set'] ) {
+			$toonly = true;
+		}
+
 		if ( ! empty( $otis_result['end_date'] ) ) {
 			$end_timestamp = strtotime( $otis_result['end_date'] );
 			if ( time() - $end_timestamp > DAY_IN_SECONDS ) {
+				$this->logger->log('Updated POI is past its end date', $otis_result['uuid'] );
 				return 'draft';
 			}
 		}
 
-		if ( ! empty( $otis_result['isapproved'] ) ) {
-			if ( 'app' !== strtolower( $otis_result['isapproved'] ) ) {
-				return 'draft';
+		$approval = strtolower( $otis_result['isapproved'] );
+
+		if ( ! empty( $approval ) ) {
+			if ( 'app' == $approval ) {
+				$this->logger->log('Updated POI is approved', $otis_result['uuid'] );
+				return 'publish';
+			}
+			if ( $toonly == false && ( 'gen' == $approval || 'pen' == $approval ) ) {
+				$this->logger->log('Updated POI is general or pending', $otis_result['uuid'] );
+				return 'publish';
 			}
 		}
 
-		return 'publish';
+		$this->logger->log('Updated POI not available (approval status:'.$approval.')', $otis_result['uuid'] );
+
+		return 'draft';
 	}
 
 	/**
