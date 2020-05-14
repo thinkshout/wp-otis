@@ -514,7 +514,6 @@ class Otis_Importer {
                     }
 
                     $history[$uuid] = [
-	                    'uuid' => $uuid, // for _get_post_status() logging
                         'verb' => $verb,
                         'isapproved' => $isapproved,
                         'end_date' => $end_date,
@@ -857,7 +856,6 @@ class Otis_Importer {
 		if ( ! empty( $otis_result['end_date'] ) ) {
 			$end_timestamp = strtotime( $otis_result['end_date'] );
 			if ( time() - $end_timestamp > DAY_IN_SECONDS ) {
-				$this->logger->log('Updated POI is past its end date', $otis_result['uuid'] );
 				return 'draft';
 			}
 		}
@@ -866,16 +864,12 @@ class Otis_Importer {
 
 		if ( ! empty( $approval ) ) {
 			if ( 'app' == $approval ) {
-				$this->logger->log('Updated POI is approved', $otis_result['uuid'] );
 				return 'publish';
 			}
 			if ( $toonly == false && ( 'gen' == $approval || 'pen' == $approval ) ) {
-				$this->logger->log('Updated POI is general or pending', $otis_result['uuid'] );
 				return 'publish';
 			}
 		}
-
-		$this->logger->log('Updated POI not available (approval status:'.$approval.')', $otis_result['uuid'] );
 
 		return 'draft';
 	}
