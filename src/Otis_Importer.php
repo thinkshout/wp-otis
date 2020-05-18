@@ -142,7 +142,7 @@ class Otis_Importer {
                 }
 
                 return $log;
-                
+
 			case 'poi':
 
 				if ( empty( $assoc_args['uuid'] ) ) {
@@ -157,6 +157,14 @@ class Otis_Importer {
 				$log[] = 'POI import complete.';
 
 				return $log;
+
+			case 'history-only':
+				$this->_import_history( $assoc_args );
+
+				$log[] = 'History import complete.';
+
+				return $log;
+
 		} // End switch().
 
 		throw new Otis_Exception( 'Unknown command: ' . $args[0] );
@@ -471,7 +479,7 @@ class Otis_Importer {
     private function _fetch_history( $assoc_args = [] ) {
         $params = [
             'page_size' => 500,
-            'history-page'      => $assoc_args['history-page'] ?? 1,
+            'page'      => $assoc_args['history-page'] ?? 1,
         ];
 
         if ( isset( $assoc_args['modified'] ) ) {
@@ -497,8 +505,8 @@ class Otis_Importer {
                     $isapproved = $result['data']['isapproved'] ?? '';
 
                     $end_date = '';
-                    if ( ! empty( $result['attributes'] ) ) {
-                        foreach ( $result['attributes'] as $attribute ) {
+                    if ( ! empty( $result['data']['attributes'] ) ) {
+                        foreach ( $result['data']['attributes'] as $attribute ) {
                             if ( ! empty( $attribute['schema']['name'] ) && 'end_date' === $attribute['schema']['name'] ) {
                                 $end_date = $attribute['value'];
                             }
@@ -519,11 +527,11 @@ class Otis_Importer {
             unset( $listings );
 
             if ($total > 1) {
-                $this->logger->log("History import page ".$params['history-page']." of ".$total." complete.");
+                $this->logger->log("History import page ".$params['page']." of ".$total." complete.");
             }
 
-            if ( $params['history-page'] < $total ) {
-                $assoc_args['history-page'] = $params['history-page'] + 1;
+            if ( $params['page'] < $total ) {
+                $assoc_args['history-page'] = $params['page'] + 1;
                 return array_merge( $this->_fetch_history( $assoc_args ), $history );
             }
 
@@ -837,6 +845,14 @@ class Otis_Importer {
 	 * @return string
 	 */
 	private function _get_post_status( $otis_result ) {
+
+		$toonly = false;
+
+		$assoc_args = apply_filters( 'wp_otis_listings', array() );
+		if ( ! empty( $assoc_args['set'] ) && 'toonly' === $assoc_args['set'] ) {
+			$toonly = true;
+		}
+
 		if ( ! empty( $otis_result['end_date'] ) ) {
 			$end_timestamp = strtotime( $otis_result['end_date'] );
 			if ( time() - $end_timestamp > DAY_IN_SECONDS ) {
@@ -844,13 +860,18 @@ class Otis_Importer {
 			}
 		}
 
-		if ( ! empty( $otis_result['isapproved'] ) ) {
-			if ( 'app' !== strtolower( $otis_result['isapproved'] ) ) {
-				return 'draft';
+		$approval = strtolower( $otis_result['isapproved'] );
+
+		if ( ! empty( $approval ) ) {
+			if ( 'app' == $approval ) {
+				return 'publish';
+			}
+			if ( $toonly == false && ( 'gen' == $approval || 'pen' == $approval ) ) {
+				return 'publish';
 			}
 		}
 
-		return 'publish';
+		return 'draft';
 	}
 
 	/**
