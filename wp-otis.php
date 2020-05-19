@@ -352,6 +352,53 @@ if ( ! function_exists('array_flatten'))
 }
 
 /**
+ * Laravel helper
+ */
+if (!function_exists('data_get')) {
+	/**
+	 * Get an item from an array or object using "dot" notation.
+	 *
+	 * @param  mixed $target
+	 * @param  string $key
+	 * @param  mixed $default
+	 * @return mixed
+	 */
+	function data_get($target, $key, $default = null)
+	{
+		if (is_null($key)) {
+			return $target;
+		}
+
+		foreach (explode('.', $key) as $segment) {
+			if (is_array($target)) {
+				if (!array_key_exists($segment, $target)) {
+					return value($default);
+				}
+
+				$target = $target[$segment];
+			} elseif ($target instanceof ArrayAccess) {
+				if (!isset($target[$segment])) {
+					return value($default);
+				}
+
+				$target = $target[$segment];
+			} elseif (is_object($target)) {
+				if (!isset($target->{$segment})) {
+					return value($default);
+				}
+
+				$target = $target->{$segment};
+			} else {
+				return value($default);
+			}
+		}
+
+		return $target;
+	}
+}
+
+
+/**
  * Log OTIS results.
  */
 add_action( 'wp_otis_log', function ( $message, $parent, $type ) {
