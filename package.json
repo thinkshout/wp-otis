@@ -1,7 +1,7 @@
 
 {
   "name": "wp-otis",
-  "version": "0.2.0",
+  "version": "1.0.1",
   "main": "Gruntfile.js",
   "author": "ThinkShout",
   "devDependencies": {
