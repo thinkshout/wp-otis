@@ -34,7 +34,11 @@ class Otis_Command extends WP_CLI_Command {
 	function import( $args, $assoc_args ) {
 		try {
 			$log = $this->importer->import( $args, $assoc_args );
-			WP_CLI::log( implode( PHP_EOL, $log ) );
+			if (is_array($log)) {
+				WP_CLI::log( implode( PHP_EOL, $log ) );
+			} else {
+				WP_CLI::log( implode( PHP_EOL, arrray( $log ) ) );
+			}
 		} catch ( Exception $e ) {
 			WP_CLI::error( 'Importer Error: ' . $e->getMessage() );
 		}
@@ -46,7 +50,11 @@ class Otis_Command extends WP_CLI_Command {
     function nobulk( ) {
         try {
             $log = $this->importer->nobulk( );
-            WP_CLI::log( implode( PHP_EOL, $log ) );
+	        if (is_array($log)) {
+		        WP_CLI::log( implode( PHP_EOL, $log ) );
+	        } else {
+		        WP_CLI::log( implode( PHP_EOL, arrray( $log ) ) );
+	        }
         } catch ( Exception $e ) {
             WP_CLI::error( 'Importer Error: ' . $e->getMessage() );
         }
@@ -64,7 +72,11 @@ class Otis_Command extends WP_CLI_Command {
 	function generate_acf( $args, $assoc_args ) {
 		try {
 			$log = $this->importer->generate_acf();
-			WP_CLI::log( implode( PHP_EOL, $log ) );
+			if (is_array($log)) {
+				WP_CLI::log( implode( PHP_EOL, $log ) );
+			} else {
+				WP_CLI::log( implode( PHP_EOL, arrray( $log ) ) );
+			}
 		} catch ( Exception $e ) {
 			WP_CLI::error( 'Importer Error: ' . $e->getMessage() );
 		}
@@ -79,7 +91,11 @@ class Otis_Command extends WP_CLI_Command {
 	function report( $args, $assoc_args ) {
 		try {
 			$log = $this->importer->report();
-			WP_CLI::log( implode( PHP_EOL, $log ) );
+			if (is_array($log)) {
+				WP_CLI::log( implode( PHP_EOL, $log ) );
+			} else {
+				WP_CLI::log( implode( PHP_EOL, arrray( $log ) ) );
+			}
 		} catch ( Exception $e ) {
 			WP_CLI::error( 'Importer Error: ' . $e->getMessage() );
 		}
