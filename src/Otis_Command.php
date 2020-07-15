@@ -37,7 +37,7 @@ class Otis_Command extends WP_CLI_Command {
 			if (is_array($log)) {
 				WP_CLI::log( implode( PHP_EOL, $log ) );
 			} else {
-				WP_CLI::log( implode( PHP_EOL, arrray( $log ) ) );
+				WP_CLI::log( implode( PHP_EOL, array( $log ) ) );
 			}
 		} catch ( Exception $e ) {
 			WP_CLI::error( 'Importer Error: ' . $e->getMessage() );
@@ -53,7 +53,7 @@ class Otis_Command extends WP_CLI_Command {
 	        if (is_array($log)) {
 		        WP_CLI::log( implode( PHP_EOL, $log ) );
 	        } else {
-		        WP_CLI::log( implode( PHP_EOL, arrray( $log ) ) );
+		        WP_CLI::log( implode( PHP_EOL, array( $log ) ) );
 	        }
         } catch ( Exception $e ) {
             WP_CLI::error( 'Importer Error: ' . $e->getMessage() );
@@ -75,7 +75,7 @@ class Otis_Command extends WP_CLI_Command {
 			if (is_array($log)) {
 				WP_CLI::log( implode( PHP_EOL, $log ) );
 			} else {
-				WP_CLI::log( implode( PHP_EOL, arrray( $log ) ) );
+				WP_CLI::log( implode( PHP_EOL, array( $log ) ) );
 			}
 		} catch ( Exception $e ) {
 			WP_CLI::error( 'Importer Error: ' . $e->getMessage() );
@@ -94,7 +94,7 @@ class Otis_Command extends WP_CLI_Command {
 			if (is_array($log)) {
 				WP_CLI::log( implode( PHP_EOL, $log ) );
 			} else {
-				WP_CLI::log( implode( PHP_EOL, arrray( $log ) ) );
+				WP_CLI::log( implode( PHP_EOL, array( $log ) ) );
 			}
 		} catch ( Exception $e ) {
 			WP_CLI::error( 'Importer Error: ' . $e->getMessage() );
