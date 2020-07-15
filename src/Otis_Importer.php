@@ -312,7 +312,13 @@ class Otis_Importer {
             return;
         }
 
-	    if (isset($assoc_args['related_only']) && $params['page'] == 1) {
+	    if ( isset($assoc_args['related_only']) ) {
+		    $import_related_only = $assoc_args['related_only'];
+	    } else {
+		    $import_related_only = false;
+	    }
+
+	    if ( $import_related_only && $params['page'] == 1) {
 		    $params[] = ['reverse_relations' => 'true'];
 		    $this->logger->log("Importing POIs with relationships only");
 	    }
@@ -360,7 +366,7 @@ class Otis_Importer {
             }
 
             try {
-                $post_id = $this->_upsert_poi( $post_id, $result, isset($assoc_args['related_only']) );
+                $post_id = $this->_upsert_poi( $post_id, $result, $import_related_only );
             } catch ( Exception $exception ) {
                 $this->logger->log( $exception->getMessage(), $post_id, 'error' );
             }
