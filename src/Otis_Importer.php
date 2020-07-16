@@ -312,10 +312,9 @@ class Otis_Importer {
             return;
         }
 
+	    $import_related_only = false;
 	    if ( isset($assoc_args['related_only']) ) {
 		    $import_related_only = $assoc_args['related_only'];
-	    } else {
-		    $import_related_only = false;
 	    }
 
 	    if ( $import_related_only && $params['page'] == 1) {
