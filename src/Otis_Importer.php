@@ -683,6 +683,11 @@ class Otis_Importer {
 
             $upsert_status = $post_id ? 'updated' : 'created';
 
+	        // Since we'll re-save related POIs anyway, emptying the listings now ensures removal of any deleted relations in OTIS.
+	        if ( 'updated' === $upsert_status ) {
+		        delete_post_meta($post_id, 'another_listing');
+	        }
+
             $post_status = $this->_get_post_status($result);
             $post_title = $result['name'];
             $post_content = empty($result['description']) ? '' : $this->_sanitize_content($result['description']);
@@ -716,7 +721,7 @@ class Otis_Importer {
                 }
             }
 
-	        if ($listing_credit) {
+	        if ( isset( $listing_credit ) ) {
 		        update_field('listing_credit_id', $listing_credit['id'], $post_id);
 		        update_field('listing_credit_name', $listing_credit['name'], $post_id);
 		        update_field('listing_credit_caption', $listing_credit['caption'], $post_id);
