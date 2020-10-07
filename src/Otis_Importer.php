@@ -117,9 +117,11 @@ class Otis_Importer {
                 $this->_import_pois( $assoc_args );
                 $this->_import_history( $assoc_args );
 
-                if (!$bulk) {
-                    $log[] = 'POI import complete.';
-                }
+	            if (!$bulk) {
+		            $log[] = 'POI import complete.';
+	            } else {
+		            $log[] = 'Adding bulk import CRON.';
+	            }
 
                 return $log;
 
@@ -327,7 +329,8 @@ class Otis_Importer {
         /* First page of an import that will require multiple chapters */
         if ((($listings['count'] / $params['page_size']) > $chapter_size) && ($params['page'] == 1)) {
             update_option( WP_OTIS_BULK_IMPORT_ACTIVE, true );
-            $this->logger->log("OTIS bulk import detected: ".$listings['count']." updates. (".date( 'Y-m-d', strtotime( $assoc_args['modified'] ) ).")");
+	        $logger_date = isset($assoc_args['modified']) ? "(".date( 'Y-m-d', strtotime( $assoc_args['modified'] ) ).")" : "";
+	        $this->logger->log("OTIS bulk import detected: ".$listings['count']." updates. ".$logger_date);
         }
 
         $the_query = new WP_Query( [
