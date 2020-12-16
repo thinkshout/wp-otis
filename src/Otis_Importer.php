@@ -621,6 +621,9 @@ class Otis_Importer {
 					}
 					break;
 
+				case 'Additional City':
+				case 'Additional Region':
+				case 'Nearby Towns & Cities':
                 case 'Another Listing':
                     $has_related_pois = true;
                     $other_id = wp_otis_get_post_id_for_uuid($relation['uuid']);
@@ -641,6 +644,9 @@ class Otis_Importer {
             foreach ( $result['reverse_relations'] as $relation ) {
                 $relationship_type = $relation['relationship_type']['name'];
                 switch ( $relationship_type ) {
+	                case 'Additional City':
+	                case 'Additional Region':
+	                case 'Nearby Towns & Cities':
                     case 'Another Listing':
                         $has_related_pois = true;
                         $other_id = wp_otis_get_post_id_for_uuid($relation['uuid']);
