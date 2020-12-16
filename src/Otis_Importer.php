@@ -848,6 +848,7 @@ class Otis_Importer {
 						'image_name'    => $value['name'],
 						'image_caption' => $value['caption'],
 						'image_credit'  => $value['photo_credit'],
+						'image_alt'     => $value['alt_text'],
 					];
 					break;
 			}
