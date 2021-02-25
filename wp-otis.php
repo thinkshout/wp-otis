@@ -14,6 +14,7 @@
 
 define( 'WP_OTIS_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WP_OTIS_FIELDS_PATH', plugin_dir_path( __FILE__ ) . 'acf-json/group_58250328ca2ce.json' );
+define( 'WP_OTIS_SETTINGS_PATH', plugin_dir_path( __FILE__ ) . 'acf-json/group_6035ace55cb28.json' );
 
 define( 'WP_OTIS_TOKEN', 'wp_otis_token' );
 define( 'WP_OTIS_LAST_IMPORT_DATE', 'wp_otis_last_import_date' );
@@ -25,6 +26,7 @@ require_once 'src/Otis_Importer.php';
 require_once 'src/Otis_Logger_Simple.php';
 require_once 'src/Otis_Command.php';
 require_once 'wp-logging/WP_Logging.php';
+require_once 'src/Otis_Settings.php';
 // require_once 'wp-otis-debug.php';
 
 /**
@@ -68,6 +70,7 @@ function wp_otis_get_post_id_for_uuid( $uuid ) {
  */
 function wp_otis_acf_json_load_point( $paths ) {
 	$paths[] = WP_OTIS_PLUGIN_PATH . 'acf-json';
+	$paths[] = WP_OTIS_SETTINGS_PATH . 'acf-json';
 
 	return $paths;
 }
@@ -593,4 +596,25 @@ add_filter( 'wp_logging_prune_when', function ( $time ) {
 
 if ( ! wp_next_scheduled( 'wp_logging_prune_routine' ) ) {
 	wp_schedule_event( time(), 'hourly', 'wp_logging_prune_routine' );
+}
+
+/**
+ * Creates an options page with fields defined in ACF.
+ */
+add_action('acf/init', 'wp_otis_options_init');
+function wp_otis_options_init() {
+
+  // Check function exists.
+  if( function_exists('acf_add_options_page') ) {
+
+    // Register options page.
+    $option_page = acf_add_options_sub_page(array(
+      'page_title'    => __('OTIS Integration Settings'),
+      'menu_title'    => __('OTIS Settings'),
+      'menu_slug'     => 'otis-settings',
+      'parent_slug'   => 'options-general.php',
+      'capability'    => 'edit_posts',
+      'redirect'      => false
+    ));
+  }
 }
