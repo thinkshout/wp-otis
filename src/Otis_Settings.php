@@ -17,6 +17,10 @@ class Otis_Settings {
    */
   private $logger;
 
+  private $filteredTypes;
+  private $filteredCities;
+  private $filteredRegions;
+
   /**
    * Otis_Settings constructor.
    *
@@ -29,9 +33,30 @@ class Otis_Settings {
   }
 
   /**
-   * Otis_Settings sync from ACF data.
+   * Otis_Settings apply settings from ACF data to filters.
    */
-  public function sync() {
+  public function applyFilterValues() {
 
+    $bytype = get_field('filter_listings_by_type', 'option');
+    $byregion = get_field('filter_listings_by_region', 'option');
+    $bycity = get_field('filter_listings_by_city', 'option');
+
+    if ( !empty( $bytype ) ) {
+      $filterTypesArray = [];
+      foreach ( $bytype as $filtertype ) {
+
+        $filterTypesArray []= $filtertype->name;
+      }
+      $this->filteredTypes = implode( "|", $filterTypesArray );
+
+      // undefined function add_filter?
+      add_filter( 'wp_otis_listings', $this->_typeFilterValues);
+    }
+  }
+
+  private function _typeFilterValues( $params ) {
+
+    $params['types'] .= $this->filteredTypes;
+    return $params;
   }
 }

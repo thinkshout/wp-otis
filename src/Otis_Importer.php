@@ -1,6 +1,7 @@
 <?php
 
 require_once 'Otis.php';
+require_once 'Otis_Settings.php';
 
 /**
  * Importer class for the OTIS API.
@@ -77,7 +78,13 @@ class Otis_Importer {
 			$args = [ $args ];
 		}
 
-        $bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
+		$bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
+
+		// If the import filter settings are being made through the settings page, rather
+    // than theme functionality, include them here.
+		$oSettings = new Otis_Settings( $this->otis, $this->logger );
+		$oSettings->applyFilterValues();
+
 
 		switch ( $args[0] ) {
 			case 'terms':

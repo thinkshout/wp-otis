@@ -26,7 +26,6 @@ require_once 'src/Otis_Importer.php';
 require_once 'src/Otis_Logger_Simple.php';
 require_once 'src/Otis_Command.php';
 require_once 'wp-logging/WP_Logging.php';
-require_once 'src/Otis_Settings.php';
 // require_once 'wp-otis-debug.php';
 
 /**

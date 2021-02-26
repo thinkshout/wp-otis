@@ -8,7 +8,7 @@
                 "label": "Filter Listings By Type?",
                 "name": "filter_listings_by_type",
                 "type": "taxonomy",
-                "instructions": "",
+                "instructions": "Leave unchecked to import all types of listings.",
                 "required": 0,
                 "conditional_logic": 0,
                 "wrapper": {
@@ -24,6 +24,54 @@
                 "return_format": "object",
                 "multiple": 0,
                 "allow_null": 0
+            },
+            {
+                "key": "field_6036ebdb66773",
+                "label": "Filter Listings By City?",
+                "name": "filter_listings_by_city",
+                "type": "post_object",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "post_type": [
+                    "poi"
+                ],
+                "taxonomy": [
+                    "type:cities"
+                ],
+                "allow_null": 0,
+                "multiple": 1,
+                "return_format": "object",
+                "ui": 1
+            },
+            {
+                "key": "field_6036ec6266774",
+                "label": "Filter Listings by Region?",
+                "name": "filter_listings_by_region",
+                "type": "post_object",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "post_type": [
+                    "poi"
+                ],
+                "taxonomy": [
+                    "type:regions"
+                ],
+                "allow_null": 0,
+                "multiple": 1,
+                "return_format": "object",
+                "ui": 1
             }
         ],
         "location": [
