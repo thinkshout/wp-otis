@@ -50,13 +50,47 @@ class Otis_Settings {
       $this->filteredTypes = implode( "|", $filterTypesArray );
 
       // undefined function add_filter?
-      add_filter( 'wp_otis_listings', $this->_typeFilterValues);
+      add_filter( 'wp_otis_listings', [$this, 'typeFilterValues']);
+    }
+
+    if ( !empty( $bycity ) ) {
+      $filterCitiesArray = [];
+      foreach ( $bycity as $filtercity ) {
+
+        $filterCitiesArray []= $filtercity->post_title;
+      }
+      $this->filteredCities = implode( "|", $filterCitiesArray );
+
+      add_filter( 'wp_otis_listings', [$this, 'cityFilterValues']);
+    }
+
+    if ( !empty( $byregion ) ) {
+      $filterRegionsArray = [];
+      foreach ( $byregion as $filterregion ) {
+
+        $filterRegionsArray []= $filterregion->post_title;
+      }
+      $this->filteredRegions = implode( "|", $filterRegionsArray );
+
+      add_filter( 'wp_otis_listings', [$this, 'regionFilterValues']);
     }
   }
 
-  private function _typeFilterValues( $params ) {
+  public function typeFilterValues( $params ) {
 
     $params['types'] .= $this->filteredTypes;
+    return $params;
+  }
+
+  public function cityFilterValues( $params ) {
+
+    $params['cities'] .= $this->filteredCities;
+    return $params;
+  }
+
+  public function regionFilterValues( $params ) {
+
+    $params['region'] .= $this->filteredRegions;
     return $params;
   }
 }
