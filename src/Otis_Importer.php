@@ -1045,9 +1045,6 @@ class Otis_Importer {
 			];
 
 			switch ( $attribute['datatype'] ) {
-				case 'text':
-					$field['type'] = 'text';
-					break;
 				case 'float':
 					$field['type'] = 'number';
 					break;
@@ -1066,6 +1063,9 @@ class Otis_Importer {
 					break;
 				case 'date':
 					$field['type'] = 'date_picker';
+					break;
+				default:
+					$field['type'] = 'text';
 					break;
 			}
 
