@@ -666,7 +666,7 @@
                 "id": ""
             },
             "taxonomy": "otis_category",
-            "field_type": "select",
+            "field_type": "multi_select",
             "multiple": 0,
             "allow_null": 0,
             "return_format": "id",
