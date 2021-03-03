@@ -2333,47 +2333,6 @@
             "append": ""
         },
         {
-            "key": "field_otis_119",
-            "label": "Artist Name",
-            "name": "artist_name",
-            "type": "text",
-            "instructions": "",
-            "required": false,
-            "conditional_logic": false,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "default_value": "",
-            "maxlength": "",
-            "placeholder": "",
-            "prepend": "",
-            "append": ""
-        },
-        {
-            "key": "field_otis_116",
-            "label": "Cannabis Categories",
-            "name": "cannabis_categories",
-            "type": "taxonomy",
-            "instructions": "",
-            "required": false,
-            "conditional_logic": false,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "taxonomy": "cannabis_categories",
-            "field_type": "checkbox",
-            "multiple": 0,
-            "allow_null": 0,
-            "return_format": "id",
-            "add_term": 1,
-            "load_terms": 0,
-            "save_terms": 0
-        },
-        {
             "key": "field_otis_113",
             "label": "Capacity",
             "name": "capacity",
@@ -2387,6 +2346,28 @@
                 "id": ""
             },
             "taxonomy": "capacity",
+            "field_type": "checkbox",
+            "multiple": 0,
+            "allow_null": 0,
+            "return_format": "id",
+            "add_term": 1,
+            "load_terms": 0,
+            "save_terms": 0
+        },
+        {
+            "key": "field_otis_116",
+            "label": "Category (Cannabis)",
+            "name": "category_cannabis",
+            "type": "taxonomy",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "taxonomy": "category_cannabis",
             "field_type": "checkbox",
             "multiple": 0,
             "allow_null": 0,
@@ -2685,7 +2666,7 @@
     "label_placement": "top",
     "instruction_placement": "label",
     "hide_on_screen": "",
-    "active": true,
+    "active": 1,
     "description": "",
-    "modified": 1608084894
- }
+    "modified": 1614809507
+}
