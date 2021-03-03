@@ -439,6 +439,25 @@
             ]
         },
         {
+            "key": "field_otis_109",
+            "label": "Service Area Description",
+            "name": "service_area_description",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
             "key": "field_otis_54",
             "label": "Hours",
             "name": "hours",
