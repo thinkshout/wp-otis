@@ -205,242 +205,242 @@
             ]
         },
         {
-          "key": "field_5fd96bbd22ea9",
-          "label": "Additional Regions",
-          "name": "additional_region",
-          "type": "repeater",
-          "instructions": "",
-          "required": 0,
-          "conditional_logic": 0,
-          "wrapper": {
-            "width": "",
-            "class": "",
-            "id": ""
-          },
-          "collapsed": "",
-          "min": 0,
-          "max": 0,
-          "layout": "table",
-          "button_label": "",
-          "sub_fields": [
-            {
-              "key": "field_5fd96bbd22eaa",
-              "label": "Name",
-              "name": "name",
-              "type": "text",
-              "instructions": "",
-              "required": 0,
-              "conditional_logic": 0,
-              "wrapper": {
+            "key": "field_5fd96bbd22ea9",
+            "label": "Additional Regions",
+            "name": "additional_region",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
                 "width": "",
                 "class": "",
                 "id": ""
-              },
-              "default_value": "",
-              "placeholder": "",
-              "prepend": "",
-              "append": "",
-              "maxlength": ""
             },
-            {
-              "key": "field_5fd96bbd22eab",
-              "label": "UUID",
-              "name": "uuid",
-              "type": "text",
-              "instructions": "",
-              "required": 0,
-              "conditional_logic": 0,
-              "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-              },
-              "default_value": "",
-              "placeholder": "",
-              "prepend": "",
-              "append": "",
-              "maxlength": ""
-            },
-            {
-              "key": "field_5fd96bbd22eac",
-              "label": "Post ID",
-              "name": "post_id",
-              "type": "text",
-              "instructions": "",
-              "required": 0,
-              "conditional_logic": 0,
-              "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-              },
-              "default_value": "",
-              "placeholder": "",
-              "prepend": "",
-              "append": "",
-              "maxlength": ""
-            }
-          ]
+            "collapsed": "",
+            "min": 0,
+            "max": 0,
+            "layout": "table",
+            "button_label": "",
+            "sub_fields": [
+                {
+                    "key": "field_5fd96bbd22eaa",
+                    "label": "Name",
+                    "name": "name",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "maxlength": ""
+                },
+                {
+                    "key": "field_5fd96bbd22eab",
+                    "label": "UUID",
+                    "name": "uuid",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "maxlength": ""
+                },
+                {
+                    "key": "field_5fd96bbd22eac",
+                    "label": "Post ID",
+                    "name": "post_id",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "maxlength": ""
+                }
+            ]
         },
         {
-          "key": "field_5fd96ba622ea5",
-          "label": "Additional Cities",
-          "name": "additional_city",
-          "type": "repeater",
-          "instructions": "",
-          "required": 0,
-          "conditional_logic": 0,
-          "wrapper": {
-            "width": "",
-            "class": "",
-            "id": ""
-          },
-          "collapsed": "",
-          "min": 0,
-          "max": 0,
-          "layout": "table",
-          "button_label": "",
-          "sub_fields": [
-            {
-              "key": "field_5fd96ba622ea6",
-              "label": "Name",
-              "name": "name",
-              "type": "text",
-              "instructions": "",
-              "required": 0,
-              "conditional_logic": 0,
-              "wrapper": {
+            "key": "field_5fd96ba622ea5",
+            "label": "Additional Cities",
+            "name": "additional_city",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
                 "width": "",
                 "class": "",
                 "id": ""
-              },
-              "default_value": "",
-              "placeholder": "",
-              "prepend": "",
-              "append": "",
-              "maxlength": ""
             },
-            {
-              "key": "field_5fd96ba622ea7",
-              "label": "UUID",
-              "name": "uuid",
-              "type": "text",
-              "instructions": "",
-              "required": 0,
-              "conditional_logic": 0,
-              "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-              },
-              "default_value": "",
-              "placeholder": "",
-              "prepend": "",
-              "append": "",
-              "maxlength": ""
-            },
-            {
-              "key": "field_5fd96ba622ea8",
-              "label": "Post ID",
-              "name": "post_id",
-              "type": "text",
-              "instructions": "",
-              "required": 0,
-              "conditional_logic": 0,
-              "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-              },
-              "default_value": "",
-              "placeholder": "",
-              "prepend": "",
-              "append": "",
-              "maxlength": ""
-            }
-          ]
+            "collapsed": "",
+            "min": 0,
+            "max": 0,
+            "layout": "table",
+            "button_label": "",
+            "sub_fields": [
+                {
+                    "key": "field_5fd96ba622ea6",
+                    "label": "Name",
+                    "name": "name",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "maxlength": ""
+                },
+                {
+                    "key": "field_5fd96ba622ea7",
+                    "label": "UUID",
+                    "name": "uuid",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "maxlength": ""
+                },
+                {
+                    "key": "field_5fd96ba622ea8",
+                    "label": "Post ID",
+                    "name": "post_id",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "maxlength": ""
+                }
+            ]
         },
         {
-          "key": "field_5fd96bda22ead",
-          "label": "Nearby Towns & Cities",
-          "name": "nearby_towns___cities",
-          "type": "repeater",
-          "instructions": "",
-          "required": 0,
-          "conditional_logic": 0,
-          "wrapper": {
-            "width": "",
-            "class": "",
-            "id": ""
-          },
-          "collapsed": "",
-          "min": 0,
-          "max": 0,
-          "layout": "table",
-          "button_label": "",
-          "sub_fields": [
-            {
-              "key": "field_5fd96bda22eae",
-              "label": "Name",
-              "name": "name",
-              "type": "text",
-              "instructions": "",
-              "required": 0,
-              "conditional_logic": 0,
-              "wrapper": {
+            "key": "field_5fd96bda22ead",
+            "label": "Nearby Towns & Cities",
+            "name": "nearby_towns___cities",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
                 "width": "",
                 "class": "",
                 "id": ""
-              },
-              "default_value": "",
-              "placeholder": "",
-              "prepend": "",
-              "append": "",
-              "maxlength": ""
             },
-            {
-              "key": "field_5fd96bda22eaf",
-              "label": "UUID",
-              "name": "uuid",
-              "type": "text",
-              "instructions": "",
-              "required": 0,
-              "conditional_logic": 0,
-              "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-              },
-              "default_value": "",
-              "placeholder": "",
-              "prepend": "",
-              "append": "",
-              "maxlength": ""
-            },
-            {
-              "key": "field_5fd96bda22eb0",
-              "label": "Post ID",
-              "name": "post_id",
-              "type": "text",
-              "instructions": "",
-              "required": 0,
-              "conditional_logic": 0,
-              "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-              },
-              "default_value": "",
-              "placeholder": "",
-              "prepend": "",
-              "append": "",
-              "maxlength": ""
-            }
-          ]
+            "collapsed": "",
+            "min": 0,
+            "max": 0,
+            "layout": "table",
+            "button_label": "",
+            "sub_fields": [
+                {
+                    "key": "field_5fd96bda22eae",
+                    "label": "Name",
+                    "name": "name",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "maxlength": ""
+                },
+                {
+                    "key": "field_5fd96bda22eaf",
+                    "label": "UUID",
+                    "name": "uuid",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "maxlength": ""
+                },
+                {
+                    "key": "field_5fd96bda22eb0",
+                    "label": "Post ID",
+                    "name": "post_id",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "maxlength": ""
+                }
+            ]
         },
         {
-            "key": "field_otis_117",
-            "label": "Service Area",
+            "key": "field_otis_109",
+            "label": "Service Area Description",
             "name": "service_area_description",
             "type": "text",
             "instructions": "",
@@ -458,7 +458,7 @@
             "append": ""
         },
         {
-            "key": "field_otis_118",
+            "key": "field_otis_54",
             "label": "Hours",
             "name": "hours",
             "type": "text",
@@ -685,7 +685,7 @@
                 "id": ""
             },
             "taxonomy": "otis_category",
-            "field_type": "select",
+            "field_type": "multi_select",
             "multiple": 0,
             "allow_null": 0,
             "return_format": "id",
@@ -870,23 +870,23 @@
                     "maxlength": ""
                 },
                 {
-                  "key": "field_5fd946d8caa53",
-                  "label": "Alt text",
-                  "name": "image_alt",
-                  "type": "text",
-                  "instructions": "",
-                  "required": 0,
-                  "conditional_logic": 0,
-                  "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                  },
-                  "default_value": "",
-                  "placeholder": "",
-                  "prepend": "",
-                  "append": "",
-                  "maxlength": ""
+                    "key": "field_5fd946d8caa53",
+                    "label": "Alt text",
+                    "name": "image_alt",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "maxlength": ""
                 }
             ]
         },
@@ -1395,25 +1395,6 @@
             "append": ""
         },
         {
-            "key": "field_otis_54",
-            "label": "Hours",
-            "name": "hours",
-            "type": "text",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "default_value": "",
-            "maxlength": "",
-            "placeholder": "",
-            "prepend": "",
-            "append": ""
-        },
-        {
             "key": "field_otis_92",
             "label": "Intermediate Runs",
             "name": "intermediate_runs",
@@ -1471,80 +1452,80 @@
             "append": ""
         },
         {
-          "key": "field_5df7ebb7fc4d1",
-          "label": "Listing Credit ID",
-          "name": "listing_credit_id",
-          "type": "text",
-          "instructions": "",
-          "required": 0,
-          "conditional_logic": 0,
-          "wrapper": {
-            "width": "",
-            "class": "",
-            "id": ""
-          },
-          "default_value": "",
-          "placeholder": "",
-          "prepend": "",
-          "append": "",
-          "maxlength": ""
+            "key": "field_5df7ebb7fc4d1",
+            "label": "Listing Credit ID",
+            "name": "listing_credit_id",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
         },
         {
-          "key": "field_5df7f3e13e1e5",
-          "label": "Listing Credit Name",
-          "name": "listing_credit_name",
-          "type": "text",
-          "instructions": "",
-          "required": 0,
-          "conditional_logic": 0,
-          "wrapper": {
-            "width": "",
-            "class": "",
-            "id": ""
-          },
-          "default_value": "",
-          "placeholder": "",
-          "prepend": "",
-          "append": "",
-          "maxlength": ""
+            "key": "field_5df7f3e13e1e5",
+            "label": "Listing Credit Name",
+            "name": "listing_credit_name",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
         },
         {
-          "key": "field_5df7f4053e1e6",
-          "label": "Listing Credit Caption",
-          "name": "listing_credit_caption",
-          "type": "text",
-          "instructions": "",
-          "required": 0,
-          "conditional_logic": 0,
-          "wrapper": {
-            "width": "",
-            "class": "",
-            "id": ""
-          },
-          "default_value": "",
-          "placeholder": "",
-          "prepend": "",
-          "append": "",
-          "maxlength": ""
+            "key": "field_5df7f4053e1e6",
+            "label": "Listing Credit Caption",
+            "name": "listing_credit_caption",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
         },
         {
-          "key": "field_5df7f4153e1e7",
-          "label": "Listing Credit URL",
-          "name": "listing_credit_url",
-          "type": "text",
-          "instructions": "",
-          "required": 0,
-          "conditional_logic": 0,
-          "wrapper": {
-            "width": "",
-            "class": "",
-            "id": ""
-          },
-          "default_value": "",
-          "placeholder": "",
-          "prepend": "",
-          "append": "",
-          "maxlength": ""
+            "key": "field_5df7f4153e1e7",
+            "label": "Listing Credit URL",
+            "name": "listing_credit_url",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
         },
         {
             "key": "field_otis_16",
@@ -2388,6 +2369,154 @@
             "placeholder": "",
             "prepend": "",
             "append": ""
+        },
+        {
+            "key": "field_otis_113",
+            "label": "Capacity",
+            "name": "capacity",
+            "type": "taxonomy",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "taxonomy": "capacity",
+            "field_type": "checkbox",
+            "multiple": 0,
+            "allow_null": 0,
+            "return_format": "id",
+            "add_term": 1,
+            "load_terms": 0,
+            "save_terms": 0
+        },
+        {
+            "key": "field_otis_115",
+            "label": "COVID-19 reopening details (have offerings and\/or procedures changed?)",
+            "name": "covid19_info",
+            "type": "text",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_otis_31",
+            "label": "End Time",
+            "name": "end_time",
+            "type": "text",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_otis_106",
+            "label": "Open by appointment only",
+            "name": "open_appointment_only",
+            "type": "true_false",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": 0,
+            "message": "",
+            "ui": 0,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_otis_105",
+            "label": "Oregon Wines Fly Free",
+            "name": "oregon_wines_fly_free",
+            "type": "true_false",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": 0,
+            "message": "",
+            "ui": 0,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        },
+        {
+            "key": "field_otis_49",
+            "label": "Start Time",
+            "name": "start_time",
+            "type": "text",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_otis_107",
+            "label": "Varieties Offered",
+            "name": "varieties_offered",
+            "type": "taxonomy",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "taxonomy": "varieties_offered",
+            "field_type": "checkbox",
+            "multiple": 0,
+            "allow_null": 0,
+            "return_format": "id",
+            "add_term": 1,
+            "load_terms": 0,
+            "save_terms": 0
+        },
+        {
+            "key": "field_otis_114",
+            "label": "YES, open for onsite visitation during COVID-19",
+            "name": "covid19",
+            "type": "true_false",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": 0,
+            "message": "",
+            "ui": 0,
+            "ui_on_text": "",
+            "ui_off_text": ""
         }
     ],
     "location": [
@@ -2407,5 +2536,5 @@
     "hide_on_screen": "",
     "active": 1,
     "description": "",
-    "modified": 1608084894
+    "modified": 1614810488
 }
