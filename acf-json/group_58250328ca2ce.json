@@ -439,9 +439,47 @@
             ]
         },
         {
+            "key": "field_otis_109",
+            "label": "Service Area Description",
+            "name": "service_area_description",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
             "key": "field_otis_54",
             "label": "Hours",
             "name": "hours",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_otis_117",
+            "label": "Transportation Service Category",
+            "name": "transportation_services",
             "type": "text",
             "instructions": "",
             "required": 0,
@@ -647,7 +685,7 @@
                 "id": ""
             },
             "taxonomy": "otis_category",
-            "field_type": "select",
+            "field_type": "multi_select",
             "multiple": 0,
             "allow_null": 0,
             "return_format": "id",
@@ -2333,47 +2371,6 @@
             "append": ""
         },
         {
-            "key": "field_otis_119",
-            "label": "Artist Name",
-            "name": "artist_name",
-            "type": "text",
-            "instructions": "",
-            "required": false,
-            "conditional_logic": false,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "default_value": "",
-            "maxlength": "",
-            "placeholder": "",
-            "prepend": "",
-            "append": ""
-        },
-        {
-            "key": "field_otis_116",
-            "label": "Cannabis Categories",
-            "name": "cannabis_categories",
-            "type": "taxonomy",
-            "instructions": "",
-            "required": false,
-            "conditional_logic": false,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "taxonomy": "cannabis_categories",
-            "field_type": "checkbox",
-            "multiple": 0,
-            "allow_null": 0,
-            "return_format": "id",
-            "add_term": 1,
-            "load_terms": 0,
-            "save_terms": 0
-        },
-        {
             "key": "field_otis_113",
             "label": "Capacity",
             "name": "capacity",
@@ -2387,116 +2384,6 @@
                 "id": ""
             },
             "taxonomy": "capacity",
-            "field_type": "checkbox",
-            "multiple": 0,
-            "allow_null": 0,
-            "return_format": "id",
-            "add_term": 1,
-            "load_terms": 0,
-            "save_terms": 0
-        },
-        {
-            "key": "field_otis_117",
-            "label": "Category (Event Services)",
-            "name": "category_event_services",
-            "type": "taxonomy",
-            "instructions": "",
-            "required": false,
-            "conditional_logic": false,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "taxonomy": "category_event_services",
-            "field_type": "checkbox",
-            "multiple": 0,
-            "allow_null": 0,
-            "return_format": "id",
-            "add_term": 1,
-            "load_terms": 0,
-            "save_terms": 0
-        },
-        {
-            "key": "field_otis_121",
-            "label": "Category (Farms, Ranches & U-Pick)",
-            "name": "category_farms_ranches_u_pick",
-            "type": "taxonomy",
-            "instructions": "",
-            "required": false,
-            "conditional_logic": false,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "taxonomy": "category_farms_ranches_u_pick",
-            "field_type": "checkbox",
-            "multiple": 0,
-            "allow_null": 0,
-            "return_format": "id",
-            "add_term": 1,
-            "load_terms": 0,
-            "save_terms": 0
-        },
-        {
-            "key": "field_otis_120",
-            "label": "Category (Health & Wellness)",
-            "name": "category_health_wellness",
-            "type": "taxonomy",
-            "instructions": "",
-            "required": false,
-            "conditional_logic": false,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "taxonomy": "category_health_wellness",
-            "field_type": "checkbox",
-            "multiple": 0,
-            "allow_null": 0,
-            "return_format": "id",
-            "add_term": 1,
-            "load_terms": 0,
-            "save_terms": 0
-        },
-        {
-            "key": "field_otis_122",
-            "label": "Category (Non-Tourism Businesses)",
-            "name": "category_non_tourism_businesses",
-            "type": "taxonomy",
-            "instructions": "",
-            "required": false,
-            "conditional_logic": false,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "taxonomy": "category_non_tourism_businesses",
-            "field_type": "checkbox",
-            "multiple": 0,
-            "allow_null": 0,
-            "return_format": "id",
-            "add_term": 1,
-            "load_terms": 0,
-            "save_terms": 0
-        },
-        {
-            "key": "field_otis_110",
-            "label": "Category (Shopping)",
-            "name": "category_shopping",
-            "type": "taxonomy",
-            "instructions": "",
-            "required": false,
-            "conditional_logic": false,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "taxonomy": "category_shopping",
             "field_type": "checkbox",
             "multiple": 0,
             "allow_null": 0,
@@ -2523,6 +2410,20 @@
             "placeholder": "",
             "prepend": "",
             "append": ""
+        },
+        {
+            "key": "field_otis_31",
+            "label": "End Time",
+            "name": "end_time",
+            "type": "text",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
         },
         {
             "key": "field_otis_106",
@@ -2563,6 +2464,20 @@
             "ui_off_text": ""
         },
         {
+            "key": "field_otis_49",
+            "label": "Start Time",
+            "name": "start_time",
+            "type": "text",
+            "instructions": "",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
             "key": "field_otis_107",
             "label": "Varieties Offered",
             "name": "varieties_offered",
@@ -2576,72 +2491,6 @@
                 "id": ""
             },
             "taxonomy": "varieties_offered",
-            "field_type": "checkbox",
-            "multiple": 0,
-            "allow_null": 0,
-            "return_format": "id",
-            "add_term": 1,
-            "load_terms": 0,
-            "save_terms": 0
-        },
-        {
-            "key": "field_otis_112",
-            "label": "Venue Amenities",
-            "name": "venue_amenities",
-            "type": "taxonomy",
-            "instructions": "",
-            "required": false,
-            "conditional_logic": false,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "taxonomy": "venue_amenities",
-            "field_type": "checkbox",
-            "multiple": 0,
-            "allow_null": 0,
-            "return_format": "id",
-            "add_term": 1,
-            "load_terms": 0,
-            "save_terms": 0
-        },
-        {
-            "key": "field_otis_111",
-            "label": "Venue Categories",
-            "name": "venue_categories",
-            "type": "taxonomy",
-            "instructions": "",
-            "required": false,
-            "conditional_logic": false,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "taxonomy": "venue_categories",
-            "field_type": "checkbox",
-            "multiple": 0,
-            "allow_null": 0,
-            "return_format": "id",
-            "add_term": 1,
-            "load_terms": 0,
-            "save_terms": 0
-        },
-        {
-            "key": "field_otis_104",
-            "label": "Wine Amenities",
-            "name": "wine_amenities",
-            "type": "taxonomy",
-            "instructions": "",
-            "required": false,
-            "conditional_logic": false,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "taxonomy": "wine_amenities",
             "field_type": "checkbox",
             "multiple": 0,
             "allow_null": 0,
@@ -2685,7 +2534,7 @@
     "label_placement": "top",
     "instruction_placement": "label",
     "hide_on_screen": "",
-    "active": true,
+    "active": 1,
     "description": "",
-    "modified": 1608084894
- }
+    "modified": 1614810488
+}

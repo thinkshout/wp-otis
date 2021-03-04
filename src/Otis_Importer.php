@@ -25,8 +25,6 @@ class Otis_Importer {
 	 */
 	private $attribute_map = [
 		'last_updated'                          => null,
-		'start_time'                            => null,
-		'end_time'                              => null,
 		'website'                               => null,
 		'bed_and_breakfast_amenities'           => 'amenities',
 		'boutique_hotels_amenities'             => 'amenities',
@@ -38,11 +36,20 @@ class Otis_Importer {
 		'resorts_amenities'                     => 'amenities',
 		'rv_parks_amenities'                    => 'amenities',
 		'vacation_rentals_amenities'            => 'amenities',
+		'venue_amenities'                       => 'amenities',
+		'wine_amenities'                        => 'amenities',
 		'lakes_and_reservoirs_category'         => 'otis_category',
 		'other_outdoor_category'                => 'otis_category',
 		'parks_and_recreational_areas_category' => 'otis_category',
 		'restaurants_category'                  => 'otis_category',
 		'rivers_and_streams_category'           => 'otis_category',
+		'category_cannabis'                     => 'otis_category',
+		'category_event_services'               => 'otis_category',
+		'category_farms_ranches_u_pick'         => 'otis_category',
+		'category_health_wellness'              => 'otis_category',
+		'category_non_tourism_businesses'       => 'otis_category',
+		'category_shopping'                     => 'otis_category',
+		'venue_categories'                      => 'otis_category',
 		'tag_list'                              => 'otis_tag',
 		'activities'                            => 'type',
 		'cycling_ride_type'                     => 'type',
@@ -1081,9 +1088,6 @@ class Otis_Importer {
 			];
 
 			switch ( $attribute['datatype'] ) {
-				case 'text':
-					$field['type'] = 'text';
-					break;
 				case 'float':
 					$field['type'] = 'number';
 					break;
@@ -1102,6 +1106,9 @@ class Otis_Importer {
 					break;
 				case 'date':
 					$field['type'] = 'date_picker';
+					break;
+				default:
+					$field['type'] = 'text';
 					break;
 			}
 
