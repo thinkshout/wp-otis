@@ -69,7 +69,6 @@ function wp_otis_get_post_id_for_uuid( $uuid ) {
  */
 function wp_otis_acf_json_load_point( $paths ) {
 	$paths[] = WP_OTIS_PLUGIN_PATH . 'acf-json';
-	$paths[] = WP_OTIS_SETTINGS_PATH . 'acf-json';
 
 	return $paths;
 }
@@ -302,6 +301,21 @@ function wp_otis_fields_load() {
 	}
 
 	return $field_group;
+}
+
+/**
+ * Load OTIS settings.
+ *
+ * @return array
+ */
+function wp_otis_settings_load() {
+  static $settings_field_group = null;
+
+  if ( ! $settings_field_group ) {
+    $settings_field_group = json_decode( file_get_contents( WP_OTIS_SETTINGS_PATH ), true );
+  }
+
+  return $settings_field_group;
 }
 
 /**

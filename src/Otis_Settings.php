@@ -20,6 +20,7 @@ class Otis_Settings {
   private $filteredTypes;
   private $filteredCities;
   private $filteredRegions;
+  private $settingsGroup;
 
   /**
    * Otis_Settings constructor.
@@ -30,6 +31,8 @@ class Otis_Settings {
   public function __construct( $otis, $logger ) {
     $this->otis   = $otis;
     $this->logger = $logger;
+
+    $this->settingsGroup = wp_otis_settings_load();
   }
 
   /**
