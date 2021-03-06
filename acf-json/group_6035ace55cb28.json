@@ -1,95 +1,93 @@
-[
-    {
-        "key": "group_6035ace55cb28",
-        "title": "OTIS Settings",
-        "fields": [
-            {
-                "key": "field_6035ae19515bd",
-                "label": "Filter Listings By Type?",
-                "name": "filter_listings_by_type",
-                "type": "taxonomy",
-                "instructions": "Leave unchecked to import all types of listings.",
-                "required": 0,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "taxonomy": "type",
-                "field_type": "checkbox",
-                "add_term": 0,
-                "save_terms": 0,
-                "load_terms": 0,
-                "return_format": "object",
-                "multiple": 0,
-                "allow_null": 0
+{
+    "key": "group_6035ace55cb28",
+    "title": "OTIS Settings",
+    "fields": [
+        {
+            "key": "field_6035ae19515bd",
+            "label": "Filter Listings By Type?",
+            "name": "filter_listings_by_type",
+            "type": "taxonomy",
+            "instructions": "Leave unchecked to import all types of listings.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
             },
-            {
-                "key": "field_6036ebdb66773",
-                "label": "Filter Listings By City?",
-                "name": "filter_listings_by_city",
-                "type": "post_object",
-                "instructions": "",
-                "required": 0,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "post_type": [
-                    "poi"
-                ],
-                "taxonomy": [
-                    "type:cities"
-                ],
-                "allow_null": 0,
-                "multiple": 1,
-                "return_format": "object",
-                "ui": 1
+            "taxonomy": "type",
+            "field_type": "checkbox",
+            "add_term": 0,
+            "save_terms": 0,
+            "load_terms": 0,
+            "return_format": "object",
+            "multiple": 0,
+            "allow_null": 0
+        },
+        {
+            "key": "field_6036ebdb66773",
+            "label": "Filter Listings By City?",
+            "name": "filter_listings_by_city",
+            "type": "post_object",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
             },
+            "post_type": [
+                "poi"
+            ],
+            "taxonomy": [
+                "type:cities"
+            ],
+            "allow_null": 0,
+            "multiple": 1,
+            "return_format": "object",
+            "ui": 1
+        },
+        {
+            "key": "field_6036ec6266774",
+            "label": "Filter Listings by Region?",
+            "name": "filter_listings_by_region",
+            "type": "post_object",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "post_type": [
+                "poi"
+            ],
+            "taxonomy": [
+                "type:regions"
+            ],
+            "allow_null": 0,
+            "multiple": 1,
+            "return_format": "object",
+            "ui": 1
+        }
+    ],
+    "location": [
+        [
             {
-                "key": "field_6036ec6266774",
-                "label": "Filter Listings by Region?",
-                "name": "filter_listings_by_region",
-                "type": "post_object",
-                "instructions": "",
-                "required": 0,
-                "conditional_logic": 0,
-                "wrapper": {
-                    "width": "",
-                    "class": "",
-                    "id": ""
-                },
-                "post_type": [
-                    "poi"
-                ],
-                "taxonomy": [
-                    "type:regions"
-                ],
-                "allow_null": 0,
-                "multiple": 1,
-                "return_format": "object",
-                "ui": 1
+                "param": "options_page",
+                "operator": "==",
+                "value": "otis-settings"
             }
-        ],
-        "location": [
-            [
-                {
-                    "param": "options_page",
-                    "operator": "==",
-                    "value": "otis-settings"
-                }
-            ]
-        ],
-        "menu_order": 0,
-        "position": "normal",
-        "style": "default",
-        "label_placement": "top",
-        "instruction_placement": "label",
-        "hide_on_screen": "",
-        "active": true,
-        "description": ""
-    }
-]
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": ""
+}
