@@ -19,6 +19,7 @@ define( 'WP_OTIS_TOKEN', 'wp_otis_token' );
 define( 'WP_OTIS_LAST_IMPORT_DATE', 'wp_otis_last_import_date' );
 define( 'WP_OTIS_BULK_IMPORT_ACTIVE', 'wp_otis_bulk_import_active' );
 define( 'WP_OTIS_BULK_HISTORY_ACTIVE', 'wp_otis_bulk_history_active' );
+define( 'WP_OTIS_BULK_DISABLE_CACHE', 1 );
 
 require_once 'wp-otis-poi.php';
 require_once 'src/Otis_Importer.php';
@@ -85,6 +86,10 @@ if ( ! wp_next_scheduled( 'wp_otis_cron' ) ) {
 
 add_action( 'wp_otis_cron', function () {
 
+	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
+		wp_cache_add_non_persistent_groups( ['acf'] );
+	}
+
     $bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
 
     if ($bulk == false) {
@@ -116,6 +121,10 @@ add_action( 'wp_otis_cron', function () {
 
 add_action( 'wp_otis_bulk_importer', function($modified, $all, $page, $related_only = false) {
 
+	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
+		wp_cache_add_non_persistent_groups( ['acf'] );
+	}
+
     $otis     = new Otis();
     $logger   = new Otis_Logger_Simple();
     $importer = new Otis_Importer( $otis, $logger );
@@ -135,6 +144,10 @@ add_action( 'wp_otis_bulk_importer', function($modified, $all, $page, $related_o
 }, 10, 3 );
 
 add_action( 'wp_otis_bulk_history_importer', function($modified, $all, $page, $related_only = false) {
+
+	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
+		wp_cache_add_non_persistent_groups( ['acf'] );
+	}
 
 	$otis     = new Otis();
 	$logger   = new Otis_Logger_Simple();
@@ -159,6 +172,11 @@ if ( ! wp_next_scheduled( 'wp_otis_expire_events' ) ) {
 }
 
 add_action( 'wp_otis_expire_events', function () {
+
+  if ( WP_OTIS_BULK_DISABLE_CACHE ) {
+  	wp_cache_add_non_persistent_groups( ['acf'] );
+  }
+
   $logger = new Otis_Logger_Simple();
 
   $logger->log( 'Checking for expired posts -----------------------');
