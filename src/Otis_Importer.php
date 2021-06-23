@@ -196,7 +196,6 @@ class Otis_Importer {
 		 */
 		function start_bulk() {
 			update_option( WP_OTIS_BULK_IMPORT_ACTIVE, true );
-			update_option( WP_OTIS_BULK_HISTORY_ACTIVE, true );
 			$log[] = 'OTIS bulk import flag set to true';
 			return $log;
 		}
