@@ -84,7 +84,7 @@ class Otis_Importer {
 			$args = [ $args ];
 		}
 
-        $bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
+    $bulk = isset( $assoc_args['bulk'] ) ? $assoc_args['bulk'] : get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
 
 		switch ( $args[0] ) {
 			case 'terms':
@@ -124,11 +124,11 @@ class Otis_Importer {
                 $this->_import_pois( $assoc_args );
                 $this->_import_history( $assoc_args );
 
-	            if (!$bulk) {
-		            $log[] = 'POI import complete.';
-	            } else {
-		            $log[] = 'Adding bulk import CRON.';
-	            }
+								if (!$bulk) {
+									$log[] = 'POI import complete.';
+								} else {
+									$log[] = 'Adding bulk import CRON.';
+								}
 
                 return $log;
 
@@ -184,10 +184,22 @@ class Otis_Importer {
      */
     function nobulk() {
         update_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
-	    update_option( WP_OTIS_BULK_HISTORY_ACTIVE, false );
+				update_option( WP_OTIS_BULK_HISTORY_ACTIVE, false );
         $log[] = 'OTIS bulk import flag set to false';
         return $log;
     }
+	
+		/**
+		 * Sets bulk importer flag to true
+		 * 
+		 * @return array
+		 */
+		function start_bulk() {
+			update_option( WP_OTIS_BULK_IMPORT_ACTIVE, true );
+			update_option( WP_OTIS_BULK_HISTORY_ACTIVE, true );
+			$log[] = 'OTIS bulk import flag set to true';
+			return $log;
+		}
 
 	/**
 	 * Fetches the full attribute schema for an OTIS type.
@@ -290,7 +302,7 @@ class Otis_Importer {
 
         $params = [
             'geo_data' => 'true',
-	        'reverse_relations' => 'true'
+						'reverse_relations' => 'true'
         ];
 
         if ( isset( $assoc_args['modified'] ) ) {
@@ -320,23 +332,23 @@ class Otis_Importer {
             return;
         }
 
-	    $import_related_only = false;
-	    if ( isset($assoc_args['related_only']) ) {
-		    $import_related_only = $assoc_args['related_only'];
-	    }
+				$import_related_only = false;
+				if ( isset($assoc_args['related_only']) ) {
+					$import_related_only = $assoc_args['related_only'];
+				}
 
-	    if ( $import_related_only && $params['page'] == 1) {
-		    $params[] = ['reverse_relations' => 'true'];
-		    $this->logger->log("Importing POIs with relationships only");
-	    }
+				if ( $import_related_only && $params['page'] == 1) {
+					$params[] = ['reverse_relations' => 'true'];
+					$this->logger->log("Importing POIs with relationships only");
+				}
 
         $uuids = array_pluck( $listings['results'], 'uuid' );
 
         /* First page of an import that will require multiple chapters */
         if ((($listings['count'] / $params['page_size']) > $chapter_size) && ($params['page'] == 1)) {
             update_option( WP_OTIS_BULK_IMPORT_ACTIVE, true );
-	        $logger_date = isset($assoc_args['modified']) ? "(".date( 'Y-m-d', strtotime( $assoc_args['modified'] ) ).")" : "";
-	        $this->logger->log("OTIS bulk import detected: ".$listings['count']." updates. ".$logger_date);
+						$logger_date = isset($assoc_args['modified']) ? "(".date( 'Y-m-d', strtotime( $assoc_args['modified'] ) ).")" : "";
+						$this->logger->log("OTIS bulk import detected: ".$listings['count']." updates. ".$logger_date);
         }
 
         $the_query = new WP_Query( [

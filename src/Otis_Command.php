@@ -44,21 +44,37 @@ class Otis_Command extends WP_CLI_Command {
 		}
 	}
 
-    /**
-     * Remove bulk import status from OTIS.
-     */
-    function nobulk( ) {
-        try {
-            $log = $this->importer->nobulk( );
-	        if (is_array($log)) {
-		        WP_CLI::log( implode( PHP_EOL, $log ) );
-	        } else {
-		        WP_CLI::log( implode( PHP_EOL, array( $log ) ) );
-	        }
-        } catch ( Exception $e ) {
-            WP_CLI::error( 'Importer Error: ' . $e->getMessage() );
-        }
-    }
+	/**
+	 * Remove bulk import status from OTIS.
+	 */
+	function nobulk( ) {
+		try {
+				$log = $this->importer->nobulk( );
+			if (is_array($log)) {
+				WP_CLI::log( implode( PHP_EOL, $log ) );
+			} else {
+				WP_CLI::log( implode( PHP_EOL, array( $log ) ) );
+			}
+		} catch ( Exception $e ) {
+			WP_CLI::error( 'Importer Error: ' . $e->getMessage() );
+		}
+	}
+
+	/**
+	 * Start bulk import
+	 */
+	function start_bulk() {
+		try {
+			$log = $this->importer->start_bulk( );
+			if (is_array($log)) {
+				WP_CLI::log( implode( PHP_EOL, $log ) );
+			} else {
+				WP_CLI::log( implode( PHP_EOL, array( $log ) ) );
+			}
+		} catch ( Exception $e ) {
+			WP_CLI::error( 'Importer Error: ' . $e->getMessage() );
+		}
+	}
 
 
 	/**
