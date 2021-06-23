@@ -300,7 +300,7 @@ class Otis_Importer {
 
         $params = apply_filters( 'wp_otis_listings', $params );
 
-        $params['page_size'] = 25;  // POIs per page
+        $params['page_size'] = $assoc_args['page_size'] ?? 50;  // POIs per page
         $params['page']      = $assoc_args['page'] ?? 1;
         $chapter_size        = 5; // pages per chapter
         $next_chapter        = $params['page'] % $chapter_size == 0 ? true : false;
