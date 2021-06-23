@@ -26,6 +26,7 @@ require_once 'src/Otis_Importer.php';
 require_once 'src/Otis_Logger_Simple.php';
 require_once 'src/Otis_Command.php';
 require_once 'wp-logging/WP_Logging.php';
+require_once 'wp-otis-controls.php';
 // require_once 'wp-otis-debug.php';
 
 /**
@@ -119,7 +120,7 @@ add_action( 'wp_otis_cron', function () {
 
 } );
 
-add_action( 'wp_otis_bulk_importer', function($modified, $all, $page, $related_only = false) {
+add_action( 'wp_otis_bulk_importer', function($modified, $all, $page, $page_size, $related_only = false) {
 
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
@@ -134,6 +135,7 @@ add_action( 'wp_otis_bulk_importer', function($modified, $all, $page, $related_o
         $importer->import( 'pois-only', [
             'modified' => $modified,
             'page' => $page,
+						'page_size' => $page_size,
             'related_only' => $related_only,
             'all' => $all
         ] );
