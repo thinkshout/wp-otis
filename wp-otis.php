@@ -119,7 +119,7 @@ add_action( 'wp_otis_cron', function () {
 
 } );
 
-add_action( 'wp_otis_bulk_importer', function($modified, $all, $page, $page_size, $related_only = false) {
+add_action( 'wp_otis_bulk_importer', function($modified, $all, $page, $page_size = 50, $related_only = false) {
 
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
