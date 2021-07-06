@@ -78,7 +78,7 @@ add_filter( 'acf/settings/load_json', 'wp_otis_acf_json_load_point' );
 // On initial plugin installation or restart after a bulk import, begin hourly update schedule one minute later
 if ( ! wp_next_scheduled( 'wp_otis_cron' ) ) {
     $bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, '' );
-	$bulk_history = get_option( WP_OTIS_BULK_HISTORY_ACTIVE, '' );
+		$bulk_history = get_option( WP_OTIS_BULK_HISTORY_ACTIVE, '' );
     if ( ! wp_next_scheduled( 'wp_otis_bulk_importer' ) && !($bulk) & ! wp_next_scheduled( 'wp_otis_bulk_history_importer' ) && !($bulk_history))  {
         wp_schedule_event(time() + 60 * 1, 'hourly', 'wp_otis_cron');
     }
@@ -613,3 +613,17 @@ add_filter( 'wp_logging_prune_when', function ( $time ) {
 if ( ! wp_next_scheduled( 'wp_logging_prune_routine' ) ) {
 	wp_schedule_event( time(), 'hourly', 'wp_logging_prune_routine' );
 }
+
+/**
+ * Disable REDIS Caching while importing
+ */
+add_filter( 'redis_object_cache_redis_status', function( $redis_status ) {
+	$bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
+	if ( $bulk ) {
+		// This disables the Redis connection usage
+		// when bulk importer is running.
+		return false;
+	}
+
+	return $redis_status;
+} );
