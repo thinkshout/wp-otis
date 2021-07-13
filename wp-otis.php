@@ -25,6 +25,7 @@ require_once 'wp-otis-poi.php';
 require_once 'src/Otis_Importer.php';
 require_once 'src/Otis_Logger_Simple.php';
 require_once 'src/Otis_Command.php';
+require_once 'src/Otis_Dashboard.php';
 require_once 'wp-logging/WP_Logging.php';
 // require_once 'wp-otis-debug.php';
 
@@ -615,15 +616,6 @@ if ( ! wp_next_scheduled( 'wp_logging_prune_routine' ) ) {
 }
 
 /**
- * Disable REDIS Caching while importing
+ * Init the dashboard
  */
-add_filter( 'redis_object_cache_redis_status', function( $redis_status ) {
-	$bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
-	if ( $bulk ) {
-		// This disables the Redis connection usage
-		// when bulk importer is running.
-		return false;
-	}
-
-	return $redis_status;
-} );
+new Otis_Dashboard();
