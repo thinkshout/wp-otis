@@ -8,6 +8,7 @@ class Otis_Dashboard
     wp_enqueue_script( 'axios' );
     wp_enqueue_script( 'vue' );
 
+    wp_enqueue_style( 'otis-dashboard-styles', plugins_url( '../css/dashboard.css', __FILE__ ), [], '1.0' );
     wp_enqueue_script( 'otis-dashboard', plugins_url( '../js/dashboard.js', __FILE__ ), [], '1.0', true );
   }
 
