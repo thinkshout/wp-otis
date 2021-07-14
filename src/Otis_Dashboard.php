@@ -11,7 +11,7 @@ class Otis_Dashboard
   public function otis_dashboard_scripts() {
     wp_enqueue_media();
     wp_register_script( 'axios', 'https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js', [], '0.21.1' );
-    wp_register_script( 'vue', 'https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js', [], '2.6.14' );
+    wp_register_script( 'vue', 'https://cdn.jsdelivr.net/npm/vue@2.6.14', [], '2.6.14' );
     wp_enqueue_script( 'axios' );
     wp_enqueue_script( 'vue' );
     wp_register_script( 'otis-dashboard', plugins_url( '../js/dashboard.js', __FILE__ ), [], '1.0', true );

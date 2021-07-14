@@ -7,12 +7,17 @@
         <div v-if="displayInitialImport" class="otis-dashboard__banner">
           <div class="otis-dashboard__initial-import">
             <div class="postbox">
+              <div v-if="importStarting" class="otis-ellipsis"><div /><div /><div /><div /></div>
               <h2>Initial POI Import</h2>
               <p>Start here if this is your first time running the plugin. This button will trigger the initial import of POI data from OTIS.</p>
-              <p><em>Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme a different plugin.</em></p>
+              <p><em>Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme or a different plugin.</em></p>
               <div class="otis-dashboard__action">
-                <button class="button button-primary" @click="triggerInitialImport">
-                  Import POIs
+                <p v-if="importStarting">POI import starting, please wait this usually takes a few minutes...</p>
+                <button class="button button-primary" :disabled="importStarting" @click="triggerInitialImport">
+                  <span v-if="importStarting">
+                    Import Starting Please Wait...
+                  </span>
+                  <span v-else>Start Importing POIs</span>
                 </button>
               </div>
             </div>
@@ -45,7 +50,7 @@
               <div v-if="importStarting" class="otis-ellipsis"><div /><div /><div /><div /></div>
               <h2>Modified POI Import & Update</h2>
               <p>Start an import of POIs that have been modified since a given date. POIs that already exist on the site will be updated if they fall in the date range.</p>
-              <p><em>Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme a different plugin.</em></p>
+              <p><em>Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme or a different plugin.</em></p>
               <div class="otis-dashboard__action">
                 <label for="modified-date">Start Date</label>
                 <input id="modified-date" type="text" name="otis-modified-date" placeholder="YYYY-MM-DD" :readonly="importStarting" v-model="fromDate" />
@@ -54,7 +59,7 @@
                   <span v-if="importStarting">
                     Import Starting Please Wait...
                   </span>
-                  <span v-else>Import Modified POIs</span>
+                  <span v-else>Start Importing Modified POIs</span>
                 </button>
               </div>
             </div>
@@ -70,7 +75,7 @@
               </div>
             </div>
           </div>
-          <div class="otis-dashboard__setting">
+          <div v-if="!displayInitialImport" class="otis-dashboard__setting">
             <div class="postbox">
               <div v-if="logLoading" class="otis-ellipsis"><div /><div /><div /><div /></div>
               <h2>Import Log Preview</h2>
@@ -90,7 +95,7 @@
               <a :href="importLogUrl" role="button" class="button">View Full Import Log</a>
             </div>
           </div>
-          <div class="otis-dashboard__setting">
+          <div v-if="!displayInitialImport" class="otis-dashboard__setting">
             <div class="postbox">
               <div v-if="countsLoading" class="otis-ellipsis"><div /><div /><div /><div /></div>
               <h2>POI Counts</h2>
@@ -138,7 +143,7 @@
 				return this.bulkHistoryImportActive ? "Active" : "Inactive";
 			},
 			displayInitialImport() {
-				if (Object.keys(this.poiCount).length === 0) return false;
+				if (this.countsLoading) return false;
 				let count = 0;
 				for (const key in this.poiCount) {
 					if (Object.hasOwnProperty.call(this.poiCount, key)) {
@@ -194,6 +199,7 @@
 					this[key] = data[key];
 				});
 				this.countsLoading = false;
+				await this.otisLogPreview();
 			},
 			async otisLogPreview() {
 				this.logLoading = true;
@@ -217,7 +223,18 @@
 				);
 				await this.otisStatus();
 			},
-			triggerInitialImport() {},
+			async triggerInitialImport() {
+				this.importStarting = true;
+				const payload = this.makePayload({
+					action: "otis_import",
+				});
+				const { data } = await axios.post(
+					this.otisDashObject.ajax_url,
+					payload
+				);
+				await this.otisStatus();
+				this.importStarting = false;
+			},
 			async triggerModifiedImport() {
 				if (!this.dateIsValid) return;
 				this.importStarting = true;
@@ -237,7 +254,6 @@
 		},
 		async mounted() {
 			await this.otisStatus();
-			await this.otisLogPreview();
 		},
 	});
 })();
