@@ -4,32 +4,104 @@
 		template: `
       <div class="otis-dashboard">
         <h1>OTIS Dashboard</h1>
-        <div class="otis-dashboard__statuses">
-          <div class="otis-dashboard__status">
-            <p>Last Import</p>
-            <p>{{ lastImport }}</p>
-          </div>
-          <div class="otis-dashboard__status">
-            <p>Bulk Importer Active</p>
-            <p>{{ importerActive }}</p>
-          </div>
-          <div class="otis-dashboard__status">
-            <p>Bulk History Importer Active</p>
-            <p>{{ historyImporterActive }}</p>
-          </div>
-        </div>
-        <div class="otis-dashboard__settings">
-          <div class="input-text-wrap">
-            <label for="modified-date">Import Modified POIs Since Date</label>
-            <input id="modified-date" type="text" name="otis-modified-date" placeholder="YYYY-MM-DD" v-model="fromDate" />
+        <div v-if="displayInitialImport" class="otis-dashboard__banner">
+          <div class="otis-dashboard__initial-import">
+            <div class="postbox">
+              <h2>Initial POI Import</h2>
+              <p>Start here if this is your first time running the plugin. This button will trigger the initial import of POI data from OTIS.</p>
+              <p><em>Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme a different plugin.</em></p>
+              <div class="otis-dashboard__action">
+                <button class="button button-primary" @click="triggerInitialImport">
+                  Import POIs
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="otis-dashboard__buttons">
-          <button class="button button-primary" @click="triggerImport">
-            Start
-            <span v-if="fromDate">Modified POIs Import</span>
-            <span v-else>Bulk Import</span>
-          </button>
+        <div v-if="!displayInitialImport" class="otis-dashboard__statuses">
+          <div class="otis-dashboard__status">
+            <div class="postbox">
+              <h2>Last Import</h2>
+              <p>{{ lastImport }}</p>
+            </div>
+          </div>
+          <div class="otis-dashboard__status">
+            <div class="postbox">
+              <h2>Bulk Importer Status</h2>
+              <p>{{ importerActive }}</p>
+            </div>
+          </div>
+          <div class="otis-dashboard__status">
+            <div class="postbox">
+              <h2>Bulk History Importer Status</h2>
+              <p>{{ historyImporterActive }}</p>
+            </div>
+          </div>
+        </div>
+        <div v-if="!displayInitialImport" class="otis-dashboard__settings">
+          <div class="otis-dashboard__setting">
+            <div class="postbox">
+              <h2>Modified POI Import & Update</h2>
+              <p>Start an import of POIs that have been modified since a given date. POIs that already exist on the site will be updated if they fall in the date range.</p>
+              <p><em>Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme a different plugin.</em></p>
+              <div class="otis-dashboard__action">
+                <label for="modified-date">Start Date</label>
+                <input id="modified-date" type="text" name="otis-modified-date" placeholder="YYYY-MM-DD" v-model="fromDate" />
+                <button class="button button-primary" :disabled="!dateIsValid" @click="triggerModifiedImport">
+                  Import Modified POIs
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="otis-dashboard__setting">
+            <div class="postbox">
+              <h2>Stop Bulk Importer</h2>
+              <p>Manually deactivates the bulk importer. If a large import is interrupted for some reason, the "bulk" flag can stay active on the server (see above). Use this button to turn the "bulk" flag off, and re-start hourly imports.</p>
+              <div class="otis-dashboard__action">
+                <button class="button button-primary" :disabled="!bulkImportActive" @click="stopBulkImporter">
+                  Stop Bulk Importer
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="otis-dashboard__setting">
+            <div class="postbox">
+              <h2>Import Log Preview</h2>
+              <p>The last 15 entries in the import log. The full import log is available under <a :href="importLogUrl">POIs > Import Log</a>.</p>
+              <table class="otis-dashboard__import-log">
+                <thead>
+                  <tr>
+                    <th>Log Entry</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="({ post_content }, index) of importLog" :key="index">
+                    <td>{{ post_content }}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <a :href="importLogUrl" role="button" class="button">View Full Import Log</a>
+            </div>
+          </div>
+          <div class="otis-dashboard__setting">
+            <div class="postbox">
+              <h2>POI Counts</h2>
+              <table class="otis-dashboard__poi-counts">
+                <thead>
+                  <tr>
+                    <th>Status</th>
+                    <th>Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(count, status) of poiCount" :key="status">
+                    <td>{{ status }}</td>
+                    <td><a :href="poiPostsUrl(status)">{{ count }}</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     `,
@@ -38,6 +110,8 @@
 			lastImportDate: "",
 			bulkImportActive: "",
 			bulkHistoryImportActive: "",
+			poiCount: {},
+			importLog: [],
 		},
 		computed: {
 			lastImport() {
@@ -51,22 +125,70 @@
 			historyImporterActive() {
 				return this.bulkHistoryImportActive ? "Active" : "Inactive";
 			},
+			displayInitialImport() {
+				if (Object.keys(this.poiCount).length === 0) return false;
+				let count = 0;
+				for (const key in this.poiCount) {
+					if (Object.hasOwnProperty.call(this.poiCount, key)) {
+						const statusCount = this.poiCount[key];
+						count += parseInt(statusCount);
+					}
+				}
+				return count === 0;
+			},
+			dateIsValid() {
+				const formatCorrect = this.fromDate?.match(
+					/^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/g
+				);
+				if (!formatCorrect) return false;
+				const date = new Date(this.fromDate);
+				const now = new Date();
+				return date.getTime() < now.getTime();
+			},
+			otisDashObject() {
+				return otisDash;
+			},
+			importLogUrl() {
+				return `${this.otisDashObject.admin_url}edit.php?post_type=poi&page=tror_poi_otis_log`;
+			},
 		},
 		methods: {
-			async otisStatus() {
+			poiPostsUrl(status = null) {
+				if (!status)
+					return `${this.otisDashObject.admin_url}edit.php?post_type=poi`;
+				return `${this.otisDashObject.admin_url}edit.php?post_status=${status}&post_type=poi`;
+			},
+			makePayload(payloadData = {}) {
 				const payload = new FormData();
-				payload.append("action", "otis_status");
-				const { data } = await axios.post(otisDash.ajax_url, payload);
+				Object.keys(payloadData).forEach((key) => {
+					payload.append(key, payloadData[key]);
+				});
+				return payload;
+			},
+			async otisStatus() {
+				const payload = this.makePayload({ action: "otis_status" });
+				const { data } = await axios.post(
+					this.otisDashObject.ajax_url,
+					payload
+				);
 				Object.keys(data).forEach((key) => {
 					this[key] = data[key];
 				});
 			},
-			triggerImport() {
-				if (
-					this.fromDate?.match(
-						/^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/g
-					)
-				) {
+			async otisLogPreview() {
+				const payload = this.makePayload({
+					action: "otis_preview_log",
+				});
+				const { data } = await axios.post(
+					this.otisDashObject.ajax_url,
+					payload
+				);
+				this.importLog = data;
+			},
+			stopBulkImporter() {},
+			triggerInitialImport() {},
+			triggerModifiedImport() {
+				if (this.dateIsValid) {
 					console.log(this.fromDate);
 				} else {
 					console.log("No match");
@@ -75,6 +197,7 @@
 		},
 		async mounted() {
 			await this.otisStatus();
+			await this.otisLogPreview();
 		},
 	});
 })();
