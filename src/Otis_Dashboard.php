@@ -1,6 +1,13 @@
 <?php
+
+require_once 'Otis_Importer.php';
 class Otis_Dashboard 
 {
+  /**
+	 * @var Otis_Importer
+	 */
+	private $importer;
+
   public function otis_dashboard_scripts() {
     wp_enqueue_media();
     wp_register_script( 'axios', 'https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js', [], '0.21.1' );
@@ -29,11 +36,33 @@ class Otis_Dashboard
   }
 
   public function otis_start_import() {
-
+    $modified = isset($_POST['modified_date']) ? _sanitize_text_fields($_POST['modified_date']) : false;
+    $args = array(
+      'pois',
+    );
+    $assoc_args = array();
+    if ($modified) {
+      $assoc_args['modified'] = $modified;
+    }
+    try {
+      $log = $this->importer->import( $args, $assoc_args );
+      echo json_encode($log);
+    } catch ( Exception $e ) {
+      echo json_encode($e->getMessage());
+    } finally {
+      wp_die();
+    }
   }
 
   public function otis_stop_bulk_importer() {
-
+    try {
+      $log = $this->importer->nobulk( );
+      echo json_encode($log);
+    } catch ( Exception $e ) {
+      echo json_encode($e->getMessage());
+    } finally {
+      wp_die();
+    }
   }
 
   public function otis_log_preview() {
@@ -57,7 +86,7 @@ class Otis_Dashboard
     wp_die();
   }
   
-  function __construct() {
+  function __construct( $importer ) {
     add_action( 'admin_menu', [ $this, 'otis_dashboard_page' ] );
     add_action( 'admin_enqueue_scripts', [ $this, 'otis_dashboard_scripts' ] );
 
@@ -65,6 +94,9 @@ class Otis_Dashboard
     add_action( 'wp_ajax_otis_status', [ $this, 'otis_status' ] );
     add_action( 'wp_ajax_otis_import', [ $this, 'otis_start_import' ] );
     add_action( 'wp_ajax_otis_preview_log', [ $this, 'otis_log_preview' ] );
+    add_action( 'wp_ajax_otis_stop_bulk', [ $this, 'otis_stop_bulk_importer' ] );
+
+    $this->importer = $importer;
   }
 }
 

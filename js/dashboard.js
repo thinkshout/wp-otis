@@ -18,7 +18,7 @@
             </div>
           </div>
         </div>
-        <div v-if="!displayInitialImport" class="otis-dashboard__statuses">
+        <div class="otis-dashboard__statuses">
           <div class="otis-dashboard__status">
             <div class="postbox">
               <h2>Last Import</h2>
@@ -26,7 +26,8 @@
             </div>
           </div>
           <div class="otis-dashboard__status">
-            <div class="postbox">
+            <div :class="['postbox', { success: importStarted }]">
+              <div v-if="importStarting" class="otis-ellipsis"><div /><div /><div /><div /></div>
               <h2>Bulk Importer Status</h2>
               <p>{{ importerActive }}</p>
             </div>
@@ -38,22 +39,27 @@
             </div>
           </div>
         </div>
-        <div v-if="!displayInitialImport" class="otis-dashboard__settings">
-          <div class="otis-dashboard__setting">
-            <div class="postbox">
+        <div class="otis-dashboard__settings">
+          <div v-if="!displayInitialImport" class="otis-dashboard__setting">
+            <div :class="['postbox', { success: importStarted }]">
+              <div v-if="importStarting" class="otis-ellipsis"><div /><div /><div /><div /></div>
               <h2>Modified POI Import & Update</h2>
               <p>Start an import of POIs that have been modified since a given date. POIs that already exist on the site will be updated if they fall in the date range.</p>
               <p><em>Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme a different plugin.</em></p>
               <div class="otis-dashboard__action">
                 <label for="modified-date">Start Date</label>
-                <input id="modified-date" type="text" name="otis-modified-date" placeholder="YYYY-MM-DD" v-model="fromDate" />
-                <button class="button button-primary" :disabled="!dateIsValid" @click="triggerModifiedImport">
-                  Import Modified POIs
+                <input id="modified-date" type="text" name="otis-modified-date" placeholder="YYYY-MM-DD" :readonly="importStarting" v-model="fromDate" />
+                <p v-if="importStarting">POI import starting, please wait this usually takes a few minutes...</p>
+                <button class="button button-primary" :disabled="!dateIsValid || importStarting" @click="triggerModifiedImport">
+                  <span v-if="importStarting">
+                    Import Starting Please Wait...
+                  </span>
+                  <span v-else>Import Modified POIs</span>
                 </button>
               </div>
             </div>
           </div>
-          <div class="otis-dashboard__setting">
+          <div v-if="!displayInitialImport" class="otis-dashboard__setting">
             <div class="postbox">
               <h2>Stop Bulk Importer</h2>
               <p>Manually deactivates the bulk importer. If a large import is interrupted for some reason, the "bulk" flag can stay active on the server (see above). Use this button to turn the "bulk" flag off, and re-start hourly imports.</p>
@@ -66,8 +72,9 @@
           </div>
           <div class="otis-dashboard__setting">
             <div class="postbox">
+              <div v-if="logLoading" class="otis-ellipsis"><div /><div /><div /><div /></div>
               <h2>Import Log Preview</h2>
-              <p>The last 15 entries in the import log. The full import log is available under <a :href="importLogUrl">POIs > Import Log</a>.</p>
+              <p>The last 15 entries in the import log. The full import log is available under <a :href="importLogUrl">POI > Import Log</a>.</p>
               <table class="otis-dashboard__import-log">
                 <thead>
                   <tr>
@@ -85,6 +92,7 @@
           </div>
           <div class="otis-dashboard__setting">
             <div class="postbox">
+              <div v-if="countsLoading" class="otis-ellipsis"><div /><div /><div /><div /></div>
               <h2>POI Counts</h2>
               <table class="otis-dashboard__poi-counts">
                 <thead>
@@ -112,6 +120,10 @@
 			bulkHistoryImportActive: "",
 			poiCount: {},
 			importLog: [],
+			importStarting: false,
+			importStarted: false,
+			logLoading: false,
+			countsLoading: false,
 		},
 		computed: {
 			lastImport() {
@@ -165,7 +177,14 @@
 				});
 				return payload;
 			},
+			notifyImportStarted() {
+				this.importStarted = true;
+				setTimeout(() => {
+					this.importStarted = false;
+				}, 1000);
+			},
 			async otisStatus() {
+				this.countsLoading = true;
 				const payload = this.makePayload({ action: "otis_status" });
 				const { data } = await axios.post(
 					this.otisDashObject.ajax_url,
@@ -174,8 +193,10 @@
 				Object.keys(data).forEach((key) => {
 					this[key] = data[key];
 				});
+				this.countsLoading = false;
 			},
 			async otisLogPreview() {
+				this.logLoading = true;
 				const payload = this.makePayload({
 					action: "otis_preview_log",
 				});
@@ -183,16 +204,35 @@
 					this.otisDashObject.ajax_url,
 					payload
 				);
+				this.logLoading = false;
 				this.importLog = data;
 			},
-			stopBulkImporter() {},
+			async stopBulkImporter() {
+				const payload = this.makePayload({
+					action: "otis_stop_bulk",
+				});
+				const { data } = await axios.post(
+					this.otisDashObject.ajax_url,
+					payload
+				);
+				await this.otisStatus();
+			},
 			triggerInitialImport() {},
-			triggerModifiedImport() {
-				if (this.dateIsValid) {
-					console.log(this.fromDate);
-				} else {
-					console.log("No match");
-				}
+			async triggerModifiedImport() {
+				if (!this.dateIsValid) return;
+				this.importStarting = true;
+				const payload = this.makePayload({
+					action: "otis_import",
+					modified_date: this.fromDate,
+				});
+				const { data } = await axios.post(
+					this.otisDashObject.ajax_url,
+					payload
+				);
+				console.log({ data });
+				await this.otisStatus();
+				this.notifyImportStarted();
+				this.importStarting = false;
 			},
 		},
 		async mounted() {

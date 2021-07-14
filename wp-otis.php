@@ -618,4 +618,7 @@ if ( ! wp_next_scheduled( 'wp_logging_prune_routine' ) ) {
 /**
  * Init the dashboard
  */
-new Otis_Dashboard();
+$otis          = new Otis();
+$otis_logger   = new Otis_Logger_Simple();
+$otis_importer = new Otis_Importer( $otis, $otis_logger );
+new Otis_Dashboard( $otis_importer );

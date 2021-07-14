@@ -22,15 +22,28 @@
 	width: 50%;
 	padding: 10px 10px 10px 0;
 }
-.otis-dashboard .otis-dashboard__setting p {
+.otis-dashboard .otis-dashboard__initial-import {
+	box-sizing: border-box;
+	padding: 10px 10px 10px 0;
+}
+.otis-dashboard .otis-dashboard__setting p,
+.otis-dashboard .otis-dashboard__initial-import p {
 	margin: 0 0 5px;
 }
 .otis-dashboard .otis-dashboard__status .postbox,
+.otis-dashboard .otis-dashboard__initial-import .postbox,
 .otis-dashboard .otis-dashboard__settings .postbox {
 	margin-bottom: 0;
 	min-width: auto;
 	padding: 10px;
 	box-sizing: border-box;
+	position: relative;
+	transition: background-color 0.25s ease;
+}
+.otis-dashboard .otis-dashboard__status .postbox.success,
+.otis-dashboard .otis-dashboard__initial-import .postbox.success,
+.otis-dashboard .otis-dashboard__settings .postbox.success {
+	background-color: #28834c;
 }
 .otis-dashboard .otis-dashboard__settings {
 	padding: 10px 0px;
@@ -78,4 +91,63 @@
 .otis-dashboard .otis-dashboard__import-log td:last-child,
 .otis-dashboard .otis-dashboard__import-log th:last-child {
 	text-align: left;
+}
+
+.otis-dashboard .otis-ellipsis {
+	display: inline-block;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: 80px;
+	height: 80px;
+}
+.otis-dashboard .otis-ellipsis div {
+	position: absolute;
+	top: 33px;
+	width: 13px;
+	height: 13px;
+	border-radius: 50%;
+	background: #28834c;
+	animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+.otis-dashboard .otis-ellipsis div:nth-child(1) {
+	left: 8px;
+	animation: otis-ellipsis1 0.6s infinite;
+}
+.otis-dashboard .otis-ellipsis div:nth-child(2) {
+	left: 8px;
+	animation: otis-ellipsis2 0.6s infinite;
+}
+.otis-dashboard .otis-ellipsis div:nth-child(3) {
+	left: 32px;
+	animation: otis-ellipsis2 0.6s infinite;
+}
+.otis-dashboard .otis-ellipsis div:nth-child(4) {
+	left: 56px;
+	animation: otis-ellipsis3 0.6s infinite;
+}
+@keyframes otis-ellipsis1 {
+	0% {
+		transform: scale(0);
+	}
+	100% {
+		transform: scale(1);
+	}
+}
+@keyframes otis-ellipsis3 {
+	0% {
+		transform: scale(1);
+	}
+	100% {
+		transform: scale(0);
+	}
+}
+@keyframes otis-ellipsis2 {
+	0% {
+		transform: translate(0, 0);
+	}
+	100% {
+		transform: translate(24px, 0);
+	}
 }
