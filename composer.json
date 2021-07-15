@@ -9,5 +9,10 @@
       "homepage": "https://thinkshout.com/"
     }
   ],
-  "require": {}
+  "config": {
+    "vendor-dir": "lib"
+  },
+  "require": {
+    "deliciousbrains/wp-background-processing": "^1.0"
+  }
 }

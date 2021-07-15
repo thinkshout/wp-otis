@@ -385,9 +385,9 @@ class Otis_Importer {
             }
 
             try {
-                $post_id = $this->_upsert_poi( $post_id, $result, $import_related_only );
+							$post_id = $this->_upsert_poi( $post_id, $result, $import_related_only );
             } catch ( Exception $exception ) {
-                $this->logger->log( $exception->getMessage(), $post_id, 'error' );
+							$this->logger->log( $exception->getMessage(), $post_id, 'error' );
             }
 
         }
@@ -399,7 +399,7 @@ class Otis_Importer {
 
             $assoc_args['page'] = $params['page'] + 1;
 
-            if ($next_chapter) {
+            if ($next_chapter && !isset($assoc_args['background'])) {
                 wp_schedule_single_event( time(), 'wp_otis_bulk_importer', array($assoc_args['modified'],$assoc_args['all'],$assoc_args['page'],$params['page_size'],isset($assoc_args['related_only'])) );
             } else {
                 $this->_import_pois( $assoc_args );

@@ -1,6 +1,7 @@
 <?php
 
 require_once 'Otis_Importer.php';
+require_once 'Otis_Background.php';
 class Otis_Dashboard 
 {
   /**
@@ -48,11 +49,11 @@ class Otis_Dashboard
       $assoc_args['modified'] = $modified;
     }
     try {
-      $this->importer->logger->log('Starting importer from dashboard: ' . date('m/d/Y h:i:sa'));
-      $this->importer->import( $args, $assoc_args );
+      $this->background_processor->push_to_queue($this->importer->import( $args, $assoc_args ));
+      $this->background_processor->save()->dispatch();
       echo json_encode('starting import');
     } catch ( Exception $e ) {
-      $this->importer->logger->log('Error starting importer from dashboard: ' . date('m/d/Y h:i:sa'));
+      echo json_encode($e->getMessage());
     } finally {
       wp_die();
     }
@@ -60,7 +61,7 @@ class Otis_Dashboard
 
   public function otis_stop_bulk_importer() {
     try {
-      $log = $this->importer->nobulk( );
+      $log = $this->importer->nobulk();
       echo json_encode($log);
     } catch ( Exception $e ) {
       echo json_encode($e->getMessage());
@@ -101,6 +102,7 @@ class Otis_Dashboard
     add_action( 'wp_ajax_otis_stop_bulk', [ $this, 'otis_stop_bulk_importer' ] );
 
     $this->importer = $importer;
+    $this->background_processor = new Otis_Background_Processor();
   }
 }
 
