@@ -40,7 +40,9 @@ class Otis_Dashboard
     $args = array(
       'pois',
     );
-    $assoc_args = array();
+    $assoc_args = array(
+      'page_size' => 5,
+    );
     if ($modified) {
       $assoc_args['modified'] = $modified;
     }
