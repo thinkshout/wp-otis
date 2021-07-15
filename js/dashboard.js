@@ -193,7 +193,8 @@
 				const payload = this.makePayload({ action: "otis_status" });
 				const { data } = await axios.post(
 					this.otisDashObject.ajax_url,
-					payload
+					payload,
+					{ timeout: 0 }
 				);
 				Object.keys(data).forEach((key) => {
 					this[key] = data[key];
@@ -208,7 +209,8 @@
 				});
 				const { data } = await axios.post(
 					this.otisDashObject.ajax_url,
-					payload
+					payload,
+					{ timeout: 0 }
 				);
 				this.logLoading = false;
 				this.importLog = data;
@@ -219,7 +221,8 @@
 				});
 				const { data } = await axios.post(
 					this.otisDashObject.ajax_url,
-					payload
+					payload,
+					{ timeout: 0 }
 				);
 				await this.otisStatus();
 			},
@@ -230,7 +233,8 @@
 				});
 				const { data } = await axios.post(
 					this.otisDashObject.ajax_url,
-					payload
+					payload,
+					{ timeout: 0 }
 				);
 				await this.otisStatus();
 				this.importStarting = false;
@@ -244,7 +248,8 @@
 				});
 				const { data } = await axios.post(
 					this.otisDashObject.ajax_url,
-					payload
+					payload,
+					{ timeout: 0 }
 				);
 				console.log({ data });
 				await this.otisStatus();
