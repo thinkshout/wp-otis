@@ -1,7 +1,6 @@
 <?php
 
 require_once 'Otis_Importer.php';
-require_once 'Otis_Background.php';
 class Otis_Dashboard 
 {
   /**
@@ -108,7 +107,6 @@ class Otis_Dashboard
     add_action( 'wp_otis_dashboard_start_import', [ $this, 'otis_start_import' ], 10, 2 );
 
     $this->importer = $importer;
-    $this->background_processor = new Otis_Background_Processor();
   }
 }
 
