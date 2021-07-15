@@ -36,7 +36,11 @@ class Otis_Dashboard
     $this->otis_dashboard_ui();
   }
 
-  public function otis_start_import() {
+  public function otis_start_import($args, $assoc_args) {
+    $this->importer->import( $args, $assoc_args );
+  }
+
+  public function otis_init_import() {
     $modified = isset($_POST['modified_date']) ? _sanitize_text_fields($_POST['modified_date']) : false;
     $args = array(
       'pois',
@@ -50,9 +54,8 @@ class Otis_Dashboard
       $assoc_args['modified'] = $modified;
     }
     try {
-      $this->background_processor->push_to_queue($this->importer->import( $args, $assoc_args ));
-      $this->background_processor->save()->dispatch();
-      echo json_encode('starting import');
+      as_enqueue_async_action('wp_otis_dashboard_start_import', ['args' => $args, 'assoc_args' => $assoc_args]);
+      echo json_encode('scheduling import');
     } catch ( Exception $e ) {
       echo json_encode($e->getMessage());
     } finally {
@@ -98,9 +101,11 @@ class Otis_Dashboard
 
     // Ajax Handlers
     add_action( 'wp_ajax_otis_status', [ $this, 'otis_status' ] );
-    add_action( 'wp_ajax_otis_import', [ $this, 'otis_start_import' ] );
+    add_action( 'wp_ajax_otis_import', [ $this, 'otis_init_import' ] );
     add_action( 'wp_ajax_otis_preview_log', [ $this, 'otis_log_preview' ] );
     add_action( 'wp_ajax_otis_stop_bulk', [ $this, 'otis_stop_bulk_importer' ] );
+
+    add_action( 'wp_otis_dashboard_start_import', [ $this, 'otis_start_import' ], 10, 2 );
 
     $this->importer = $importer;
     $this->background_processor = new Otis_Background_Processor();
