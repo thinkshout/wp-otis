@@ -41,15 +41,16 @@ class Otis_Dashboard
       'pois',
     );
     $assoc_args = array(
-      'page_size' => 25
+      'page_size' => 25,
+      'bulk' => true,
     );
     if ($modified) {
       $assoc_args['modified'] = $modified;
     }
-    echo json_encode('starting import');
     try {
       $this->importer->logger->log('Starting importer from dashboard: ' . date('m/d/Y h:i:sa'));
       $this->importer->import( $args, $assoc_args );
+      echo json_encode('starting import');
     } catch ( Exception $e ) {
       $this->importer->logger->log('Error starting importer from dashboard: ' . date('m/d/Y h:i:sa'));
     } finally {

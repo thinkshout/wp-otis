@@ -116,41 +116,41 @@ class Otis_Importer {
 
 				return $log;
 
-            case 'pois':
-                $this->import( 'terms', $assoc_args );
-                $this->import( 'regions', $assoc_args );
-                $this->import( 'cities', $assoc_args );
+			case 'pois':
+					$this->import( 'terms', $assoc_args );
+					$this->import( 'regions', $assoc_args );
+					$this->import( 'cities', $assoc_args );
 
-                $this->_import_pois( $assoc_args );
-                $this->_import_history( $assoc_args );
+					$this->_import_pois( $assoc_args );
+					$this->_import_history( $assoc_args );
 
-								if (!$bulk) {
-									$log[] = 'POI import complete.';
-								} else {
-									$log[] = 'Adding bulk import CRON.';
-								}
+					if (!$bulk) {
+						$log[] = 'POI import complete.';
+					} else {
+						$log[] = 'Adding bulk import CRON.';
+					}
 
-                return $log;
+					return $log;
 
-            case 'pois-only':
-                $this->_import_pois( $assoc_args );
-                $this->_import_history( $assoc_args );
+			case 'pois-only':
+					$this->_import_pois( $assoc_args );
+					$this->_import_history( $assoc_args );
 
-                if (!$bulk) {
-                    $log[] = 'POI import complete.';
-                }
+					if (!$bulk) {
+							$log[] = 'POI import complete.';
+					}
 
-                return $log;
+					return $log;
 
-            case 'related-pois-only':
-                $assoc_args['related_only'] = true;
-                $this->_import_pois( $assoc_args );
+			case 'related-pois-only':
+					$assoc_args['related_only'] = true;
+					$this->_import_pois( $assoc_args );
 
-                if (!$bulk) {
-                    $log[] = 'POI import complete.';
-                }
+					if (!$bulk) {
+							$log[] = 'POI import complete.';
+					}
 
-                return $log;
+					return $log;
 
 			case 'poi':
 
