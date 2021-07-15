@@ -21,7 +21,6 @@ define( 'WP_OTIS_BULK_IMPORT_ACTIVE', 'wp_otis_bulk_import_active' );
 define( 'WP_OTIS_BULK_HISTORY_ACTIVE', 'wp_otis_bulk_history_active' );
 define( 'WP_OTIS_BULK_DISABLE_CACHE', 0 );
 
-require_once 'lib/autoload.php';
 require_once 'wp-otis-poi.php';
 require_once 'src/Otis_Importer.php';
 require_once 'src/Otis_Logger_Simple.php';
