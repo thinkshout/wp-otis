@@ -44,6 +44,7 @@ class Otis_Dashboard
     $assoc_args = array(
       'page_size' => 25,
       'bulk' => true,
+      'background' => true,
     );
     if ($modified) {
       $assoc_args['modified'] = $modified;
