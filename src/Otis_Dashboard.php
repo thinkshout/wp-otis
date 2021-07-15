@@ -65,6 +65,7 @@ class Otis_Dashboard
   public function otis_stop_bulk_importer() {
     try {
       $log = $this->importer->nobulk();
+      as_unschedule_all_actions( 'wp_otis_dashboard_start_import' );
       echo json_encode($log);
     } catch ( Exception $e ) {
       echo json_encode($e->getMessage());
