@@ -34,7 +34,7 @@
             <div :class="['postbox', { success: importStarted }]">
               <div v-if="importStarting" class="otis-ellipsis"><div /><div /><div /><div /></div>
               <h2>Bulk Importer Status</h2>
-              <p>{{ importerActive }}</p>
+              <p>{{ importerStatus }}</p>
             </div>
           </div>
           <div class="otis-dashboard__status">
@@ -122,6 +122,7 @@
 			fromDate: "",
 			lastImportDate: "",
 			bulkImportActive: "",
+			bulkImportScheduled: false,
 			bulkHistoryImportActive: "",
 			poiCount: {},
 			importLog: [],
@@ -136,8 +137,10 @@
 				const lastImportDate = new Date(this.lastImportDate);
 				return `${lastImportDate.getMonth()}/${lastImportDate.getDate()}/${lastImportDate.getFullYear()} @ ${lastImportDate.getHours()}:${lastImportDate.getMinutes()}`;
 			},
-			importerActive() {
-				return this.bulkImportActive ? "Active" : "Inactive";
+			importerStatus() {
+				if (this.bulkImportActive) return "Active";
+				if (this.bulkImportScheduled) return "Scheduled";
+				return "Inactive";
 			},
 			historyImporterActive() {
 				return this.bulkHistoryImportActive ? "Active" : "Inactive";
