@@ -120,16 +120,16 @@ add_action( 'wp_otis_cron', function () {
 
 } );
 
-add_action( 'wp_otis_async_bulk_import', function( $args, $assoc_args ) {
+add_action( 'wp_otis_async_bulk_import', function( $params ) {
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
 	}
 
-	$modified = $assoc_args['modified'];
-	$all = $assoc_args['all'];
-	$page = $args['page'];
-	$page_size = $args['page_size'];
-	$related_only = isset($assoc_args['related_only']);
+	$modified = $params['modified'];
+	$all = $params['all'];
+	$page = $params['page'];
+	$page_size = $params['page_size'];
+	$related_only = isset($params['related_only']);
 
 	$otis     = new Otis();
 	$logger   = new Otis_Logger_Simple();
