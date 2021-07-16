@@ -59,6 +59,7 @@
                   <span v-if="importStarting">
                     Import Starting Please Wait...
                   </span>
+									<span v-else-if="bulkImportActive">Import Running Please Wait...</span>
                   <span v-else>Start Importing Modified POIs</span>
                 </button>
               </div>
