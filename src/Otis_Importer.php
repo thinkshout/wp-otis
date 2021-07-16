@@ -400,7 +400,7 @@ class Otis_Importer {
             $assoc_args['page'] = $params['page'] + 1;
 
             if ($next_chapter) {
-								as_enqueue_async_action('wp_otis_async_bulk_import', ['args' => $params, 'assoc_args' => $assoc_args]);
+								as_enqueue_async_action( 'wp_otis_async_bulk_import', ['args' => $params, 'assoc_args' => $assoc_args] );
                 // wp_schedule_single_event( time(), 'wp_otis_bulk_importer', array($assoc_args['modified'],$assoc_args['all'],$assoc_args['page'],$params['page_size'],isset($assoc_args['related_only'])) );
             } else {
                 $this->_import_pois( $assoc_args );

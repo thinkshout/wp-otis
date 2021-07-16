@@ -127,9 +127,10 @@ add_action( 'wp_otis_async_bulk_import', function( $args, $assoc_args ) {
 
 	$modified = $assoc_args['modified'];
 	$all = $assoc_args['all'];
-	$page = $assoc_args['page'];
+	$page = $args['page'];
 	$page_size = $args['page_size'];
 	$related_only = isset($assoc_args['related_only']);
+
 	$otis     = new Otis();
 	$logger   = new Otis_Logger_Simple();
 	$importer = new Otis_Importer( $otis, $logger );

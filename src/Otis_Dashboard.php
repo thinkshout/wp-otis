@@ -52,7 +52,7 @@ class Otis_Dashboard
       $assoc_args['modified'] = $modified;
     }
     try {
-      as_enqueue_async_action('wp_otis_dashboard_start_import', ['args' => $args, 'assoc_args' => $assoc_args]);
+      as_enqueue_async_action( 'wp_otis_dashboard_start_import', ['args' => $args, 'assoc_args' => $assoc_args] );
       echo json_encode('scheduling import');
     } catch ( Exception $e ) {
       echo json_encode($e->getMessage());
