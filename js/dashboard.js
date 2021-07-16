@@ -55,7 +55,7 @@
                 <label for="modified-date">Start Date</label>
                 <input id="modified-date" type="text" name="otis-modified-date" placeholder="YYYY-MM-DD" :readonly="importStarting" v-model="fromDate" />
                 <p v-if="importStarting">POI import starting, please wait this usually takes a few minutes...</p>
-                <button class="button button-primary" :disabled="!dateIsValid || importStarting" @click="triggerModifiedImport">
+                <button class="button button-primary" :disabled="!dateIsValid || importStarting || bulkImportActive" @click="triggerModifiedImport">
                   <span v-if="importStarting">
                     Import Starting Please Wait...
                   </span>
