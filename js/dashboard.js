@@ -233,6 +233,7 @@
 				this.importStarting = true;
 				const payload = this.makePayload({
 					action: "otis_import",
+					initial_import: true,
 				});
 				const { data } = await axios.post(
 					this.otisDashObject.ajax_url,
