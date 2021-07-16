@@ -47,7 +47,6 @@ class Otis_Dashboard
     $assoc_args = array(
       'page_size' => 25,
       'bulk' => true,
-      'background' => true,
     );
     if ($modified) {
       $assoc_args['modified'] = $modified;
@@ -84,13 +83,17 @@ class Otis_Dashboard
     wp_die();
   }
 
+  public function otis_poi_counts() {
+    return wp_count_posts('poi');
+  }
+
   public function otis_status() {
-    $poi_count = wp_count_posts('poi');
     echo json_encode([
+      'bulkImportScheduled' => as_next_scheduled_action( 'wp_otis_dashboard_start_import' ),
       'bulkImportActive' => get_option( WP_OTIS_BULK_IMPORT_ACTIVE ),
       'bulkHistoryImportActive' => get_option( WP_OTIS_BULK_HISTORY_ACTIVE ),
       'lastImportDate' => get_option( WP_OTIS_LAST_IMPORT_DATE ),
-      'poiCount' => $poi_count,
+      'poiCount' => $this->otis_poi_counts(),
     ]);
     wp_die();
   }

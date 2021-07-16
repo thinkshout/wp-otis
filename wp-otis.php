@@ -120,6 +120,34 @@ add_action( 'wp_otis_cron', function () {
 
 } );
 
+add_action( 'wp_otis_async_bulk_import', function( $args, $assoc_args ) {
+	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
+		wp_cache_add_non_persistent_groups( ['acf'] );
+	}
+
+	$modified = $assoc_args['modified'];
+	$all = $assoc_args['all'];
+	$page = $assoc_args['page'];
+	$page_size = $args['page_size'];
+	$related_only = isset($assoc_args['related_only']);
+	$otis     = new Otis();
+	$logger   = new Otis_Logger_Simple();
+	$importer = new Otis_Importer( $otis, $logger );
+	$logger->log( "Bulk OTIS import continuing on page ".$page.". (".$modified.")");
+
+	try {
+		$importer->import( 'pois-only', [
+			'modified' => $modified,
+			'page' => $page,
+			'page_size' => $page_size,
+			'related_only' => $related_only,
+			'all' => $all
+		] );
+	} catch ( Exception $e ) {
+		$logger->log( $e->getMessage(), 0, 'error' );
+	}
+}, 10, 2 );
+
 add_action( 'wp_otis_bulk_importer', function($modified, $all, $page, $page_size = 50, $related_only = false) {
 
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
@@ -614,6 +642,15 @@ add_filter( 'wp_logging_prune_when', function ( $time ) {
 if ( ! wp_next_scheduled( 'wp_logging_prune_routine' ) ) {
 	wp_schedule_event( time(), 'hourly', 'wp_logging_prune_routine' );
 }
+
+function as_increase_time_limit( $time_limit ) {
+	if ( isset( $_ENV['PANTHEON_ENVIRONMENT'] ) ) {
+		return 120;
+	}
+	return $time_limit;
+}
+add_filter( 'action_scheduler_queue_runner_time_limit', 'as_increase_time_limit' );
+
 
 /**
  * Init the dashboard
