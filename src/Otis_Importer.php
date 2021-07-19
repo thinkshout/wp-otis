@@ -524,7 +524,8 @@ class Otis_Importer {
 
 				if ( $assoc_args['bulk-history-page'] < $history_page_count ) {
 					$assoc_args['bulk-history-page'] = $assoc_args['bulk-history-page'] + 1;
-					wp_schedule_single_event( time(), 'wp_otis_bulk_history_importer', array($assoc_args['modified'],$assoc_args['all'],$assoc_args['bulk-history-page']),isset($assoc_args['related_only']) );
+					as_enqueue_async_action('wp_otis_async_history_import', ['params' => ['all' => $assoc_args['all'], 'page' => $assoc_args['bulk-history-page'], 'modified' => $assoc_args['modified'], 'related_only' => $assoc_args['related_only'] ]]);
+					// wp_schedule_single_event( time(), 'wp_otis_bulk_history_importer', array($assoc_args['modified'],$assoc_args['all'],$assoc_args['bulk-history-page']),isset($assoc_args['related_only']) );
 				} elseif ( $assoc_args['bulk-history-page'] == $history_page_count ) {
 					update_option( WP_OTIS_BULK_HISTORY_ACTIVE, false );
 					$this->logger->log("OTIS bulk history import complete.");

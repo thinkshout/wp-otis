@@ -120,6 +120,29 @@ add_action( 'wp_otis_cron', function () {
 
 } );
 
+add_action( 'wp_otis_async_history_import', function ( $params ) {
+	
+		if ( WP_OTIS_BULK_DISABLE_CACHE ) {
+			wp_cache_add_non_persistent_groups( ['acf'] );
+		}
+
+		$otis     = new Otis();
+		$logger   = new Otis_Logger_Simple();
+		$importer = new Otis_Importer( $otis, $logger );
+		$logger->log( "Bulk OTIS history import continuing on page ".$params['page'].". (".$params['modified'].")");
+
+		try {
+			$importer->import( 'history-only', [
+				'modified' => $params['modified'],
+				'bulk-history-page' => $params['page'],
+				'related_only' => isset($params['related_only']),
+				'all' => $params['all'],
+			] );
+		} catch ( Exception $e ) {
+			$logger->log( $e->getMessage(), 0, 'error' );
+		}
+},10, 1 );
+
 add_action( 'wp_otis_async_bulk_import', function( $params ) {
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
@@ -147,7 +170,7 @@ add_action( 'wp_otis_async_bulk_import', function( $params ) {
 	} catch ( Exception $e ) {
 		$logger->log( $e->getMessage(), 0, 'error' );
 	}
-}, 10, 2 );
+}, 10, 1 );
 
 add_action( 'wp_otis_bulk_importer', function($modified, $all, $page, $page_size = 50, $related_only = false) {
 
