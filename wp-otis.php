@@ -77,14 +77,12 @@ function wp_otis_acf_json_load_point( $paths ) {
 add_filter( 'acf/settings/load_json', 'wp_otis_acf_json_load_point' );
 
 // On initial plugin installation or restart after a bulk import, begin hourly update schedule one minute later
-if ( ! as_next_scheduled_action( 'wp_otis_cron' ) ) {
-    $bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, '' );
-		$bulk_history = get_option( WP_OTIS_BULK_HISTORY_ACTIVE, '' );
-		$bulk_import_schedule = as_get_scheduled_actions( [ 'hook' => 'wp_otis_async_bulk_import' ] );
-		$bulk_history_schedule = as_get_scheduled_actions( [ 'hook' => 'wp_otis_async_bulk_history_import' ] );
-    if ( ! count($bulk_import_schedule) && ! ($bulk) & ! count($bulk_history_schedule) && !($bulk_history))  {
-			as_schedule_cron_action(time() + 60 * 1, 'hourly', 'wp_otis_cron');
-    }
+if ( ! wp_next_scheduled( 'wp_otis_cron' ) ) {
+	$bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, '' );
+	$bulk_history = get_option( WP_OTIS_BULK_HISTORY_ACTIVE, '' );
+	if ( ! wp_next_scheduled( 'wp_otis_bulk_importer' ) && !($bulk) & ! wp_next_scheduled( 'wp_otis_bulk_history_importer' ) && !($bulk_history))  {
+		wp_schedule_event(time() + 60 * 1, 'hourly', 'wp_otis_cron');
+	}
 }
 
 add_action( 'wp_otis_cron', function () {
