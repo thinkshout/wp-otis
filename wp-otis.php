@@ -80,8 +80,10 @@ add_filter( 'acf/settings/load_json', 'wp_otis_acf_json_load_point' );
 if ( ! wp_next_scheduled( 'wp_otis_cron' ) ) {
     $bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, '' );
 		$bulk_history = get_option( WP_OTIS_BULK_HISTORY_ACTIVE, '' );
-    if ( ! wp_next_scheduled( 'wp_otis_bulk_importer' ) && !($bulk) & ! wp_next_scheduled( 'wp_otis_bulk_history_importer' ) && !($bulk_history))  {
-        wp_schedule_event(time() + 60 * 1, 'hourly', 'wp_otis_cron');
+		$bulk_import_schedule = as_get_scheduled_actions( 'wp_otis_async_bulk_import' );
+		$bulk_history_schedule = as_get_scheduled_actions( 'wp_otis_async_bulk_history_import' );
+    if ( ! count($bulk_import_schedule) && ! ($bulk) & ! count($bulk_history_schedule) && !($bulk_history))  {
+			as_schedule_cron_action(time() + 60 * 1, 'hourly', 'wp_otis_cron');
     }
 }
 
@@ -109,7 +111,7 @@ add_action( 'wp_otis_cron', function () {
 
         try {
             $importer->import( 'pois', [
-                'modified' => $last_import_date,
+              'modified' => $last_import_date,
             ] );
             update_option( WP_OTIS_LAST_IMPORT_DATE, $current_date );
 
@@ -120,7 +122,7 @@ add_action( 'wp_otis_cron', function () {
 
 } );
 
-add_action( 'wp_otis_async_history_import', function ( $params ) {
+add_action( 'wp_otis_async_bulk_history_import', function ( $params ) {
 	
 		if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 			wp_cache_add_non_persistent_groups( ['acf'] );

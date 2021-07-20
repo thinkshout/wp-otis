@@ -402,7 +402,6 @@ class Otis_Importer {
 
             if ($next_chapter) {
 								as_enqueue_async_action( 'wp_otis_async_bulk_import', ['params' => $assoc_args] );
-                // wp_schedule_single_event( time(), 'wp_otis_bulk_importer', array($assoc_args['modified'],$assoc_args['all'],$assoc_args['page'],$params['page_size'],isset($assoc_args['related_only'])) );
             } else {
                 $this->_import_pois( $assoc_args );
             }
@@ -412,6 +411,9 @@ class Otis_Importer {
             $this->logger->log($listings['count'] ." out of ".$listings['count']. " records evaluated.");
 
             update_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
+
+						as_unschedule_all_actions( 'wp_otis_async_bulk_import' );
+
             $this->logger->log("OTIS bulk import complete.");
         }
     }
@@ -524,10 +526,10 @@ class Otis_Importer {
 
 				if ( $assoc_args['bulk-history-page'] < $history_page_count ) {
 					$assoc_args['bulk-history-page'] = $assoc_args['bulk-history-page'] + 1;
-					as_enqueue_async_action('wp_otis_async_history_import', ['params' => ['all' => $assoc_args['all'], 'page' => $assoc_args['bulk-history-page'], 'modified' => $assoc_args['modified'], 'related_only' => $assoc_args['related_only'] ]]);
-					// wp_schedule_single_event( time(), 'wp_otis_bulk_history_importer', array($assoc_args['modified'],$assoc_args['all'],$assoc_args['bulk-history-page']),isset($assoc_args['related_only']) );
+					as_enqueue_async_action('wp_otis_async_bulk_history_import', ['params' => ['all' => $assoc_args['all'], 'page' => $assoc_args['bulk-history-page'], 'modified' => $assoc_args['modified'], 'related_only' => $assoc_args['related_only'] ]]);
 				} elseif ( $assoc_args['bulk-history-page'] == $history_page_count ) {
 					update_option( WP_OTIS_BULK_HISTORY_ACTIVE, false );
+					as_unschedule_all_actions('wp_otis_async_bulk_history_import');
 					$this->logger->log("OTIS bulk history import complete.");
 				}
 			}
