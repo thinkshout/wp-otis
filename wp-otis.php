@@ -22,6 +22,7 @@ define( 'WP_OTIS_BULK_HISTORY_ACTIVE', 'wp_otis_bulk_history_active' );
 define( 'WP_OTIS_BULK_DISABLE_CACHE', 0 );
 
 require_once 'wp-otis-poi.php';
+require_once plugin_dir_path( __FILE__ ) . '/libraries/action-scheduler/action-scheduler.php';
 require_once 'src/Otis_Importer.php';
 require_once 'src/Otis_Logger_Simple.php';
 require_once 'src/Otis_Command.php';
@@ -80,8 +81,8 @@ add_filter( 'acf/settings/load_json', 'wp_otis_acf_json_load_point' );
 if ( ! as_next_scheduled_action( 'wp_otis_cron' ) ) {
     $bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, '' );
 		$bulk_history = get_option( WP_OTIS_BULK_HISTORY_ACTIVE, '' );
-		$bulk_import_schedule = as_get_scheduled_actions( 'wp_otis_async_bulk_import' );
-		$bulk_history_schedule = as_get_scheduled_actions( 'wp_otis_async_bulk_history_import' );
+		$bulk_import_schedule = as_get_scheduled_actions( [ 'hook' => 'wp_otis_async_bulk_import' ] );
+		$bulk_history_schedule = as_get_scheduled_actions( [ 'hook' => 'wp_otis_async_bulk_history_import' ] );
     if ( ! count($bulk_import_schedule) && ! ($bulk) & ! count($bulk_history_schedule) && !($bulk_history))  {
 			as_schedule_cron_action(time() + 60 * 1, 'hourly', 'wp_otis_cron');
     }
