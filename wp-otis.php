@@ -77,7 +77,7 @@ function wp_otis_acf_json_load_point( $paths ) {
 add_filter( 'acf/settings/load_json', 'wp_otis_acf_json_load_point' );
 
 // On initial plugin installation or restart after a bulk import, begin hourly update schedule one minute later
-if ( ! wp_next_scheduled( 'wp_otis_cron' ) ) {
+if ( ! as_next_scheduled_action( 'wp_otis_cron' ) ) {
     $bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, '' );
 		$bulk_history = get_option( WP_OTIS_BULK_HISTORY_ACTIVE, '' );
 		$bulk_import_schedule = as_get_scheduled_actions( 'wp_otis_async_bulk_import' );
