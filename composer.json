@@ -8,8 +8,5 @@
             "name": "ThinkShout",
         "homepage": "https://thinkshout.com/"
         }
-    ],
-    "require": {
-        "woocommerce/action-scheduler": "^3.2"
-    }
+    ]
 }
