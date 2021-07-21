@@ -188,6 +188,17 @@ class Otis_Importer {
         $log[] = 'OTIS bulk import flag set to false';
         return $log;
     }
+
+		/**
+		 * Set bulk history flag to false
+		 * 
+		 * @return array
+		 */
+		function nohistory() {
+				update_option( WP_OTIS_BULK_HISTORY_ACTIVE, false );
+				$log[] = 'OTIS bulk history flag set to false';
+				return $log;
+		}
 	
 		/**
 		 * Sets bulk importer flag to true

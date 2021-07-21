@@ -68,11 +68,14 @@
           </div>
           <div v-if="!displayInitialImport" class="otis-dashboard__setting">
             <div class="postbox">
-              <h2>Stop Bulk Importer</h2>
-              <p>Manually deactivates the bulk importer. If a large import is interrupted for some reason, the "bulk" flag can stay active on the server (see above). Use this button to turn the "bulk" flag off, and re-start hourly imports.</p>
+              <h2>Stop Bulk Importers</h2>
+              <p>Manually deactivates the bulk importer or the bulk history importer. If a large import is interrupted for some reason, the "bulk" flag can stay active on the server (see above). Use this button to turn the "bulk" flag off, and re-start hourly imports.</p>
               <div class="otis-dashboard__action">
                 <button class="button button-primary" :disabled="!bulkImportActive" @click="stopBulkImporter">
                   Stop Bulk Importer
+                </button>
+								<button class="button button-primary" :disabled="!bulkHistoryImportActive" @click="stopHistoryImporter">
+                  Stop Bulk History Importer
                 </button>
               </div>
             </div>
@@ -125,6 +128,7 @@
 			lastImportDate: "",
 			bulkImportActive: "",
 			bulkImportScheduled: false,
+			bulkHistoryImportScheduled: false,
 			bulkHistoryImportActive: "",
 			poiCount: {},
 			importLog: [],
@@ -145,7 +149,9 @@
 				return "Inactive";
 			},
 			historyImporterActive() {
-				return this.bulkHistoryImportActive ? "Active" : "Inactive";
+				if (this.bulkHistoryImportActive) return "Active";
+				if (this.bulkHistoryImportScheduled) return "Scheduled";
+				return "Inactive";
 			},
 			displayInitialImport() {
 				if (this.countsLoading) return false;
@@ -193,14 +199,20 @@
 					this.importStarted = false;
 				}, 1000);
 			},
-			async otisStatus() {
-				this.countsLoading = true;
-				const payload = this.makePayload({ action: "otis_status" });
-				const { data } = await axios.post(
+			async triggerAction(action, data = {}) {
+				const payload = this.makePayload({
+					action,
+					...data,
+				});
+				return await axios.post(
 					this.otisDashObject.ajax_url,
 					payload,
 					{ timeout: 0 }
 				);
+			},
+			async otisStatus() {
+				this.countsLoading = true;
+				const { data } = await this.triggerAction("otis_status");
 				Object.keys(data).forEach((key) => {
 					this[key] = data[key];
 				});
@@ -209,55 +221,28 @@
 			},
 			async otisLogPreview() {
 				this.logLoading = true;
-				const payload = this.makePayload({
-					action: "otis_preview_log",
-				});
-				const { data } = await axios.post(
-					this.otisDashObject.ajax_url,
-					payload,
-					{ timeout: 0 }
-				);
+				const { data } = await this.triggerAction("otis_preview_log");
 				this.logLoading = false;
 				this.importLog = data;
 			},
 			async stopBulkImporter() {
-				const payload = this.makePayload({
-					action: "otis_stop_bulk",
-				});
-				const { data } = await axios.post(
-					this.otisDashObject.ajax_url,
-					payload,
-					{ timeout: 0 }
-				);
+				await this.triggerAction('otis_stop_bulk');
+				await this.otisStatus();
+			},
+			async stopHistoryImporter() {
+				await this.triggerAction('otis_stop_bulk_history');
 				await this.otisStatus();
 			},
 			async triggerInitialImport() {
 				this.importStarting = true;
-				const payload = this.makePayload({
-					action: "otis_import",
-					initial_import: true,
-				});
-				const { data } = await axios.post(
-					this.otisDashObject.ajax_url,
-					payload,
-					{ timeout: 0 }
-				);
+				await this.triggerAction("otis_import", {initial_import: true});
 				await this.otisStatus();
 				this.importStarting = false;
 			},
 			async triggerModifiedImport() {
 				if (!this.dateIsValid) return;
 				this.importStarting = true;
-				const payload = this.makePayload({
-					action: "otis_import",
-					modified_date: this.fromDate,
-				});
-				const { data } = await axios.post(
-					this.otisDashObject.ajax_url,
-					payload,
-					{ timeout: 0 }
-				);
-				console.log({ data });
+				await this.triggerAction('otis_import', {modified_date: this.fromDate});
 				await this.otisStatus();
 				this.notifyImportStarted();
 				this.importStarting = false;

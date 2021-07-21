@@ -77,6 +77,18 @@ class Otis_Dashboard
     }
   }
 
+  public function otis_stop_bulk_history_importer() {
+    try {
+      $log = $this->importer->nohistory();
+      as_unschedule_all_actions('wp_otis_async_bulk_history_import');
+      echo json_encode($log);
+    } catch ( Exception $e ) {
+      echo json_encode($e->getMessage());
+    } finally {
+      wp_die();
+    }
+  }
+
   public function otis_log_preview() {
     $args = [
 			'numberposts' => 15,
@@ -94,6 +106,7 @@ class Otis_Dashboard
   public function otis_status() {
     echo json_encode([
       'bulkImportScheduled' => as_next_scheduled_action( 'wp_otis_dashboard_start_import' ) || as_next_scheduled_action('wp_otis_dashboard_start_async_import'),
+      'bulkHistoryImportScheduled' => as_next_scheduled_action('wp_otis_async_bulk_history_import'),
       'bulkImportActive' => get_option( WP_OTIS_BULK_IMPORT_ACTIVE ),
       'bulkHistoryImportActive' => get_option( WP_OTIS_BULK_HISTORY_ACTIVE ),
       'lastImportDate' => get_option( WP_OTIS_LAST_IMPORT_DATE ),
@@ -111,6 +124,7 @@ class Otis_Dashboard
     add_action( 'wp_ajax_otis_import', [ $this, 'otis_init_import' ] );
     add_action( 'wp_ajax_otis_preview_log', [ $this, 'otis_log_preview' ] );
     add_action( 'wp_ajax_otis_stop_bulk', [ $this, 'otis_stop_bulk_importer' ] );
+    add_action( 'wp_ajax_otis_stop_bulk_history', [ $this, 'otis_stop_bulk_history_importer' ] );
 
     add_action( 'wp_otis_dashboard_start_async_import', [ $this, 'otis_start_import' ], 10, 2 );
 
