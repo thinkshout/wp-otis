@@ -49,7 +49,7 @@ class Otis_Dashboard
     $today = new DateTime( 'now' );
     $diff = $date->diff( $today );
     if ( $diff->days > 30 ) {
-      $page_size = 15;
+      $page_size = 10;
     }
     return $page_size;
   }
