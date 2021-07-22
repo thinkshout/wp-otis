@@ -39,12 +39,27 @@ class Otis_Dashboard
     $this->importer->import( $args, $assoc_args );
   }
 
+  // calculate page_size based on import date
+  public function otis_calculate_page_size($modified_date) {
+    $page_size = 25;
+    if ( ! $modified_date ) {
+      return $page_size;
+    }
+    $date = new DateTime( $modified_date );
+    $today = new DateTime( 'now' );
+    $diff = $date->diff( $today );
+    if ( $diff->days > 30 ) {
+      $page_size = 15;
+    }
+    return $page_size;
+  }
+
   public function otis_init_import() {
     $modified = isset($_POST['modified_date']) ? _sanitize_text_fields($_POST['modified_date']) : false;
     $initial = isset($_POST['initial_import']);
     $args = array();
     $assoc_args = array(
-      'page_size' => 25,
+      'page_size' => $this->otis_calculate_page_size($modified),
     );
     if ($initial) {
       $args[0] = 'pois';
