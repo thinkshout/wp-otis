@@ -597,7 +597,7 @@ class Otis_Importer {
             return [];
         }
 
-        $listings = $this->otis->call( 'listings/history', $params, $this->logger );
+        $listings = $this->otis->call( 'listings/history', $params );
 
         $history = !empty($transient_history) ? $transient_history : [];
 
