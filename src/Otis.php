@@ -147,7 +147,9 @@ class Otis {
 		}
 
 		if ( curl_error( $this->ch ) ) {
-			if ($logger) { $logger->log("API call to $url failed: " . curl_error( $this->ch )); }
+			if ($logger) {
+				$logger->log("API call to $url failed: " . curl_error( $this->ch ));
+			}
 			throw new Otis_Exception( "API call to $url failed: " . curl_error( $this->ch ) );
 		}
 
