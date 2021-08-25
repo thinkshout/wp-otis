@@ -470,23 +470,17 @@ class Otis_Importer {
 
 			if ( empty( $transient_history ) ) {
 				// If there is no data to process, go get it.
-				$history = $this->_fetch_history( $assoc_args );
-			} else {
-				if ( isset( $transient_history["history-complete"] )
-					&& isset( $transient_history["history-data"] )
-					&& !$transient_history["history-complete"] ) {
-					// If a retrieval process is ongoing, continue it.
-					$assoc_args['history-page'] = $transient_history['history-page'];
-					$history = $this->_fetch_history($assoc_args, $transient_history['history-data']);
-				} else {
-					// If retrieval is complete, get the data from the transient.
-					$history = $transient_history["history-data"];
-				}
+				$this->_fetch_history( $assoc_args );
+			} elseif ( isset( $transient_history["history-complete"] )
+				&& isset( $transient_history["history-data"] )
+				&& !$transient_history["history-complete"] ) {
+				// If a retrieval process is ongoing, continue it.
+				$assoc_args['history-page'] = $transient_history['history-page'];
+				$this->_fetch_history($assoc_args, $transient_history['history-data']);
 			}
 
 			// This may have changed during the _fetch_history call, so retrieve it again.
 			$transient_history = get_transient(WP_OTIS_BULK_IMPORT_TRANSIENT);
-
 			$history_page_size  = 500;
 			$history_page_count = ceil( count( $history ) / $history_page_size );
 			$history_bulk       = get_option( WP_OTIS_BULK_HISTORY_ACTIVE, false );
@@ -497,7 +491,8 @@ class Otis_Importer {
 				// If not, enqueue a follow-up.
 				as_enqueue_async_action('wp_otis_async_bulk_history_import', ['params' => ['all' => $assoc_args['all'], 'page' => 1, 'modified' => $assoc_args['modified'], 'related_only' => $assoc_args['related_only']]]);
 			} else {
-				// If so, start processing it.
+				// If retrieval is complete, get the data from the transient.
+				$history = $transient_history["history-data"];
 				if ($history_page_count > 1 && !$history_bulk) {
 					update_option(WP_OTIS_BULK_HISTORY_ACTIVE, true);
 					$assoc_args['bulk-history-page'] = 1;
@@ -641,7 +636,7 @@ class Otis_Importer {
 						"history-complete" => false,
 					],
 					HOUR_IN_SECONDS);
-                return $history;
+                return false;
             }
 
         }
@@ -652,7 +647,7 @@ class Otis_Importer {
 				"history-data" => $history,
 			],
 			HOUR_IN_SECONDS);
-        return $history;
+        return true;
     }
 
 	/**
