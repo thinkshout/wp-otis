@@ -481,10 +481,6 @@ class Otis_Importer {
 
 			// This may have changed during the _fetch_history call, so retrieve it again.
 			$transient_history = get_transient(WP_OTIS_BULK_IMPORT_TRANSIENT);
-			$history_page_size  = 500;
-			$history_page_count = ceil( count( $history ) / $history_page_size );
-			$history_bulk       = get_option( WP_OTIS_BULK_HISTORY_ACTIVE, false );
-			$history_total      = count($history);
 
 			// Did the most recent fetch job finish filling out the retrieved history data?
 			if ( !$transient_history["history-complete"] ) {
@@ -492,13 +488,20 @@ class Otis_Importer {
 				as_enqueue_async_action('wp_otis_async_bulk_history_import', ['params' => ['all' => $assoc_args['all'], 'page' => 1, 'modified' => $assoc_args['modified'], 'related_only' => $assoc_args['related_only']]]);
 			} else {
 				// If retrieval is complete, get the data from the transient.
-				$history = $transient_history["history-data"];
-				if ($history_page_count > 1 && !$history_bulk) {
-					update_option(WP_OTIS_BULK_HISTORY_ACTIVE, true);
-					$assoc_args['bulk-history-page'] = 1;
-					$history_bulk = true;
-					$logger_date = isset($assoc_args['modified']) ? "(" . date('Y-m-d', strtotime($assoc_args['modified'])) . ")" : "";
-					$this->logger->log("OTIS bulk history import detected: " . $history_total . " updates. " . $logger_date);
+				$history 			= $transient_history["history-data"];
+				$history_page_size  = 500;
+				$history_bulk       = get_option( WP_OTIS_BULK_HISTORY_ACTIVE, false );
+				$history_total      = count($history);
+				$history_page_count = ceil( $history_total / $history_page_size );
+
+				if ( $history_page_count > 1 ) {
+					if ( !$history_bulk ) {
+						update_option(WP_OTIS_BULK_HISTORY_ACTIVE, true);
+						$assoc_args['bulk-history-page'] = 1;
+						$history_bulk = true;
+						$logger_date = isset($assoc_args['modified']) ? "(" . date('Y-m-d', strtotime($assoc_args['modified'])) . ")" : "";
+						$this->logger->log("OTIS bulk history import detected: " . $history_total . " updates. " . $logger_date);
+					}
 				} else {
 					$logger_date = isset($assoc_args['modified']) ? "(" . date('Y-m-d', strtotime($assoc_args['modified'])) . ")" : "";
 					$this->logger->log("OTIS nonbulk history import detected: " . $history_total . " updates. " . $logger_date);
