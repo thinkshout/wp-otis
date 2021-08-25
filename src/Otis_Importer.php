@@ -515,6 +515,7 @@ class Otis_Importer {
 					$uuids = array_slice($uuids, $history_trim, $history_page_size);
 				}
 
+				// Run the big query against up to 500 UUIDs from the set of listing keys.
 				$the_query = new WP_Query([
 					'no_found_rows' => true,
 					'update_post_meta_cache' => false,
@@ -549,6 +550,8 @@ class Otis_Importer {
 					}
 				}
 
+				// Wrap up this job: either enqueue a follow-up and leave the transient and flags intact,
+				// or clear them and log the completed result.
 				if ($history_bulk) {
 					if ($assoc_args['bulk-history-page'] < $history_page_count) {
 						$assoc_args['bulk-history-page'] = $assoc_args['bulk-history-page'] + 1;
