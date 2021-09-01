@@ -134,6 +134,7 @@ class Otis_Importer {
 
 			case 'pois-only':
 					$this->_import_pois( $assoc_args );
+					$assoc_args['history-page'] = 1;
 					$this->_import_history( $assoc_args );
 
 					if (!$bulk) {
@@ -170,6 +171,7 @@ class Otis_Importer {
 			case 'history-only':
 				$this->_import_history( $assoc_args );
 
+				$log[] = 'History import complete.';
 				return $log;
 
 		} // End switch().
@@ -184,25 +186,25 @@ class Otis_Importer {
      */
     function nobulk() {
         update_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
-				update_option( WP_OTIS_BULK_HISTORY_ACTIVE, false );
         $log[] = 'OTIS bulk import flag set to false';
         return $log;
     }
 
 		/**
 		 * Set bulk history flag to false
-		 * 
+		 *
 		 * @return array
 		 */
 		function nohistory() {
 				update_option( WP_OTIS_BULK_HISTORY_ACTIVE, false );
+				delete_transient( WP_OTIS_BULK_IMPORT_TRANSIENT );
 				$log[] = 'OTIS bulk history flag set to false';
 				return $log;
 		}
-	
+
 		/**
 		 * Sets bulk importer flag to true
-		 * 
+		 *
 		 * @return array
 		 */
 		function start_bulk() {
@@ -310,9 +312,9 @@ class Otis_Importer {
      */
     private function _import_pois( $assoc_args = [] ) {
 
-        $params = [
+		$params = [
             'geo_data' => 'true',
-						'reverse_relations' => 'true'
+			'reverse_relations' => 'true'
         ];
 
         if ( isset( $assoc_args['modified'] ) ) {
@@ -463,85 +465,108 @@ class Otis_Importer {
 		$bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
 
 		if (!$bulk) {
+			$this->logger->log("Running history import with arguments: ".print_r($assoc_args, true));
+			$transient_history = get_transient(WP_OTIS_BULK_IMPORT_TRANSIENT);
 
-			$history            = $this->_fetch_history( $assoc_args );
-			$history_page_size  = 500;
-			$history_page_count = ceil( count( $history ) / $history_page_size );
-			$history_bulk       = get_option( WP_OTIS_BULK_HISTORY_ACTIVE, false );
-			$history_total      = count($history);
-
-			if ( $history_page_count > 1 && !$history_bulk ) {
-				update_option( WP_OTIS_BULK_HISTORY_ACTIVE, true );
-				$assoc_args['bulk-history-page'] = 1;
-				$history_bulk = true;
-				$logger_date = isset($assoc_args['modified']) ? "(".date( 'Y-m-d', strtotime( $assoc_args['modified'] ) ).")" : "";
-				$this->logger->log("OTIS bulk history import detected: ".$history_total." updates. ".$logger_date);
+			if ( empty( $transient_history ) ) {
+				// If there is no data to process, go get it.
+				$this->_fetch_history( $assoc_args );
+			} elseif ( isset( $transient_history["history-complete"] )
+				&& isset( $transient_history["history-data"] )
+				&& !$transient_history["history-complete"] ) {
+				// If a retrieval process is ongoing, continue it.
+				$assoc_args['history-page'] = $transient_history['history-page'];
+				$this->_fetch_history($assoc_args, $transient_history['history-data']);
 			}
 
-			$uuids = array_keys( $history );
+			// This may have changed during the _fetch_history call, so retrieve it again.
+			$transient_history = get_transient(WP_OTIS_BULK_IMPORT_TRANSIENT);
 
-			if ( $history_bulk ) {
-				// Trim any history updates that have already been processed:
-				$history_trim = $history_page_size * ( $assoc_args['bulk-history-page'] - 1 );
-				$remaining_uuids = $history_trim > 0 ? array_slice( $uuids, 0, $history_trim ) : $uuids;
-				// Trim to a single pages' worth of updates, or the rest of the set if this is the last page
-				if (count( $remaining_uuids ) > $history_page_size) {
-					$uuids = array_slice( $remaining_uuids, 0, $history_page_size );
-				} else {
-					$uuids = $remaining_uuids;
-				}
-				$this->logger->log("Importing OTIS history: page ". $assoc_args['bulk-history-page'] . ", " . count($remaining_uuids). " updates remaining. Updating ".count( $uuids ) );
+			// Did the most recent fetch job finish filling out the retrieved history data?
+			if ( !$transient_history["history-complete"] ) {
+				// If not, enqueue a follow-up.
+				as_enqueue_async_action('wp_otis_async_bulk_history_import', ['params' => ['all' => $assoc_args['all'], 'page' => 1, 'modified' => $assoc_args['modified'], 'related_only' => $assoc_args['related_only']]]);
 			} else {
-				$this->logger->log("Importing OTIS history: ". $history_total. " updates found.");
-			}
+				// If retrieval is complete, get the data from the transient.
+				$history 			= $transient_history["history-data"];
+				$history_page_size  = 500;
+				$history_bulk       = get_option( WP_OTIS_BULK_HISTORY_ACTIVE, false );
+				$history_total      = count($history);
+				$history_page_count = ceil( $history_total / $history_page_size );
 
-			$the_query = new WP_Query([
-				'no_found_rows'          => true,
-				'update_post_meta_cache' => false,
-				'update_post_term_cache' => false,
-				'posts_per_page'         => - 1,
-				'post_status'            => 'any',
-				'post_type'              => 'poi',
-				'meta_key'               => 'uuid',
-				'meta_value'             => $uuids,
-			]);
-
-			while ( $the_query->have_posts() ) {
-				$the_query->the_post();
-
-				$uuid        = get_field( 'uuid' );
-				$poi_history = $history[ $uuid ];
-
-				switch ( $poi_history['verb'] ) {
-					case 'updated':
-						$post_status = $this->_get_post_status( $poi_history );
-						if ( get_post_status() !== $post_status ) {
-							wp_update_post( [
-								'ID'          => get_the_ID(),
-								'post_status' => $post_status,
-							] );
-							$this->logger->log( 'Updated POI (set status ' . $post_status . ') with UUID: ' . $uuid, get_the_ID() );
-
-						}
-						break;
-
-					case 'deleted':
-						wp_trash_post( get_the_ID() );
-						$this->logger->log('Deleted POI with UUID: ' . $uuid, get_the_ID());
-						break;
+				if ( $history_page_count > 1 ) {
+					if ( !$history_bulk ) {
+						update_option(WP_OTIS_BULK_HISTORY_ACTIVE, true);
+						$assoc_args['bulk-history-page'] = 1;
+						$history_bulk = true;
+						$logger_date = isset($assoc_args['modified']) ? "(" . date('Y-m-d', strtotime($assoc_args['modified'])) . ")" : "";
+						$this->logger->log("OTIS bulk history import detected: " . $history_total . " updates. " . $logger_date);
+					}
+				} else {
+					$logger_date = isset($assoc_args['modified']) ? "(" . date('Y-m-d', strtotime($assoc_args['modified'])) . ")" : "";
+					$this->logger->log("OTIS nonbulk history import detected: " . $history_total . " updates. " . $logger_date);
 				}
-			}
 
-			if ( $history_bulk ) {
-				$this->logger->log("History import page ".$assoc_args['bulk-history-page']." of ".$history_page_count." complete.");
+				$uuids = array_keys($history);
 
-				if ( $assoc_args['bulk-history-page'] < $history_page_count ) {
-					$assoc_args['bulk-history-page'] = $assoc_args['bulk-history-page'] + 1;
-					as_enqueue_async_action('wp_otis_async_bulk_history_import', ['params' => ['all' => $assoc_args['all'], 'page' => $assoc_args['bulk-history-page'], 'modified' => $assoc_args['modified'], 'related_only' => $assoc_args['related_only'] ]]);
-				} elseif ( $assoc_args['bulk-history-page'] == $history_page_count ) {
-					update_option( WP_OTIS_BULK_HISTORY_ACTIVE, false );
-					as_unschedule_all_actions('wp_otis_async_bulk_history_import');
-					$this->logger->log("OTIS bulk history import complete.");
+				if ($history_bulk) {
+					// Trim any history updates that have already been processed:
+					$history_trim = $history_page_size * ($assoc_args['bulk-history-page'] - 1);
+					$uuids = array_slice($uuids, $history_trim, $history_page_size);
+				}
+
+				// Run the big query against up to 500 UUIDs from the set of listing keys.
+				$the_query = new WP_Query([
+					'no_found_rows' => true,
+					'update_post_meta_cache' => false,
+					'update_post_term_cache' => false,
+					'posts_per_page' => -1,
+					'post_status' => 'any',
+					'post_type' => 'poi',
+					'meta_key' => 'uuid',
+					'meta_value' => $uuids,
+				]);
+
+				while ($the_query->have_posts()) {
+					$the_query->the_post();
+
+					$uuid = get_field('uuid');
+					$poi_history = $history[$uuid];
+
+					switch ($poi_history['verb']) {
+						case 'updated':
+							$post_status = $this->_get_post_status($poi_history);
+							if (get_post_status() !== $post_status) {
+								wp_update_post([
+									'ID' => get_the_ID(),
+									'post_status' => $post_status,
+								]);
+							}
+							break;
+
+						case 'deleted':
+							wp_trash_post(get_the_ID());
+							break;
+					}
+				}
+
+				// Wrap up this job: either enqueue a follow-up and leave the transient and flags intact,
+				// or clear them and log the completed result.
+				if ($history_bulk) {
+					if ($assoc_args['bulk-history-page'] < $history_page_count) {
+						$assoc_args['bulk-history-page'] = $assoc_args['bulk-history-page'] + 1;
+						$this->logger->log('Enqueueing history import page ' . $assoc_args['bulk-history-page']);
+						as_enqueue_async_action('wp_otis_async_bulk_history_import', ['params' => ['all' => $assoc_args['all'], 'page' => $assoc_args['bulk-history-page'], 'modified' => $assoc_args['modified'], 'related_only' => $assoc_args['related_only']]]);
+					} elseif ($assoc_args['bulk-history-page'] == $history_page_count) {
+						update_option(WP_OTIS_BULK_HISTORY_ACTIVE, false);
+						delete_transient(WP_OTIS_BULK_IMPORT_TRANSIENT);
+						as_unschedule_all_actions('wp_otis_async_bulk_history_import');
+						$this->logger->log("OTIS bulk history import complete.");
+					}
+				} else {
+					update_option(WP_OTIS_BULK_HISTORY_ACTIVE, false);
+					delete_transient(WP_OTIS_BULK_IMPORT_TRANSIENT);
+					$this->logger->log("OTIS nonbulk history import complete.");
 				}
 			}
 
@@ -558,7 +583,8 @@ class Otis_Importer {
 	 *
 	 * @return array
 	 */
-    private function _fetch_history( $assoc_args = [] ) {
+    private function _fetch_history( $assoc_args = [], $transient_history = null ) {
+
         $params = [
             'page_size' => 500,
             'page'      => $assoc_args['history-page'] ?? 1,
@@ -574,7 +600,7 @@ class Otis_Importer {
 
         $listings = $this->otis->call( 'listings/history', $params );
 
-        $history = [];
+        $history = !empty($transient_history) ? $transient_history : [];
 
         if ( ! empty( $listings['results'] ) ) {
             foreach ( $listings['results'] as $result ) {
@@ -609,13 +635,25 @@ class Otis_Importer {
             unset( $listings );
 
             if ( $params['page'] < $total ) {
-                $assoc_args['history-page'] = $params['page'] + 1;
-                return array_merge( $this->_fetch_history( $assoc_args ), $history );
+                set_transient(WP_OTIS_BULK_IMPORT_TRANSIENT,
+					[
+						"history-page" => $params['page'] + 1,
+						"history-data" => $history,
+						"history-complete" => false,
+					],
+					HOUR_IN_SECONDS);
+                return false;
             }
 
         }
 
-        return $history;
+		set_transient(WP_OTIS_BULK_IMPORT_TRANSIENT,
+			[
+				"history-complete" => true,
+				"history-data" => $history,
+			],
+			HOUR_IN_SECONDS);
+        return true;
     }
 
 	/**
