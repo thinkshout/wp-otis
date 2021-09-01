@@ -7,7 +7,7 @@
  * Author URI:      thinkshout.com
  * Text Domain:     wp-otis
  * Domain Path:     /languages
- * Version:         1.0.5
+ * Version:         1.1.0
  *
  * @package         Otis
  */
@@ -123,7 +123,7 @@ add_action( 'wp_otis_cron', function () {
 } );
 
 add_action( 'wp_otis_async_bulk_history_import', function ( $params ) {
-	
+
 		if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 			wp_cache_add_non_persistent_groups( ['acf'] );
 		}
