@@ -1,13 +1,12 @@
 {
-  "name": "thinkshout/wp-otis",
-  "description": "WordPress plugin for the Oregon Tourism Information System",
-  "type": "wordpress-plugin",
-  "license": "GPLv2",
-  "authors": [
-    {
-      "name": "ThinkShout",
-      "homepage": "https://thinkshout.com/"
-    }
-  ],
-  "require": {}
+    "name": "thinkshout/wp-otis",
+    "description": "WordPress plugin for the Oregon Tourism Information System",
+    "type": "wordpress-plugin",
+    "license": "GPLv2",
+    "authors": [
+        {
+            "name": "ThinkShout",
+        "homepage": "https://thinkshout.com/"
+        }
+    ]
 }
