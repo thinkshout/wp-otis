@@ -462,10 +462,10 @@ class Otis_Importer {
 	 */
 	private function _import_history( $assoc_args = [] ) {
 
-		$this->logger->log("Running history import with arguments: ".print_r($assoc_args, true));
 		$bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
 
 		if (!$bulk) {
+			$this->logger->log("Running history import with arguments: ".print_r($assoc_args, true));
 			$transient_history = get_transient(WP_OTIS_BULK_IMPORT_TRANSIENT);
 
 			if ( empty( $transient_history ) ) {
