@@ -1018,9 +1018,10 @@ class Otis_Importer {
 	function _translate_taxonomy_value( $taxonomy, $value ) {
 		if ( $value ) {
 			if ( is_array( $value ) && isset( $value[0] ) ) {
-				return array_flatten( array_map( function ( $item ) use ( $taxonomy ) {
+				$tax_array = array_map( function ( $item ) use ( $taxonomy ) {
 					return $this->_translate_taxonomy_value( $taxonomy, $item );
-				}, $value ) );
+				}, $value );
+				return array_flatten( $tax_array );
 			}
 
 			$terms = null;
