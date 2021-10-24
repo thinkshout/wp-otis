@@ -590,7 +590,9 @@ class Otis_Importer {
 	 */
     private function _fetch_history( $assoc_args = [], $transient_history = null ) {
 
-        $params = [
+		$this->logger->log("Running _fetch_history with args " . print_r( $assoc_args, true ) );
+
+		$params = [
             'page_size' => 500,
             'page'      => $assoc_args['history-page'] ?? 1,
         ];
@@ -640,6 +642,9 @@ class Otis_Importer {
             unset( $listings );
 
             if ( $params['page'] < $total ) {
+
+				$this->logger->log("_fetch_history ongoing. Returning and updating transient history data with " . count( $history) . " updates on history-page " . $params['page'] + 1 . "." );
+
                 set_transient(WP_OTIS_BULK_IMPORT_TRANSIENT,
 					[
 						"history-page" => $params['page'] + 1,
@@ -651,6 +656,8 @@ class Otis_Importer {
             }
 
         }
+
+		$this->logger->log("_fetch_history finished. Returning and updating transient history data with " . count( $history) . " updates." );
 
 		set_transient(WP_OTIS_BULK_IMPORT_TRANSIENT,
 			[
