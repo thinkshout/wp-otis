@@ -1022,7 +1022,7 @@ class Otis_Importer {
 				$tax_array = array_map( function ( $item ) use ( $taxonomy ) {
 					return $this->_translate_taxonomy_value( $taxonomy, $item );
 				}, $value );
-				return array_flatten( $tax_array, INF );
+				return array_flatten( $tax_array, PHP_INT_MAX );
 			}
 
 			$terms = null;
