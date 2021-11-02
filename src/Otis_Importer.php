@@ -467,7 +467,6 @@ class Otis_Importer {
 		if (!$bulk) {
 			$this->logger->log("Running history import with arguments: ".print_r($assoc_args, true));
 			$transient_history = get_transient(WP_OTIS_BULK_IMPORT_TRANSIENT);
-			$this->logger->log("Transient history: ".print_r($transient_history, true));
 
 			if ( empty( $transient_history ) ) {
 				// If there is no data to process, go get it.
@@ -478,14 +477,6 @@ class Otis_Importer {
 				// If a retrieval process is ongoing, continue it.
 				$assoc_args['history-page'] = $transient_history['history-page'];
 				$this->_fetch_history($assoc_args, $transient_history['history-data']);
-			} elseif ( isset( $transient_history["history-complete"] )
-				&& $transient_history["history-complete"] ) {
-				// If a retrieval process is complete, unset everything.
-				update_option(WP_OTIS_BULK_HISTORY_ACTIVE, false);
-				delete_transient(WP_OTIS_BULK_IMPORT_TRANSIENT);
-				as_unschedule_all_actions('wp_otis_async_bulk_history_import');
-				$this->logger->log("OTIS nonbulk history import complete.");
-				return;
 			}
 
 			// This may have changed during the _fetch_history call, so retrieve it again.
