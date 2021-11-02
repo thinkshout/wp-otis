@@ -428,21 +428,34 @@ if ( ! function_exists('array_pluck'))
 /**
  * Laravel helper
  */
-if ( ! function_exists('array_flatten'))
-{
+if ( ! function_exists('array_flatten') ) {
 	/**
 	 * Flatten a multi-dimensional array into a single level.
 	 *
-	 * @param  array  $array
+	 * @param  iterable  $array
+	 * @param  int  $depth
+	 *
 	 * @return array
 	 */
-	function array_flatten($array)
+	function array_flatten(iterable $array, int $depth): array
 	{
-		$return = array();
+			$result = [];
 
-		array_walk_recursive($array, function($x) use (&$return) { $return[] = $x; });
+			foreach ($array as $item) {
+					if (!is_array($item)) {
+							$result[] = $item;
+					} else {
+							$values = $depth === 1
+									? array_values($item)
+									: array_flatten($item, $depth - 1);
 
-		return $return;
+							foreach ($values as $value) {
+									$result[] = $value;
+							}
+					}
+			}
+
+			return $result;
 	}
 }
 

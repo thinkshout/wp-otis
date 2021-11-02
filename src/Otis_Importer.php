@@ -488,11 +488,12 @@ class Otis_Importer {
 				as_enqueue_async_action('wp_otis_async_bulk_history_import', ['params' => ['all' => $assoc_args['all'], 'page' => 1, 'modified' => $assoc_args['modified'], 'related_only' => $assoc_args['related_only']]]);
 			} else {
 				// If retrieval is complete, get the data from the transient.
-				$history 			= $transient_history["history-data"];
+				$history 			      = $transient_history["history-data"];
 				$history_page_size  = 500;
 				$history_bulk       = get_option( WP_OTIS_BULK_HISTORY_ACTIVE, false );
 				$history_total      = count($history);
 				$history_page_count = ceil( $history_total / $history_page_size );
+				$history_deletes    = [];
 
 				if ( $history_page_count > 1 ) {
 					if ( !$history_bulk ) {
@@ -536,7 +537,7 @@ class Otis_Importer {
 					switch ($poi_history['verb']) {
 						case 'updated':
 							$post_status = $this->_get_post_status($poi_history);
-							if (get_post_status() !== $post_status) {
+							if (get_post_status() !== $post_status && ! in_array( get_the_ID(), $history_deletes, true )) {
 								wp_update_post([
 									'ID' => get_the_ID(),
 									'post_status' => $post_status,
@@ -545,9 +546,15 @@ class Otis_Importer {
 							break;
 
 						case 'deleted':
-							wp_trash_post(get_the_ID());
+							$history_deletes[] = get_the_ID();
 							break;
 					}
+				}
+
+				// Run through the post ids in history_deletes and trash the posts.
+				foreach ($history_deletes as $post_id) {
+					$this->logger->log('Trashing post ' . $post_id);
+					wp_trash_post($post_id);
 				}
 
 				// Wrap up this job: either enqueue a follow-up and leave the transient and flags intact,
@@ -566,6 +573,7 @@ class Otis_Importer {
 				} else {
 					update_option(WP_OTIS_BULK_HISTORY_ACTIVE, false);
 					delete_transient(WP_OTIS_BULK_IMPORT_TRANSIENT);
+					as_unschedule_all_actions('wp_otis_async_bulk_history_import');
 					$this->logger->log("OTIS nonbulk history import complete.");
 				}
 			}
@@ -1013,9 +1021,10 @@ class Otis_Importer {
 	function _translate_taxonomy_value( $taxonomy, $value ) {
 		if ( $value ) {
 			if ( is_array( $value ) && isset( $value[0] ) ) {
-				return array_flatten( array_map( function ( $item ) use ( $taxonomy ) {
+				$tax_array = array_map( function ( $item ) use ( $taxonomy ) {
 					return $this->_translate_taxonomy_value( $taxonomy, $item );
-				}, $value ) );
+				}, $value );
+				return array_flatten( $tax_array, PHP_INT_MAX );
 			}
 
 			$terms = null;
