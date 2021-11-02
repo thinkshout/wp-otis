@@ -464,11 +464,10 @@ class Otis_Importer {
 
 		$bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
 
-		$this->logger->log( 'Bulk Import Status: '.$bulk );
-
 		if (!$bulk) {
 			$this->logger->log("Running history import with arguments: ".print_r($assoc_args, true));
 			$transient_history = get_transient(WP_OTIS_BULK_IMPORT_TRANSIENT);
+			$this->logger->log("Transient history: ".print_r($transient_history, true));
 
 			if ( empty( $transient_history ) ) {
 				// If there is no data to process, go get it.
