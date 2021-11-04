@@ -414,6 +414,7 @@ class Otis_Importer {
             }
 
             try {
+							$this->logger->log("Upserting post " . $post_id); 
 							$post_id = $this->_upsert_poi( $post_id, $result, $import_related_only );
             } catch ( Exception $exception ) {
 							$this->logger->log( $exception->getMessage(), $post_id, 'error' );
@@ -877,8 +878,10 @@ class Otis_Importer {
             ], true);
 
             if (!$post_result) {
+								$this->logger->log('Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid']);
                 throw new Otis_Exception('Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid']);
             } elseif (is_wp_error($post_result)) {
+								$this->logger->log('Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid']);
                 throw new Otis_Exception('Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid'] . ', ' . $post_result->get_error_message());
             } else {
                 $post_id = $post_result;
@@ -889,6 +892,7 @@ class Otis_Importer {
                     $return = update_field($name, $data[$name], $post_id);
 
                     if (is_wp_error($return)) {
+												$this->logger->log('Error: field ' . $name . ', post id ' . $post_id . ', ' . $return->get_error_message());
                         throw new Otis_Exception('Error: field ' . $name . ', post id ' . $post_id . ', ' . $return->get_error_message());
                     }
                 }
@@ -905,6 +909,7 @@ class Otis_Importer {
             $return = wp_set_object_terms($post_id, $data['type'], 'type');
 
             if (is_wp_error($return)) {
+								$this->logger->log('Error: taxonomy type, post id ' . $post_id . ', ' . $return->get_error_message());
                 throw new Otis_Exception('Error: taxonomy type, post id ' . $post_id . ', ' . $return->get_error_message());
             }
 
@@ -912,6 +917,7 @@ class Otis_Importer {
             $return = wp_set_object_terms($post_id, $data['glocats'], 'glocats');
 
             if (is_wp_error($return)) {
+								$this->logger->log('Error: taxonomy glocats, post id ' . $post_id . ', ' . $return->get_error_message());
                 throw new Otis_Exception('Error: taxonomy glocats, post id ' . $post_id . ', ' . $return->get_error_message());
             }
 
