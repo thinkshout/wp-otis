@@ -414,7 +414,6 @@ class Otis_Importer {
             }
 
             try {
-							$this->logger->log("Upserting post " . $post_id); 
 							$post_id = $this->_upsert_poi( $post_id, $result, $import_related_only );
             } catch ( Exception $exception ) {
 							$this->logger->log( $exception->getMessage(), $post_id, 'error' );
