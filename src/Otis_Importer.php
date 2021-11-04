@@ -338,14 +338,17 @@ class Otis_Importer {
             $params['modified'] = date( 'Y-m-d\TH:i:s\Z', strtotime( $assoc_args['modified'] ) );
 				// Check if we're doing a modified_start date without an end date. If so fallback to basic modified date param.
         } else if ( isset( $assoc_args['modified_start'] ) && ! isset( $assoc_args['modified_end'] ) ) {
+						$assoc_args['all']  = true;
 						$params['modified'] = date( 'Y-m-d\TH:i:s\Z', strtotime( $assoc_args['modified_start'] ) );
 				// Check if we're both modified start and end dates are present.
 				} else if ( isset( $assoc_args['modified_start'] ) && isset( $assoc_args['modified_end'] ) ) {
 						// If both modified dates are present check if they're the equal. If so fallback to basic modified date param.
 						if ( $assoc_args['modified_start'] === $assoc_args['modified_end'] ) {
+								$assoc_args['all']  = true;
 								$params['modified'] = date( 'Y-m-d\TH:i:s\Z', strtotime( $assoc_args['modified_start'] ) );
 						// If they're different use the after & before parameters
 						} else {
+								$assoc_args['all']  = true;
 								$params['after'] = date( 'Y-m-d\TH:i:s\Z', strtotime( $assoc_args['modified_start'] ) );
 								$params['before']   = date( 'Y-m-d\TH:i:s\Z', strtotime( $assoc_args['modified_end'] ) );
 						}
@@ -372,7 +375,7 @@ class Otis_Importer {
         /* First page of an import that will require multiple chapters */
         if ((($listings['count'] / $params['page_size']) > $chapter_size) && ($params['page'] == 1)) {
             update_option( WP_OTIS_BULK_IMPORT_ACTIVE, true );
-						$logger_date = isset($assoc_args['modified']) ? "(".date( 'Y-m-d', strtotime( $assoc_args['modified'] ) ).")" : "";
+						$logger_date = $this->_get_logger_modified_date_string($assoc_args);
 						$this->logger->log("OTIS bulk import detected: ".$listings['count']." updates. ".$logger_date);
         }
 
