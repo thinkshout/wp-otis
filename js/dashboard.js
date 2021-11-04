@@ -56,8 +56,30 @@
               <p>Start an import of POIs that have been modified since a given date. POIs that already exist on the site will be updated if they fall in the date range.</p>
               <p><em>Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme or a different plugin.</em></p>
               <div class="otis-dashboard__action">
-                <label for="modified-date">Start Date</label>
-                <input id="modified-date" type="text" name="otis-modified-date" placeholder="YYYY-MM-DD" :readonly="importStarting" v-model="fromDate" />
+                <label for="modified-date">Date Range To Import</label>
+								<datepicker
+									format="MM/DD/YYYY"
+									:show-helper-buttons="false"
+									:date-input="{
+										placeholder: 'Click to select a date range',
+									}"
+									:calendar-date-input="{
+										format: 'MM/DD/YYYY'
+									}"
+									:same-date-format="{
+										from: 'MM/DD/YYYY',
+										to: 'MM/DD/YYYY',
+									}"
+									:time-input="{
+										readonly: true,
+									}"
+									reset-button-label="Clear"
+									:switch-button-initial="true"
+									:disabled-dates="disabledDates"
+									:disabled="importStarting"
+									:readonly="importStarting"
+									@date-applied="setDateRange"
+								/>
                 <p v-if="importStarting">POI import starting, please wait this usually takes a few minutes...</p>
                 <button class="button button-primary" :disabled="!dateIsValid || importStarting || bulkImportActive || bulkImportScheduled" @click="triggerModifiedImport">
                   <span v-if="importStarting">
@@ -128,7 +150,10 @@
       </div>
     `,
 		data: {
-			fromDate: "",
+			dateRange: {
+				from: '',
+				to: '',
+			},
 			lastImportDate: "",
 			bulkImportActive: "",
 			bulkImportScheduled: false,
@@ -157,6 +182,11 @@
 				if (this.bulkHistoryImportScheduled) return "Scheduled";
 				return "Inactive";
 			},
+			disabledDates() {
+				return {
+					from: new Date(),
+				}
+			},
 			displayInitialImport() {
 				if (this.countsLoading) return false;
 				let count = 0;
@@ -169,13 +199,7 @@
 				return count === 0;
 			},
 			dateIsValid() {
-				const formatCorrect = this.fromDate?.match(
-					/^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/g
-				);
-				if (!formatCorrect) return false;
-				const date = new Date(this.fromDate);
-				const now = new Date();
-				return date.getTime() < now.getTime();
+				return this.dateRange.to && this.dateRange.from ? true : false;
 			},
 			otisDashObject() {
 				return otisDash;
@@ -202,6 +226,12 @@
 				setTimeout(() => {
 					this.importStarted = false;
 				}, 1000);
+			},
+			setDateRange(fromDate, toDate) {
+				const formattedFromDate = new Date(fromDate).toISOString().substring(0, 10);
+				const formattedToDate = new Date(toDate).toISOString().substring(0, 10);
+				this.dateRange.from = formattedFromDate;
+				this.dateRange.to = formattedToDate;
 			},
 			async triggerAction(action, data = {}) {
 				const payload = this.makePayload({
@@ -246,7 +276,7 @@
 			async triggerModifiedImport() {
 				if (!this.dateIsValid) return;
 				this.importStarting = true;
-				await this.triggerAction('otis_import', {modified_date: this.fromDate});
+				await this.triggerAction('otis_import', {from_date: this.dateRange.from, to_date: this.dateRange.to});
 				await this.otisStatus();
 				this.notifyImportStarted();
 				this.importStarting = false;

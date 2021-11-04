@@ -317,7 +317,7 @@ class Otis_Importer {
 			'reverse_relations' => 'true'
         ];
 
-        if ( isset( $assoc_args['modified'] ) ) {
+        if ( isset( $assoc_args['modified_start'] ) || isset( $assoc_args['modified'] ) ) {
             // Only pull expired listings relative to a recent import.
             $params['showexpired'] = 'true';
         }
@@ -336,7 +336,20 @@ class Otis_Importer {
         if ( isset( $assoc_args['modified'] ) ) {
             $assoc_args['all']  = true;
             $params['modified'] = date( 'Y-m-d\TH:i:s\Z', strtotime( $assoc_args['modified'] ) );
-        }
+				// Check if we're doing a modified_start date without an end date. If so fallback to basic modified date param.
+        } else if ( isset( $assoc_args['modified_start'] ) && ! isset( $assoc_args['modified_end'] ) ) {
+						$params['modified'] = date( 'Y-m-d\TH:i:s\Z', strtotime( $assoc_args['modified_start'] ) );
+				// Check if we're both modified start and end dates are present.
+				} else if ( isset( $assoc_args['modified_start'] ) && isset( $assoc_args['modified_end'] ) ) {
+						// If both modified dates are present check if they're the equal. If so fallback to basic modified date param.
+						if ( $assoc_args['modified_start'] === $assoc_args['modified_end'] ) {
+								$params['modified'] = date( 'Y-m-d\TH:i:s\Z', strtotime( $assoc_args['modified_start'] ) );
+						// If they're different use the after & before parameters
+						} else {
+								$params['after'] = date( 'Y-m-d\TH:i:s\Z', strtotime( $assoc_args['modified_start'] ) );
+								$params['before']   = date( 'Y-m-d\TH:i:s\Z', strtotime( $assoc_args['modified_end'] ) );
+						}
+				}
 
         $listings = $this->otis->call( 'listings', $params );
 
@@ -456,6 +469,31 @@ class Otis_Importer {
 	}
 
 	/**
+	 * Get Logger modified Date
+	 * 
+	 * @param array $assoc_args
+	 * @return string
+	 */
+	private function _get_logger_modified_date_string( $assoc_args = [] ) {
+		if ( isset( $assoc_args['modified'] ) ) {
+			return $assoc_args['modified'];
+		// Check if we're doing a modified_start date without an end date. If so fallback to basic modified date param.
+		} else if ( isset( $assoc_args['modified_start'] ) && ! isset( $assoc_args['modified_end'] ) ) {
+			return $assoc_args['modified_start'];
+		// Check if we're both modified start and end dates are present.
+		} else if ( isset( $assoc_args['modified_start'] ) && isset( $assoc_args['modified_end'] ) ) {
+			// If both modified dates are present check if they're the equal. If so fallback to basic modified date param.
+			if ( $assoc_args['modified_start'] === $assoc_args['modified_end'] ) {
+				return $assoc_args['modified_start'];
+			// If they're different use the start & end dates.
+			} else {
+				return $assoc_args['modified_start'] . ' - ' . $assoc_args['modified_end'];
+			}
+		} else {
+			return '';
+		}
+	}
+	/**
 	 * Import POI history, triggering publish, unpublish, and deletes on POIs.
 	 *
 	 * @param array $assoc_args
@@ -500,11 +538,11 @@ class Otis_Importer {
 						update_option(WP_OTIS_BULK_HISTORY_ACTIVE, true);
 						$assoc_args['bulk-history-page'] = 1;
 						$history_bulk = true;
-						$logger_date = isset($assoc_args['modified']) ? "(" . date('Y-m-d', strtotime($assoc_args['modified'])) . ")" : "";
+						$logger_date = $this->_get_logger_modified_date_string($assoc_args);
 						$this->logger->log("OTIS bulk history import detected: " . $history_total . " updates. " . $logger_date);
 					}
 				} else {
-					$logger_date = isset($assoc_args['modified']) ? "(" . date('Y-m-d', strtotime($assoc_args['modified'])) . ")" : "";
+					$logger_date = $this->_get_logger_modified_date_string($assoc_args);
 					$this->logger->log("OTIS nonbulk history import detected: " . $history_total . " updates. " . $logger_date);
 				}
 
@@ -563,7 +601,26 @@ class Otis_Importer {
 					if ($assoc_args['bulk-history-page'] < $history_page_count) {
 						$assoc_args['bulk-history-page'] = $assoc_args['bulk-history-page'] + 1;
 						$this->logger->log('Enqueueing history import page ' . $assoc_args['bulk-history-page']);
-						as_enqueue_async_action('wp_otis_async_bulk_history_import', ['params' => ['all' => $assoc_args['all'], 'page' => $assoc_args['bulk-history-page'], 'modified' => $assoc_args['modified'], 'related_only' => $assoc_args['related_only']]]);
+						$bulk_history_params = [
+							'params' => [
+								'all' => $assoc_args['all'],
+								'page' => $assoc_args['bulk-history-page'],
+								'related_only' => $assoc_args['related_only']
+							]
+						];
+						if ( isset( $assoc_args['modified_start'] ) && isset( $assoc_args['modified_end'] ) ) {
+							// If both modified dates are present check if they're the equal. If so fallback to basic modified date param.
+							if ( $assoc_args['modified_start'] === $assoc_args['modified_end'] ) {
+								$bulk_history_params['params']['modified'] = $assoc_args['modified'];
+							// If they're different use the start & end dates.
+							} else {
+								$bulk_history_params['params']['modified_start'] = $assoc_args['modified_start'];
+								$bulk_history_params['params']['modified_end'] = $assoc_args['modified_end'];
+							}
+						} else {
+							$bulk_history_params['params']['modified'] = $assoc_args['modified'];
+						}
+						as_enqueue_async_action('wp_otis_async_bulk_history_import', $bulk_history_params);
 					} elseif ($assoc_args['bulk-history-page'] == $history_page_count) {
 						update_option(WP_OTIS_BULK_HISTORY_ACTIVE, false);
 						delete_transient(WP_OTIS_BULK_IMPORT_TRANSIENT);
@@ -601,6 +658,22 @@ class Otis_Importer {
         if ( isset( $assoc_args['modified'] ) ) {
             $params['after']   = date( 'Y-m-d', strtotime( $assoc_args['modified'] ) );
             $assoc_args['all'] = true;
+				// Check if we're doing a modified_start date without an end date. If so fallback to basic modified date param.
+				} else if ( isset( $assoc_args['modified_start'] ) && ! isset( $assoc_args['modified_end'] ) ) {
+						$params['after'] = date( 'Y-m-d', strtotime( $assoc_args['modified_start'] ) );
+						$assoc_args['all'] = true;
+						// Check if we're both modified start and end dates are present.
+				} else if ( isset( $assoc_args['modified_start'] ) && isset( $assoc_args['modified_end'] ) ) {
+						// If both modified dates are present check if they're the equal. If so fallback to basic modified date param.
+						if ( $assoc_args['modified_start'] === $assoc_args['modified_end'] ) {
+								$params['after'] = date( 'Y-m-d', strtotime( $assoc_args['modified_start'] ) );
+								$assoc_args['all'] = true;
+						// If they're different use the after & before parameters
+						} else {
+								$params['after']  = date( 'Y-m-d', strtotime( $assoc_args['modified_start'] ) );
+								$params['before'] = date( 'Y-m-d', strtotime( $assoc_args['modified_end'] ) );
+								$assoc_args['all'] = true;
+						}
         } else {
             // Only import history relative to a recent import.
             return [];

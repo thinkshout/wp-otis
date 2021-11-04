@@ -49,6 +49,9 @@
 .otis-dashboard .otis-dashboard__settings .postbox.success {
 	background-color: #28834c;
 }
+.otis-dashboard .vdpr-datepicker__calendar-input-wrapper {
+	display: none;
+}
 .otis-dashboard .otis-dashboard__settings {
 	padding: 10px 0px;
 }
