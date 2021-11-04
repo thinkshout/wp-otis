@@ -523,7 +523,26 @@ class Otis_Importer {
 			// Did the most recent fetch job finish filling out the retrieved history data?
 			if ( !$transient_history["history-complete"] ) {
 				// If not, enqueue a follow-up.
-				as_enqueue_async_action('wp_otis_async_bulk_history_import', ['params' => ['all' => $assoc_args['all'], 'page' => 1, 'modified' => $assoc_args['modified'], 'related_only' => $assoc_args['related_only']]]);
+				$bulk_history_params = [
+					'params' => [
+						'all' => $assoc_args['all'],
+						'page' => 1,
+						'related_only' => $assoc_args['related_only']
+					]
+				];
+				if ( isset( $assoc_args['modified_start'] ) && isset( $assoc_args['modified_end'] ) ) {
+					// If both modified dates are present check if they're the equal. If so fallback to basic modified date param.
+					if ( $assoc_args['modified_start'] === $assoc_args['modified_end'] ) {
+						$bulk_history_params['params']['modified'] = $assoc_args['modified'];
+					// If they're different use the start & end dates.
+					} else {
+						$bulk_history_params['params']['modified_start'] = $assoc_args['modified_start'];
+						$bulk_history_params['params']['modified_end'] = $assoc_args['modified_end'];
+					}
+				} else {
+					$bulk_history_params['params']['modified'] = $assoc_args['modified'];
+				}
+				as_enqueue_async_action('wp_otis_async_bulk_history_import', $bulk_history_params);
 			} else {
 				// If retrieval is complete, get the data from the transient.
 				$history 			      = $transient_history["history-data"];
