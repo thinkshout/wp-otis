@@ -354,7 +354,7 @@ class Otis_Importer {
 						}
 				}
 
-				$this->logger->log('Calling OTIS listings w/ params', $params);
+				$this->logger->log('Calling OTIS listings w/ params' . $params);
         $listings = $this->otis->call( 'listings', $params );
 
         if ( empty( $listings['results'] ) ) {
