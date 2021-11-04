@@ -11,9 +11,11 @@ class Otis_Dashboard
   public function otis_dashboard_scripts() {
     wp_enqueue_media();
     wp_register_script( 'axios', 'https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js', [], '0.21.1' );
-    wp_register_script( 'vue-date-range', 'https://cdn.jsdelivr.net/npm/vue2-daterange-picker@0.6.7/dist/vue2-daterange-picker.umd.min.js', [], '0.6.7' );
+    wp_register_script( 'vue-moment', 'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment-with-locales.min.js', [], '2.27.0' );
+    wp_register_script( 'vue-date-range', 'https://unpkg.com/vue-time-date-range-picker@1.5.0/dist/vdprDatePicker.js', [], '1.5.0' );
     wp_register_script( 'vue', 'https://cdn.jsdelivr.net/npm/vue@2.6.14', [], '2.6.14' );
     wp_enqueue_script( 'axios' );
+    wp_enqueue_script( 'vue-moment' );
     wp_enqueue_script( 'vue-date-range' );
     wp_enqueue_script( 'vue' );
     wp_register_script( 'otis-dashboard', plugins_url( '../js/dashboard.js', __FILE__ ), [], '1.0', true );

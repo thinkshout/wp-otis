@@ -2,7 +2,8 @@
 	new Vue({
 		el: document.getElementById("otis-dashboard-mount"),
 		components: {
-			DateRangePicker
+			'datepicker' : vdprDatePicker.default,
+			'calendar-dialog' : vdprDatePicker.CalendarDialog
 		},
 		template: `
       <div class="otis-dashboard">
