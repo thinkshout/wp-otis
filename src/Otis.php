@@ -84,7 +84,7 @@ class Otis {
 	 * @return array
 	 * @throws \Otis_Exception
 	 */
-	public function call( $path, $params = array(), $logger = null ) {
+	public function call( $path, $params = array(), $logger = null, $verbose = false ) {
 		if ( $path && substr( $path, - 1 ) !== '/' ) {
 			$path .= '/';
 		}
@@ -102,8 +102,9 @@ class Otis {
 			return $this->_fetch( self::API_ROOT . '/' . $path, array(
 				'headers' => $headers,
 				'get'     => $params,
-			), $logger );
+			), $logger, $verbose );
 		} catch ( Otis_Exception $exception ) {
+			$logger->log('Otis Exception: ' . $exception->getCode() . ' - ' . $exception->getMessage());
 			if ( 401 === $exception->getCode() ) {
 				// Try fetching a new token if auth failed.
 				$token = $this->token( true );
@@ -125,7 +126,7 @@ class Otis {
 	 * @return array
 	 * @throws \Otis_Exception
 	 */
-	private function _fetch( $url, $options = array(), $logger = null) {
+	private function _fetch( $url, $options = array(), $logger = null, $verbose = false ) {
 		if ( ! empty( $options['get'] ) ) {
 			$url .= '?' . http_build_query( $options['get'] );
 		}
@@ -138,11 +139,11 @@ class Otis {
 		curl_setopt( $this->ch, CURLOPT_HTTPHEADER, $options['headers'] ?? array() );
 		curl_setopt( $this->ch, CURLOPT_TIMEOUT, 30 );
 
-		if ($logger) {
+		if ($logger && $verbose) {
 			$logger->log("About to curl_exec url ".$url);
 		}
 		$response_body = curl_exec( $this->ch );
-		if ($logger) {
+		if ($logger && $verbose) {
 			$logger->log("Call returned with options".json_encode($options));
 		}
 
@@ -162,7 +163,7 @@ class Otis {
 		}
 
 
-		if ($logger) {
+		if ($logger && $verbose) {
 			$logger->log("Returning from call with options".json_encode($options));
 		}
 		return json_decode( $response_body, true );
