@@ -131,15 +131,16 @@ add_action( 'wp_otis_async_bulk_history_import', function ( $params ) {
 		$otis     = new Otis();
 		$logger   = new Otis_Logger_Simple();
 		$importer = new Otis_Importer( $otis, $logger );
-		$logger->log( "Bulk OTIS history import continuing on page ".$params['page'].". (".$params['modified'].")");
+		$logger->log( "Bulk OTIS history import continuing on page ".$params['page'].". (".wp_otis_get_logger_modified_date_string($params).")");
 
 		try {
-			$importer->import( 'history-only', [
-				'modified' => $params['modified'],
+			$importer_params = [
 				'bulk-history-page' => $params['page'],
 				'related_only' => isset($params['related_only']),
 				'all' => $params['all'],
-			] );
+			];
+			$importer_params = wp_otis_make_modified_date_param($params, $importer_params);
+			$importer->import( 'history-only', $importer_params );
 		} catch ( Exception $e ) {
 			$logger->log( $e->getMessage(), 0, 'error' );
 		}
@@ -150,7 +151,6 @@ add_action( 'wp_otis_async_bulk_import', function( $params ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
 	}
 
-	$modified = $params['modified'];
 	$all = $params['all'];
 	$page = $params['page'];
 	$page_size = $params['page_size'];
@@ -159,16 +159,17 @@ add_action( 'wp_otis_async_bulk_import', function( $params ) {
 	$otis     = new Otis();
 	$logger   = new Otis_Logger_Simple();
 	$importer = new Otis_Importer( $otis, $logger );
-	$logger->log( "Bulk OTIS import continuing on page ".$page.". (".$modified.")");
+	$logger->log( "Bulk OTIS import continuing on page ".$page.". (".wp_otis_get_logger_modified_date_string($params).")");
 
 	try {
-		$importer->import( 'pois-only', [
-			'modified' => $modified,
+		$importer_params = [
 			'page' => $page,
 			'page_size' => $page_size,
 			'related_only' => $related_only,
-			'all' => $all
-		] );
+			'all' => $all,
+		];
+		$importer_params = wp_otis_make_modified_date_param($params, $importer_params);
+		$importer->import( 'pois-only', $importer_params );
 	} catch ( Exception $e ) {
 		$logger->log( $e->getMessage(), 0, 'error' );
 	}
@@ -383,6 +384,56 @@ function wp_otis_fields_load() {
  */
 function wp_otis_fields_save( $field_group ) {
 	file_put_contents( WP_OTIS_FIELDS_PATH, wp_json_encode( $field_group, JSON_PRETTY_PRINT ) );
+}
+
+/**
+ * Get Logger modified Date
+ * 
+ * @param array $args
+ * @return string
+ */
+function wp_otis_get_logger_modified_date_string( $args = [] ) {
+	if ( isset( $args['modified'] ) ) {
+		return $args['modified'];
+	// Check if we're doing a modified_start date without an end date. If so fallback to basic modified date param.
+	} else if ( isset( $args['modified_start'] ) && ! isset( $args['modified_end'] ) ) {
+		return $args['modified_start'];
+	// Check if we're both modified start and end dates are present.
+	} else if ( isset( $args['modified_start'] ) && isset( $args['modified_end'] ) ) {
+		// If both modified dates are present check if they're the equal. If so fallback to basic modified date param.
+		if ( $args['modified_start'] === $args['modified_end'] ) {
+			return $args['modified_start'];
+		// If they're different use the start & end dates.
+		} else {
+			return $args['modified_start'] . ' - ' . $args['modified_end'];
+		}
+	} else {
+		return '';
+	}
+}
+
+/**
+ * Make modified date param.
+ * 
+ * @param array $params
+ * @param array $args_to_modify
+ * 
+ * @return array
+ */
+function wp_otis_make_modified_date_param( $params = [], $args_to_modify = [] ) {
+	if ( isset( $params['modified_start'] ) && isset( $params['modified_end'] ) ) {
+		// If both modified dates are present check if they're the equal. If so fallback to basic modified date param.
+		if ( $params['modified_start'] === $params['modified_end'] ) {
+			$args_to_modify['modified'] = $params['modified'];
+		// If they're different use the start & end dates.
+		} else {
+			$args_to_modify['modified_start'] = $params['modified_start'];
+			$args_to_modify['modified_end'] = $params['modified_end'];
+		}
+	} else {
+		$args_to_modify['modified'] = $params['modified'];
+	}
+	return $args_to_modify;
 }
 
 /**

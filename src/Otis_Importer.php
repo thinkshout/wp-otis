@@ -375,7 +375,7 @@ class Otis_Importer {
         /* First page of an import that will require multiple chapters */
         if ((($listings['count'] / $params['page_size']) > $chapter_size) && ($params['page'] == 1)) {
             update_option( WP_OTIS_BULK_IMPORT_ACTIVE, true );
-						$logger_date = $this->_get_logger_modified_date_string($assoc_args);
+						$logger_date = wp_otis_get_logger_modified_date_string($assoc_args);
 						$this->logger->log("OTIS bulk import detected: ".$listings['count']." updates. ".$logger_date);
         }
 
@@ -472,31 +472,6 @@ class Otis_Importer {
 	}
 
 	/**
-	 * Get Logger modified Date
-	 * 
-	 * @param array $assoc_args
-	 * @return string
-	 */
-	private function _get_logger_modified_date_string( $assoc_args = [] ) {
-		if ( isset( $assoc_args['modified'] ) ) {
-			return $assoc_args['modified'];
-		// Check if we're doing a modified_start date without an end date. If so fallback to basic modified date param.
-		} else if ( isset( $assoc_args['modified_start'] ) && ! isset( $assoc_args['modified_end'] ) ) {
-			return $assoc_args['modified_start'];
-		// Check if we're both modified start and end dates are present.
-		} else if ( isset( $assoc_args['modified_start'] ) && isset( $assoc_args['modified_end'] ) ) {
-			// If both modified dates are present check if they're the equal. If so fallback to basic modified date param.
-			if ( $assoc_args['modified_start'] === $assoc_args['modified_end'] ) {
-				return $assoc_args['modified_start'];
-			// If they're different use the start & end dates.
-			} else {
-				return $assoc_args['modified_start'] . ' - ' . $assoc_args['modified_end'];
-			}
-		} else {
-			return '';
-		}
-	}
-	/**
 	 * Import POI history, triggering publish, unpublish, and deletes on POIs.
 	 *
 	 * @param array $assoc_args
@@ -533,18 +508,7 @@ class Otis_Importer {
 						'related_only' => $assoc_args['related_only']
 					]
 				];
-				if ( isset( $assoc_args['modified_start'] ) && isset( $assoc_args['modified_end'] ) ) {
-					// If both modified dates are present check if they're the equal. If so fallback to basic modified date param.
-					if ( $assoc_args['modified_start'] === $assoc_args['modified_end'] ) {
-						$bulk_history_params['params']['modified'] = $assoc_args['modified'];
-					// If they're different use the start & end dates.
-					} else {
-						$bulk_history_params['params']['modified_start'] = $assoc_args['modified_start'];
-						$bulk_history_params['params']['modified_end'] = $assoc_args['modified_end'];
-					}
-				} else {
-					$bulk_history_params['params']['modified'] = $assoc_args['modified'];
-				}
+				$bulk_history_params['params'] = wp_otis_make_modified_date_param($assoc_args, $bulk_history_params['params']);
 				as_enqueue_async_action('wp_otis_async_bulk_history_import', $bulk_history_params);
 			} else {
 				// If retrieval is complete, get the data from the transient.
@@ -560,11 +524,11 @@ class Otis_Importer {
 						update_option(WP_OTIS_BULK_HISTORY_ACTIVE, true);
 						$assoc_args['bulk-history-page'] = 1;
 						$history_bulk = true;
-						$logger_date = $this->_get_logger_modified_date_string($assoc_args);
+						$logger_date = wp_otis_get_logger_modified_date_string($assoc_args);
 						$this->logger->log("OTIS bulk history import detected: " . $history_total . " updates. " . $logger_date);
 					}
 				} else {
-					$logger_date = $this->_get_logger_modified_date_string($assoc_args);
+					$logger_date = wp_otis_get_logger_modified_date_string($assoc_args);
 					$this->logger->log("OTIS nonbulk history import detected: " . $history_total . " updates. " . $logger_date);
 				}
 
@@ -630,18 +594,7 @@ class Otis_Importer {
 								'related_only' => $assoc_args['related_only']
 							]
 						];
-						if ( isset( $assoc_args['modified_start'] ) && isset( $assoc_args['modified_end'] ) ) {
-							// If both modified dates are present check if they're the equal. If so fallback to basic modified date param.
-							if ( $assoc_args['modified_start'] === $assoc_args['modified_end'] ) {
-								$bulk_history_params['params']['modified'] = $assoc_args['modified'];
-							// If they're different use the start & end dates.
-							} else {
-								$bulk_history_params['params']['modified_start'] = $assoc_args['modified_start'];
-								$bulk_history_params['params']['modified_end'] = $assoc_args['modified_end'];
-							}
-						} else {
-							$bulk_history_params['params']['modified'] = $assoc_args['modified'];
-						}
+						$bulk_history_params['params'] = wp_otis_make_modified_date_param($assoc_args, $bulk_history_params['params']);
 						as_enqueue_async_action('wp_otis_async_bulk_history_import', $bulk_history_params);
 					} elseif ($assoc_args['bulk-history-page'] == $history_page_count) {
 						update_option(WP_OTIS_BULK_HISTORY_ACTIVE, false);
