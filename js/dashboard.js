@@ -1,6 +1,9 @@
 (function () {
 	new Vue({
 		el: document.getElementById("otis-dashboard-mount"),
+		components: {
+			DateRangePicker
+		},
 		template: `
       <div class="otis-dashboard">
         <h1>OTIS Dashboard</h1>
