@@ -662,7 +662,7 @@ class Otis_Importer {
 								'related_only' => $assoc_args['related_only']
 							]
 						];
-						$bulk_history_params['params'] = wp_otis_make_modified_datetime_param($assoc_args, $bulk_history_params['params']);
+						$bulk_history_params['params'] = wp_otis_make_modified_date_param($assoc_args, $bulk_history_params['params']);
 						as_enqueue_async_action('wp_otis_async_bulk_history_import', $bulk_history_params);
 					} elseif ($assoc_args['bulk-history-page'] == $history_page_count) {
 						update_option(WP_OTIS_BULK_HISTORY_ACTIVE, false);
