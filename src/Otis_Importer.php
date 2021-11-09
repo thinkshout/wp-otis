@@ -322,10 +322,12 @@ class Otis_Importer {
 
 			foreach ( $results as $result ) {
 				$modified_datetime = $result['modified'];
-				$this->logger->log('Result modified date: ' . $modified_datetime );
-				$modified_datetime = strtotime( $modified_datetime );
+				$modified_datestamp = strtotime( $modified_datetime );
+				$start_datestamp = strtotime( $start_date );
+				$end_datestamp = strtotime( $end_date );
+				$this->logger->log('Result modified date: ' . $modified_datestamp . ' w/ start: ' . $start_datestamp . ' and end: ' . $end_datestamp);
 
-				if ( $modified_datetime >= $start_date && $modified_datetime <= $end_date ) {
+				if ( $modified_datestamp >= $start_datestamp && $modified_datestamp <= $end_datestamp ) {
 					$filtered_results[] = $result;
 				}
 			}
