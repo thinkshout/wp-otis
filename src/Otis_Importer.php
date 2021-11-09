@@ -395,96 +395,124 @@ class Otis_Importer {
 					$this->logger->log(count($listings['results']) . ' relevant results');
 				}
 
-        if ( empty( $listings['results'] ) ) {
-						$this->logger->log('No relevant results continuing...');
-            return;
-        }
+        if ( empty( $listings['results'] ) && $listings['count'] > 0 ) {
+						// The filter didn't return any results but there were results, so we need to go to the next page.
+						$this->logger->log('No relevant results for this page continuing...');
+            $total = ceil( $listings['count'] / $params['page_size'] );
 
-				$import_related_only = false;
-				if ( isset($assoc_args['related_only']) ) {
-					$import_related_only = $assoc_args['related_only'];
+						if ( isset( $assoc_args['all'] ) && $params['page'] < $total ) {
+								$this->logger->log($params['page'] * $params['page_size'] ." out of ".$listings['count']. " records evaluated.");
+
+								$assoc_args['page'] = $params['page'] + 1;
+								$assoc_args['page_size'] = $params['page_size'];
+
+								if ($next_chapter) {
+										as_enqueue_async_action( 'wp_otis_async_bulk_import', ['params' => $assoc_args] );
+								} else {
+										$this->_import_pois( $assoc_args );
+								}
+						}
+
+						if (isset( $assoc_args['all'] ) && ($params['page'] == $total) && $total > $chapter_size ) {
+								$this->logger->log($listings['count'] ." out of ".$listings['count']. " records evaluated.");
+
+								update_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
+
+								as_unschedule_all_actions( 'wp_otis_async_bulk_import' );
+
+								$this->logger->log("OTIS bulk import complete.");
+						}
+        } else if ( ! empty( $listings['results'] ) ) {
+					// The filter returned results, so we can import them.
+					$import_related_only = false;
+					if ( isset($assoc_args['related_only']) ) {
+						$import_related_only = $assoc_args['related_only'];
+					}
+
+					if ( $import_related_only && $params['page'] == 1) {
+						$params[] = ['reverse_relations' => 'true'];
+						$this->logger->log("Importing POIs with relationships only");
+					}
+
+					$uuids = array_pluck( $listings['results'], 'uuid' );
+
+					/* First page of an import that will require multiple chapters */
+					if ((($listings['count'] / $params['page_size']) > $chapter_size) && ($params['page'] == 1)) {
+							update_option( WP_OTIS_BULK_IMPORT_ACTIVE, true );
+							$logger_date = wp_otis_get_logger_modified_date_string($assoc_args);
+							$this->logger->log("OTIS bulk import detected: ".$listings['count']." updates. ".$logger_date);
+					}
+
+					$the_query = new WP_Query( [
+							'no_found_rows'          => true,
+							'update_post_meta_cache' => false,
+							'update_post_term_cache' => false,
+							'posts_per_page'         => - 1,
+							'post_status'            => 'any',
+							'post_type'              => 'poi',
+							'meta_key'               => 'uuid',
+							'meta_value'             => $uuids,
+					] );
+
+					$uuid_map = [];
+
+					while ( $the_query->have_posts() ) {
+							$the_query->the_post();
+
+							$uuid_map[ get_field( 'uuid' ) ] = get_the_ID();
+					}
+
+					wp_reset_postdata();
+
+					foreach ( $listings['results'] as $result ) {
+							$uuid    = $result['uuid'];
+							$post_id = $uuid_map[ $uuid ] ?? 0;
+
+							$type = strtolower( $result['type']['name'] );
+							if ( 'regions' === $type || 'cities' === $type ) {
+									if ( ! isset( $assoc_args['type'] ) ) {
+											// Regions and cities have already been populated...
+											// Skip those when populating the rest of the listing results.
+											continue;
+									}
+							}
+
+							try {
+								$post_id = $this->_upsert_poi( $post_id, $result, $import_related_only );
+							} catch ( Exception $exception ) {
+								$this->logger->log( $exception->getMessage(), $post_id, 'error' );
+							}
+
+					}
+
+					$total = ceil( $listings['count'] / $params['page_size'] );
+
+					if ( isset( $assoc_args['all'] ) && $params['page'] < $total ) {
+							$this->logger->log($params['page'] * $params['page_size'] ." out of ".$listings['count']. " records evaluated.");
+
+							$assoc_args['page'] = $params['page'] + 1;
+							$assoc_args['page_size'] = $params['page_size'];
+
+							if ($next_chapter) {
+									as_enqueue_async_action( 'wp_otis_async_bulk_import', ['params' => $assoc_args] );
+							} else {
+									$this->_import_pois( $assoc_args );
+							}
+					}
+
+					if (isset( $assoc_args['all'] ) && ($params['page'] == $total) && $total > $chapter_size ) {
+							$this->logger->log($listings['count'] ." out of ".$listings['count']. " records evaluated.");
+
+							update_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
+
+							as_unschedule_all_actions( 'wp_otis_async_bulk_import' );
+
+							$this->logger->log("OTIS bulk import complete.");
+					}
+				} else {
+					$this->logger->log("No POIs to import.");
+					return;
 				}
-
-				if ( $import_related_only && $params['page'] == 1) {
-					$params[] = ['reverse_relations' => 'true'];
-					$this->logger->log("Importing POIs with relationships only");
-				}
-
-        $uuids = array_pluck( $listings['results'], 'uuid' );
-
-        /* First page of an import that will require multiple chapters */
-        if ((($listings['count'] / $params['page_size']) > $chapter_size) && ($params['page'] == 1)) {
-            update_option( WP_OTIS_BULK_IMPORT_ACTIVE, true );
-						$logger_date = wp_otis_get_logger_modified_date_string($assoc_args);
-						$this->logger->log("OTIS bulk import detected: ".$listings['count']." updates. ".$logger_date);
-        }
-
-        $the_query = new WP_Query( [
-            'no_found_rows'          => true,
-            'update_post_meta_cache' => false,
-            'update_post_term_cache' => false,
-            'posts_per_page'         => - 1,
-            'post_status'            => 'any',
-            'post_type'              => 'poi',
-            'meta_key'               => 'uuid',
-            'meta_value'             => $uuids,
-        ] );
-
-        $uuid_map = [];
-
-        while ( $the_query->have_posts() ) {
-            $the_query->the_post();
-
-            $uuid_map[ get_field( 'uuid' ) ] = get_the_ID();
-        }
-
-        wp_reset_postdata();
-
-        foreach ( $listings['results'] as $result ) {
-            $uuid    = $result['uuid'];
-            $post_id = $uuid_map[ $uuid ] ?? 0;
-
-            $type = strtolower( $result['type']['name'] );
-            if ( 'regions' === $type || 'cities' === $type ) {
-                if ( ! isset( $assoc_args['type'] ) ) {
-                    // Regions and cities have already been populated...
-                    // Skip those when populating the rest of the listing results.
-                    continue;
-                }
-            }
-
-            try {
-							$post_id = $this->_upsert_poi( $post_id, $result, $import_related_only );
-            } catch ( Exception $exception ) {
-							$this->logger->log( $exception->getMessage(), $post_id, 'error' );
-            }
-
-        }
-
-        $total = ceil( $listings['count'] / $params['page_size'] );
-
-        if ( isset( $assoc_args['all'] ) && $params['page'] < $total ) {
-            $this->logger->log($params['page'] * $params['page_size'] ." out of ".$listings['count']. " records evaluated.");
-
-            $assoc_args['page'] = $params['page'] + 1;
-						$assoc_args['page_size'] = $params['page_size'];
-
-            if ($next_chapter) {
-								as_enqueue_async_action( 'wp_otis_async_bulk_import', ['params' => $assoc_args] );
-            } else {
-                $this->_import_pois( $assoc_args );
-            }
-        }
-
-        if (isset( $assoc_args['all'] ) && ($params['page'] == $total) && $total > $chapter_size ) {
-            $this->logger->log($listings['count'] ." out of ".$listings['count']. " records evaluated.");
-
-            update_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
-
-						as_unschedule_all_actions( 'wp_otis_async_bulk_import' );
-
-            $this->logger->log("OTIS bulk import complete.");
-        }
     }
 
 	/**
