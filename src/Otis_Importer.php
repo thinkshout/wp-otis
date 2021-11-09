@@ -389,14 +389,14 @@ class Otis_Importer {
 
 				if ( isset( $params['start_date']) && isset( $params['end_date'] ) ) {
 					// filter listings by modified date
-					$this->logger->log('Filtering ' . $listings['count'] . ' OTIS results by modified param using dates: ' . $params['start_date'] . ' - ' . $params['end_date'] );
+					$this->logger->log('Filtering this page of OTIS results by modified param using dates: ' . $params['start_date'] . ' - ' . $params['end_date'] );
 					$filtered_results = $this->_filter_results_by_date( $listings['results'], $params );
 					$listings['results'] = $filtered_results;
 					$this->logger->log(count($listings['results']) . ' relevant results');
 				}
 
         if ( empty( $listings['results'] ) ) {
-						$this->logger->log('No relevant results continuing to next set...');
+						$this->logger->log('No relevant results continuing...');
             return;
         }
 
