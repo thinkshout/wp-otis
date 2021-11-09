@@ -325,7 +325,6 @@ class Otis_Importer {
 				$modified_datestamp = strtotime( $modified_datetime );
 				$start_datestamp = strtotime( $start_date );
 				$end_datestamp = strtotime( $end_date );
-				$this->logger->log('Result modified date: ' . $modified_datestamp . ' w/ start: ' . $start_datestamp . ' and end: ' . $end_datestamp);
 
 				if ( $modified_datestamp >= $start_datestamp && $modified_datestamp <= $end_datestamp ) {
 					$filtered_results[] = $result;
@@ -390,13 +389,14 @@ class Otis_Importer {
 
 				if ( isset( $params['start_date']) && isset( $params['end_date'] ) ) {
 					// filter listings by modified date
-					$this->logger->log('Filtering OTIS ' . $listings['count'] . ' results by modified param using args: ' . print_r( $params, true ) );
+					$this->logger->log('Filtering ' . $listings['count'] . ' OTIS results by modified param using dates: ' . $params['start_date'] . ' - ' . $params['end_date'] );
 					$filtered_results = $this->_filter_results_by_date( $listings['results'], $params );
 					$listings['results'] = $filtered_results;
 					$this->logger->log(count($listings['results']) . ' relevant results');
 				}
 
         if ( empty( $listings['results'] ) ) {
+						$this->logger->log('No relevant results continuing to next set...');
             return;
         }
 
