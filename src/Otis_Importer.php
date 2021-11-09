@@ -542,7 +542,7 @@ class Otis_Importer {
 						'related_only' => $assoc_args['related_only']
 					]
 				];
-				$bulk_history_params['params'] = wp_otis_make_modified_datetime_param($assoc_args, $bulk_history_params['params']);
+				$bulk_history_params['params'] = wp_otis_make_modified_date_param($assoc_args, $bulk_history_params['params']);
 				as_enqueue_async_action('wp_otis_async_bulk_history_import', $bulk_history_params);
 			} else {
 				// If retrieval is complete, get the data from the transient.
@@ -558,11 +558,11 @@ class Otis_Importer {
 						update_option(WP_OTIS_BULK_HISTORY_ACTIVE, true);
 						$assoc_args['bulk-history-page'] = 1;
 						$history_bulk = true;
-						$logger_date = wp_otis_get_logger_modified_datetime_string($assoc_args);
+						$logger_date = wp_otis_get_logger_modified_date_string($assoc_args);
 						$this->logger->log("OTIS bulk history import detected: " . $history_total . " updates. " . $logger_date);
 					}
 				} else {
-					$logger_date = wp_otis_get_logger_modified_datetime_string($assoc_args);
+					$logger_date = wp_otis_get_logger_modified_date_string($assoc_args);
 					$this->logger->log("OTIS nonbulk history import detected: " . $history_total . " updates. " . $logger_date);
 				}
 
