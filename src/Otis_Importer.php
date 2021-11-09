@@ -382,7 +382,8 @@ class Otis_Importer {
 						}
 				}
 
-        $listings = $this->otis->call( 'listings', $params, $this->logger );
+        $this->logger->log('Calling to OTIS w/ params: ' . print_r( $params, true ) );
+				$listings = $this->otis->call( 'listings', $params, $this->logger );
 
 				if ( isset( $params['start_date']) && isset( $params['end_date'] ) ) {
 					// filter listings by modified date
