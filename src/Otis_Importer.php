@@ -322,6 +322,7 @@ class Otis_Importer {
 
 			foreach ( $results as $result ) {
 				$modified_datetime = $result['modified'];
+				$this->logger->log('Result modified date: ' . $modified_datetime );
 				$modified_datetime = strtotime( $modified_datetime );
 
 				if ( $modified_datetime >= $start_date && $modified_datetime <= $end_date ) {
@@ -387,10 +388,10 @@ class Otis_Importer {
 
 				if ( isset( $params['start_date']) && isset( $params['end_date'] ) ) {
 					// filter listings by modified date
-					$this->logger->log('Filtering OTIS ' . $listings['count'] . 'results by modified param using args: ' . print_r( $params, true ) );
+					$this->logger->log('Filtering OTIS ' . $listings['count'] . ' results by modified param using args: ' . print_r( $params, true ) );
 					$filtered_results = $this->_filter_results_by_date( $listings['results'], $params );
 					$listings['results'] = $filtered_results;
-					$this->logger->log(count($listings['results']) . 'relevant results');
+					$this->logger->log(count($listings['results']) . ' relevant results');
 				}
 
         if ( empty( $listings['results'] ) ) {
