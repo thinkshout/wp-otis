@@ -362,21 +362,21 @@ class Otis_Importer {
 
         if ( isset( $assoc_args['modified'] ) ) {
             $assoc_args['all']  = true;
-            $params['modified'] = date( 'mm/dd/yyyy', strtotime( $assoc_args['modified'] ) );
+            $params['modified'] = date( 'm/d/Y', strtotime( $assoc_args['modified'] ) );
 				// Check if we're doing a modified_start date without an end date. If so fallback to basic modified date param.
         } else if ( isset( $assoc_args['modified_start'] ) && ! isset( $assoc_args['modified_end'] ) ) {
 						$assoc_args['all']  = true;
-						$params['modified'] = date( 'mm/dd/yyyy', strtotime( $assoc_args['modified_start'] ) );
+						$params['modified'] = date( 'm/d/Y', strtotime( $assoc_args['modified_start'] ) );
 				// Check if we're both modified start and end dates are present.
 				} else if ( isset( $assoc_args['modified_start'] ) && isset( $assoc_args['modified_end'] ) ) {
 						// If both modified dates are present check if they're the equal. If so fallback to basic modified date param.
 						if ( $assoc_args['modified_start'] === $assoc_args['modified_end'] ) {
 								$assoc_args['all']   = true;
-								$params['modified'] = date( 'mm/dd/yyyy', strtotime( $assoc_args['modified_start'] ) );
+								$params['modified'] = date( 'm/d/Y', strtotime( $assoc_args['modified_start'] ) );
 						// If they're different use the after & before parameters
 						} else {
 								$assoc_args['all']   = true;
-								$params['modified']  = date( 'mm/dd/yyyy', strtotime( $assoc_args['modified_start'] ) );
+								$params['modified']  = date( 'm/d/Y', strtotime( $assoc_args['modified_start'] ) );
 								$params['start_date'] = $assoc_args['modified_start'];
 								$params['end_date']   = $assoc_args['modified_end'];
 						}
