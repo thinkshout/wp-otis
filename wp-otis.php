@@ -407,6 +407,10 @@ function wp_otis_get_logger_modified_date_string( $args = [] ) {
 		} else {
 			return $args['modified_start'] . ' - ' . $args['modified_end'];
 		}
+	} else if ( isset( $args['start_date'] ) && isset( $args['end_date'] ) ) {
+		return $args['start_date'] . ' - ' . $args['end_date'];
+	} else if ( isset( $args['start_date'] ) ) {
+		return $args['start_date'];
 	} else {
 		return '';
 	}
