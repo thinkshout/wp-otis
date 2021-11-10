@@ -570,7 +570,6 @@ class Otis_Importer {
 			// Did the most recent fetch job finish filling out the retrieved history data?
 			if ( !$transient_history["history-complete"] ) {
 				// If not, enqueue a follow-up.
-				$this->logger->log('Continuing to fetch history data...');
 				$bulk_history_params = [
 					'params' => [
 						'all' => $assoc_args['all'],
