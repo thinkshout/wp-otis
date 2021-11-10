@@ -424,6 +424,7 @@ class Otis_Importer {
 						}
         } else if ( ! empty( $listings['results'] ) ) {
 					// The filter returned results, so we can import them.
+					$this->logger->log("Processing " . count($listings['results']) . " relevant listings...");
 					$import_related_only = false;
 					if ( isset($assoc_args['related_only']) ) {
 						$import_related_only = $assoc_args['related_only'];

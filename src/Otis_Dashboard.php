@@ -62,12 +62,15 @@ class Otis_Dashboard
     $modified_start = isset($_POST['from_date']) ? _sanitize_text_fields($_POST['from_date']) : false;
     $modified_end = isset($_POST['to_date']) ? _sanitize_text_fields($_POST['to_date']) : false;
     $initial = isset($_POST['initial_import']);
+    $history_only = isset($_POST['history_only']);
     $args = array();
     $assoc_args = array(
       'page_size' => $this->otis_calculate_page_size($modified_start, $modified_end),
     );
     if ($initial) {
       $args[0] = 'pois';
+    } else if ($history_only) {
+      $args[0] = 'history-only';
     } else {
       $args[0] = 'pois-only';
     }

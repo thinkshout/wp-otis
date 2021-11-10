@@ -80,6 +80,7 @@
 									:readonly="importStarting"
 									@date-applied="setDateRange"
 								/>
+								<label for="history-only"><input type="checkbox" name="history-only" id="history-only" v-model="onlyImportHistory"/>Only import history, do not import new POIs.</label>
                 <p v-if="importStarting">POI import starting, please wait this usually takes a few minutes...</p>
                 <button class="button button-primary" :disabled="!dateIsValid || importStarting || bulkImportActive || bulkImportScheduled" @click="triggerModifiedImport">
                   <span v-if="importStarting">
@@ -154,6 +155,7 @@
 				from: '',
 				to: '',
 			},
+			onlyImportHistory: false,
 			lastImportDate: "",
 			bulkImportActive: "",
 			bulkImportScheduled: false,
@@ -276,7 +278,9 @@
 			async triggerModifiedImport() {
 				if (!this.dateIsValid) return;
 				this.importStarting = true;
-				await this.triggerAction('otis_import', {from_date: this.dateRange.from, to_date: this.dateRange.to});
+				const importData = {from_date: this.dateRange.from, to_date: this.dateRange.to};
+				if (this.onlyImportHistory) importData.only_history = true;
+				await this.triggerAction('otis_import', importData);
 				await this.otisStatus();
 				this.notifyImportStarted();
 				this.importStarting = false;
