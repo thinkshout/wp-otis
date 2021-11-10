@@ -280,6 +280,7 @@
 				this.importStarting = true;
 				const importData = {from_date: this.dateRange.from, to_date: this.dateRange.to};
 				if (this.onlyImportHistory) importData.only_history = true;
+				console.log(importData);
 				await this.triggerAction('otis_import', importData);
 				await this.otisStatus();
 				this.notifyImportStarted();
