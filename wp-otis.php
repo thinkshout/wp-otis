@@ -131,7 +131,11 @@ add_action( 'wp_otis_async_bulk_history_import', function ( $params ) {
 		$otis     = new Otis();
 		$logger   = new Otis_Logger_Simple();
 		$importer = new Otis_Importer( $otis, $logger );
-		$logger->log( "Bulk OTIS history import continuing on page ".$params['page'].". (".wp_otis_get_logger_modified_date_string($params).")");
+		if ($params['page'] > 1) {
+			$logger->log( "Bulk OTIS history import continuing on page ".$params['page'].". (".wp_otis_get_logger_modified_date_string($params).")");
+		} else {
+			$logger->log( "Fetching history data..." );
+		}
 
 		try {
 			$importer_params = [
