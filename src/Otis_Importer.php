@@ -446,13 +446,12 @@ class Otis_Importer {
 
 					foreach ( $listings['results'] as $result ) {
 						$uuid = $result['uuid'];
-						$this->logger->log("Processing POI with UUID: " . $uuid);
 						$poi_post = get_posts([
 							'post_type' => 'poi',
 							'post_status' => 'any',
 							'meta_key' => 'uuid',
 							'meta_value' => $uuid,
-							'posts_per_page' => - 1,
+							'posts_per_page' => 1,
 						]);
 						$post_id = 0;
 						if (count($poi_post) > 0) {
