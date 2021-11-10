@@ -541,7 +541,6 @@ class Otis_Importer {
 					}
 				} else {
 					$this->logger->log("No POIs to import.");
-					return;
 				}
     }
 
@@ -683,7 +682,6 @@ class Otis_Importer {
 				if ($history_bulk) {
 					if ($assoc_args['bulk-history-page'] < $history_page_count) {
 						$assoc_args['bulk-history-page'] = $assoc_args['bulk-history-page'] + 1;
-						$this->logger->log('Enqueueing history import page ' . $assoc_args['bulk-history-page']);
 						$bulk_history_params = [
 							'params' => [
 								'all' => $assoc_args['all'],
