@@ -723,8 +723,10 @@ class Otis_Importer {
             return [];
         }
 
-				$this->logger->log('Calling to OTIS w/ params: ' . print_r( $params, true ) );
         $listings = $this->otis->call( 'listings/history', $params );
+				$total = ceil( $listings['count'] / $params['page_size'] );
+
+				$this->logger->log('Pre-fetching page ' . $params['page'] . ' of ' . $total . ' of ' . $listings['count'] . ' history items');
 
         $history = !empty($transient_history) ? $transient_history : [];
 
@@ -755,8 +757,6 @@ class Otis_Importer {
 
                 }
             }
-
-            $total = ceil( $listings['count'] / $params['page_size'] );
 
             unset( $listings );
 
