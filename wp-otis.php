@@ -7,7 +7,7 @@
  * Author URI:      thinkshout.com
  * Text Domain:     wp-otis
  * Domain Path:     /languages
- * Version:         1.1.0
+ * Version:         1.1.2
  *
  * @package         Otis
  */
@@ -390,7 +390,7 @@ function wp_otis_fields_save( $field_group ) {
 
 /**
  * Get Logger modified Date
- * 
+ *
  * @param array $args
  * @return string
  */
@@ -420,10 +420,10 @@ function wp_otis_get_logger_modified_date_string( $args = [] ) {
 
 /**
  * Make modified date param.
- * 
+ *
  * @param array $params
  * @param array $args_to_modify
- * 
+ *
  * @return array
  */
 function wp_otis_make_modified_date_param( $params = [], $args_to_modify = [] ) {
