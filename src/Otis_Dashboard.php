@@ -11,8 +11,12 @@ class Otis_Dashboard
   public function otis_dashboard_scripts() {
     wp_enqueue_media();
     wp_register_script( 'axios', 'https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js', [], '0.21.1' );
+    wp_register_script( 'vue-moment', 'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment-with-locales.min.js', [], '2.27.0' );
+    wp_register_script( 'vue-date-range', 'https://unpkg.com/vue-time-date-range-picker@1.5.0/dist/vdprDatePicker.js', [], '1.5.0' );
     wp_register_script( 'vue', 'https://cdn.jsdelivr.net/npm/vue@2.6.14', [], '2.6.14' );
     wp_enqueue_script( 'axios' );
+    wp_enqueue_script( 'vue-moment' );
+    wp_enqueue_script( 'vue-date-range' );
     wp_enqueue_script( 'vue' );
     wp_register_script( 'otis-dashboard', plugins_url( '../js/dashboard.js', __FILE__ ), [], '1.0', true );
     wp_localize_script( 'otis-dashboard', 'otisDash', array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'admin_url' => admin_url() ) );
@@ -40,14 +44,14 @@ class Otis_Dashboard
   }
 
   // calculate page_size based on import date
-  public function otis_calculate_page_size($modified_date) {
+  public function otis_calculate_page_size($modified_start_date, $modified_end_date) {
     $page_size = 25;
-    if ( ! $modified_date ) {
+    if ( ! $modified_start_date ) {
       return $page_size;
     }
-    $date = new DateTime( $modified_date );
-    $today = new DateTime( 'now' );
-    $diff = $date->diff( $today );
+    $start_date = new DateTime( $modified_start_date );
+    $end_date = new DateTime( $modified_end_date );
+    $diff = $start_date->diff( $end_date );
     if ( $diff->days > 30 ) {
       $page_size = 10;
     }
@@ -55,19 +59,26 @@ class Otis_Dashboard
   }
 
   public function otis_init_import() {
-    $modified = isset($_POST['modified_date']) ? _sanitize_text_fields($_POST['modified_date']) : false;
+    $modified_start = isset($_POST['from_date']) ? _sanitize_text_fields($_POST['from_date']) : false;
+    $modified_end = isset($_POST['to_date']) ? _sanitize_text_fields($_POST['to_date']) : false;
     $initial = isset($_POST['initial_import']);
+    $history_only = isset($_POST['only_history']);
     $args = array();
     $assoc_args = array(
-      'page_size' => $this->otis_calculate_page_size($modified),
+      'page_size' => $this->otis_calculate_page_size($modified_start, $modified_end),
     );
     if ($initial) {
       $args[0] = 'pois';
+    } else if ($history_only) {
+      $args[0] = 'history-only';
     } else {
       $args[0] = 'pois-only';
     }
-    if ($modified) {
-      $assoc_args['modified'] = $modified;
+    if ($modified_start && $modified_end) {
+      $assoc_args['modified_start'] = $modified_start;
+      $assoc_args['modified_end'] = $modified_end;
+    } else {
+      $assoc_args['modified'] = $modified_start;
     }
     try {
       as_enqueue_async_action( 'wp_otis_dashboard_start_async_import', ['args' => $args, 'assoc_args' => $assoc_args] );

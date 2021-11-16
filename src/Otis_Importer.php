@@ -304,6 +304,35 @@ class Otis_Importer {
 		}
 	}
 
+	/**
+	 * Filter Raw OTIS Results by Modified Date against given date range.
+	 * 
+	 * @param array $results
+	 * @param array $args
+	 * 
+	 * @return array
+	 */
+		private function _filter_results_by_date( $results, $args ) {
+			if ( ! isset( $args['start_date'] ) && ! isset( $args['end_date'] ) ) {
+				return $results;
+			}
+			$filtered_results = [];
+			$start_date = $args['start_date'];
+			$end_date = $args['end_date'];
+
+			foreach ( $results as $result ) {
+				$modified_datetime = $result['modified'];
+				$modified_datestamp = strtotime( $modified_datetime );
+				$start_datestamp = strtotime( $start_date );
+				$end_datestamp = strtotime( $end_date );
+
+				if ( $modified_datestamp >= $start_datestamp && $modified_datestamp <= $end_datestamp ) {
+					$filtered_results[] = $result;
+				}
+			}
+
+			return $filtered_results;
+		}
 
     /**
      * Import OTIS POIs.
@@ -317,7 +346,7 @@ class Otis_Importer {
 			'reverse_relations' => 'true'
         ];
 
-        if ( isset( $assoc_args['modified'] ) ) {
+        if ( isset( $assoc_args['modified_start'] ) || isset( $assoc_args['modified'] ) ) {
             // Only pull expired listings relative to a recent import.
             $params['showexpired'] = 'true';
         }
@@ -335,100 +364,184 @@ class Otis_Importer {
 
         if ( isset( $assoc_args['modified'] ) ) {
             $assoc_args['all']  = true;
-            $params['modified'] = date( 'Y-m-d\TH:i:s\Z', strtotime( $assoc_args['modified'] ) );
-        }
-
-        $listings = $this->otis->call( 'listings', $params );
-
-        if ( empty( $listings['results'] ) ) {
-            return;
-        }
-
-				$import_related_only = false;
-				if ( isset($assoc_args['related_only']) ) {
-					$import_related_only = $assoc_args['related_only'];
+            $params['modified'] = date( 'm/d/Y', strtotime( $assoc_args['modified'] ) );
+				// Check if we're doing a modified_start date without an end date. If so fallback to basic modified date param.
+        } else if ( isset( $assoc_args['modified_start'] ) && ! isset( $assoc_args['modified_end'] ) ) {
+						$assoc_args['all']  = true;
+						$params['modified'] = date( 'm/d/Y', strtotime( $assoc_args['modified_start'] ) );
+				// Check if we're both modified start and end dates are present.
+				} else if ( isset( $assoc_args['modified_start'] ) && isset( $assoc_args['modified_end'] ) ) {
+						// If both modified dates are present check if they're the equal. If so fallback to basic modified date param.
+						if ( $assoc_args['modified_start'] === $assoc_args['modified_end'] ) {
+								$assoc_args['all']   = true;
+								$params['modified'] = date( 'm/d/Y', strtotime( $assoc_args['modified_start'] ) );
+						// If they're different use the after & before parameters
+						} else {
+								$assoc_args['all']   = true;
+								$params['modified']  = date( 'm/d/Y', strtotime( $assoc_args['modified_start'] ) );
+								$params['start_date'] = $assoc_args['modified_start'];
+								$params['end_date']   = $assoc_args['modified_end'];
+						}
 				}
 
-				if ( $import_related_only && $params['page'] == 1) {
-					$params[] = ['reverse_relations' => 'true'];
-					$this->logger->log("Importing POIs with relationships only");
+        $this->logger->log('Calling to OTIS w/ params: ' . print_r( $params, true ) );
+				$listings = $this->otis->call( 'listings', $params, $this->logger );
+
+				if ( isset( $params['start_date']) && isset( $params['end_date'] ) ) {
+					// filter listings by modified date
+					$this->logger->log('Filtering this page of OTIS results by modified param using dates: ' . $params['start_date'] . ' - ' . $params['end_date'] );
+					$filtered_results = $this->_filter_results_by_date( $listings['results'], $params );
+					$listings['results'] = $filtered_results;
+					$this->logger->log(count($listings['results']) . ' relevant results');
 				}
 
-        $uuids = array_pluck( $listings['results'], 'uuid' );
+        if ( empty( $listings['results'] ) && $listings['count'] > 0 ) {
+						// The filter didn't return any results but there were results, so we need to go to the next page.
+						$this->logger->log('No relevant results for this page continuing...');
+            $total = ceil( $listings['count'] / $params['page_size'] );
 
-        /* First page of an import that will require multiple chapters */
-        if ((($listings['count'] / $params['page_size']) > $chapter_size) && ($params['page'] == 1)) {
-            update_option( WP_OTIS_BULK_IMPORT_ACTIVE, true );
-						$logger_date = isset($assoc_args['modified']) ? "(".date( 'Y-m-d', strtotime( $assoc_args['modified'] ) ).")" : "";
-						$this->logger->log("OTIS bulk import detected: ".$listings['count']." updates. ".$logger_date);
-        }
+						if ( isset( $assoc_args['all'] ) && $params['page'] < $total ) {
+								$this->logger->log($params['page'] * $params['page_size'] ." out of ".$listings['count']. " records evaluated.");
 
-        $the_query = new WP_Query( [
-            'no_found_rows'          => true,
-            'update_post_meta_cache' => false,
-            'update_post_term_cache' => false,
-            'posts_per_page'         => - 1,
-            'post_status'            => 'any',
-            'post_type'              => 'poi',
-            'meta_key'               => 'uuid',
-            'meta_value'             => $uuids,
-        ] );
+								$assoc_args['page'] = $params['page'] + 1;
+								$assoc_args['page_size'] = $params['page_size'];
 
-        $uuid_map = [];
+								if ($next_chapter) {
+										as_enqueue_async_action( 'wp_otis_async_bulk_import', ['params' => $assoc_args] );
+								} else {
+										$this->_import_pois( $assoc_args );
+								}
+						}
 
-        while ( $the_query->have_posts() ) {
-            $the_query->the_post();
+						if (isset( $assoc_args['all'] ) && ($params['page'] == $total) && $total > $chapter_size ) {
+								$this->logger->log($listings['count'] ." out of ".$listings['count']. " records evaluated.");
 
-            $uuid_map[ get_field( 'uuid' ) ] = get_the_ID();
-        }
+								update_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
 
-        wp_reset_postdata();
+								as_unschedule_all_actions( 'wp_otis_async_bulk_import' );
 
-        foreach ( $listings['results'] as $result ) {
-            $uuid    = $result['uuid'];
-            $post_id = $uuid_map[ $uuid ] ?? 0;
+								$this->logger->log("OTIS bulk import complete.");
+						}
+        } else if ( ! empty( $listings['results'] ) ) {
+					// The filter returned results, so we can import them.
+					$this->logger->log("Processing " . count($listings['results']) . " relevant listings...");
+					$import_related_only = false;
+					if ( isset($assoc_args['related_only']) ) {
+						$import_related_only = $assoc_args['related_only'];
+					}
 
-            $type = strtolower( $result['type']['name'] );
-            if ( 'regions' === $type || 'cities' === $type ) {
-                if ( ! isset( $assoc_args['type'] ) ) {
-                    // Regions and cities have already been populated...
-                    // Skip those when populating the rest of the listing results.
-                    continue;
-                }
-            }
+					if ( $import_related_only && $params['page'] == 1) {
+						$params[] = ['reverse_relations' => 'true'];
+						$this->logger->log("Importing POIs with relationships only");
+					}
 
-            try {
+					// $uuids = array_pluck( $listings['results'], 'uuid' );
+
+					/* First page of an import that will require multiple chapters */
+					if ((($listings['count'] / $params['page_size']) > $chapter_size) && ($params['page'] == 1)) {
+							update_option( WP_OTIS_BULK_IMPORT_ACTIVE, true );
+							$logger_date = wp_otis_get_logger_modified_date_string($assoc_args);
+							$this->logger->log("OTIS bulk import detected: ".$listings['count']." updates. ".$logger_date);
+					}
+
+					foreach ( $listings['results'] as $result ) {
+						$uuid = $result['uuid'];
+						$poi_post = get_posts([
+							'post_type' => 'poi',
+							'post_status' => 'any',
+							'meta_key' => 'uuid',
+							'meta_value' => $uuid,
+							'posts_per_page' => 1,
+						]);
+						$post_id = 0;
+						if (count($poi_post) > 0) {
+							$post_id = $poi_post[0]->ID;
+						}
+						$type = strtolower( $result['type']['name'] );
+						if ( 'regions' === $type || 'cities' === $type ) {
+								if ( ! isset( $assoc_args['type'] ) ) {
+										// Regions and cities have already been populated...
+										// Skip those when populating the rest of the listing results.
+										continue;
+								}
+						}
+
+						try {
 							$post_id = $this->_upsert_poi( $post_id, $result, $import_related_only );
-            } catch ( Exception $exception ) {
+						} catch ( Exception $exception ) {
 							$this->logger->log( $exception->getMessage(), $post_id, 'error' );
-            }
+						}
+					}
 
-        }
+					// $the_query = new WP_Query( [
+					// 		'no_found_rows'          => true,
+					// 		'update_post_meta_cache' => false,
+					// 		'update_post_term_cache' => false,
+					// 		'posts_per_page'         => - 1,
+					// 		'post_status'            => 'any',
+					// 		'post_type'              => 'poi',
+					// 		'meta_key'               => 'uuid',
+					// 		'meta_value'             => $uuids,
+					// ] );
 
-        $total = ceil( $listings['count'] / $params['page_size'] );
+					// $uuid_map = [];
 
-        if ( isset( $assoc_args['all'] ) && $params['page'] < $total ) {
-            $this->logger->log($params['page'] * $params['page_size'] ." out of ".$listings['count']. " records evaluated.");
+					// while ( $the_query->have_posts() ) {
+					// 		$the_query->the_post();
 
-            $assoc_args['page'] = $params['page'] + 1;
-						$assoc_args['page_size'] = $params['page_size'];
+					// 		$uuid_map[ get_field( 'uuid' ) ] = get_the_ID();
+					// }
 
-            if ($next_chapter) {
-								as_enqueue_async_action( 'wp_otis_async_bulk_import', ['params' => $assoc_args] );
-            } else {
-                $this->_import_pois( $assoc_args );
-            }
-        }
+					// wp_reset_postdata();
 
-        if (isset( $assoc_args['all'] ) && ($params['page'] == $total) && $total > $chapter_size ) {
-            $this->logger->log($listings['count'] ." out of ".$listings['count']. " records evaluated.");
+					// foreach ( $listings['results'] as $result ) {
+					// 		$uuid    = $result['uuid'];
+					// 		$post_id = $uuid_map[ $uuid ] ?? 0;
 
-            update_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
+					// 		$type = strtolower( $result['type']['name'] );
+					// 		if ( 'regions' === $type || 'cities' === $type ) {
+					// 				if ( ! isset( $assoc_args['type'] ) ) {
+					// 						// Regions and cities have already been populated...
+					// 						// Skip those when populating the rest of the listing results.
+					// 						continue;
+					// 				}
+					// 		}
 
-						as_unschedule_all_actions( 'wp_otis_async_bulk_import' );
+					// 		try {
+					// 			$post_id = $this->_upsert_poi( $post_id, $result, $import_related_only );
+					// 		} catch ( Exception $exception ) {
+					// 			$this->logger->log( $exception->getMessage(), $post_id, 'error' );
+					// 		}
 
-            $this->logger->log("OTIS bulk import complete.");
-        }
+					// }
+
+					$total = ceil( $listings['count'] / $params['page_size'] );
+
+					if ( isset( $assoc_args['all'] ) && $params['page'] < $total ) {
+							$this->logger->log($params['page'] * $params['page_size'] ." out of ".$listings['count']. " records evaluated.");
+
+							$assoc_args['page'] = $params['page'] + 1;
+							$assoc_args['page_size'] = $params['page_size'];
+
+							if ($next_chapter) {
+									as_enqueue_async_action( 'wp_otis_async_bulk_import', ['params' => $assoc_args] );
+							} else {
+									$this->_import_pois( $assoc_args );
+							}
+					}
+
+					if (isset( $assoc_args['all'] ) && ($params['page'] == $total) && $total > $chapter_size ) {
+							$this->logger->log($listings['count'] ." out of ".$listings['count']. " records evaluated.");
+
+							update_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
+
+							as_unschedule_all_actions( 'wp_otis_async_bulk_import' );
+
+							$this->logger->log("OTIS bulk import complete.");
+					}
+				} else {
+					$this->logger->log("No POIs to import.");
+				}
     }
 
 	/**
@@ -465,7 +578,6 @@ class Otis_Importer {
 		$bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
 
 		if (!$bulk) {
-			$this->logger->log("Running history import with arguments: ".print_r($assoc_args, true));
 			$transient_history = get_transient(WP_OTIS_BULK_IMPORT_TRANSIENT);
 
 			if ( empty( $transient_history ) ) {
@@ -485,7 +597,15 @@ class Otis_Importer {
 			// Did the most recent fetch job finish filling out the retrieved history data?
 			if ( !$transient_history["history-complete"] ) {
 				// If not, enqueue a follow-up.
-				as_enqueue_async_action('wp_otis_async_bulk_history_import', ['params' => ['all' => $assoc_args['all'], 'page' => 1, 'modified' => $assoc_args['modified'], 'related_only' => $assoc_args['related_only']]]);
+				$bulk_history_params = [
+					'params' => [
+						'all' => $assoc_args['all'],
+						'page' => 1,
+						'related_only' => $assoc_args['related_only']
+					]
+				];
+				$bulk_history_params['params'] = wp_otis_make_modified_date_param($assoc_args, $bulk_history_params['params']);
+				as_enqueue_async_action('wp_otis_async_bulk_history_import', $bulk_history_params);
 			} else {
 				// If retrieval is complete, get the data from the transient.
 				$history 			      = $transient_history["history-data"];
@@ -500,11 +620,11 @@ class Otis_Importer {
 						update_option(WP_OTIS_BULK_HISTORY_ACTIVE, true);
 						$assoc_args['bulk-history-page'] = 1;
 						$history_bulk = true;
-						$logger_date = isset($assoc_args['modified']) ? "(" . date('Y-m-d', strtotime($assoc_args['modified'])) . ")" : "";
+						$logger_date = wp_otis_get_logger_modified_date_string($assoc_args);
 						$this->logger->log("OTIS bulk history import detected: " . $history_total . " updates. " . $logger_date);
 					}
 				} else {
-					$logger_date = isset($assoc_args['modified']) ? "(" . date('Y-m-d', strtotime($assoc_args['modified'])) . ")" : "";
+					$logger_date = wp_otis_get_logger_modified_date_string($assoc_args);
 					$this->logger->log("OTIS nonbulk history import detected: " . $history_total . " updates. " . $logger_date);
 				}
 
@@ -562,8 +682,15 @@ class Otis_Importer {
 				if ($history_bulk) {
 					if ($assoc_args['bulk-history-page'] < $history_page_count) {
 						$assoc_args['bulk-history-page'] = $assoc_args['bulk-history-page'] + 1;
-						$this->logger->log('Enqueueing history import page ' . $assoc_args['bulk-history-page']);
-						as_enqueue_async_action('wp_otis_async_bulk_history_import', ['params' => ['all' => $assoc_args['all'], 'page' => $assoc_args['bulk-history-page'], 'modified' => $assoc_args['modified'], 'related_only' => $assoc_args['related_only']]]);
+						$bulk_history_params = [
+							'params' => [
+								'all' => $assoc_args['all'],
+								'page' => $assoc_args['bulk-history-page'],
+								'related_only' => $assoc_args['related_only']
+							]
+						];
+						$bulk_history_params['params'] = wp_otis_make_modified_date_param($assoc_args, $bulk_history_params['params']);
+						as_enqueue_async_action('wp_otis_async_bulk_history_import', $bulk_history_params);
 					} elseif ($assoc_args['bulk-history-page'] == $history_page_count) {
 						update_option(WP_OTIS_BULK_HISTORY_ACTIVE, false);
 						delete_transient(WP_OTIS_BULK_IMPORT_TRANSIENT);
@@ -599,14 +726,33 @@ class Otis_Importer {
         ];
 
         if ( isset( $assoc_args['modified'] ) ) {
-            $params['after']   = date( 'Y-m-d', strtotime( $assoc_args['modified'] ) );
+            $params['after']   = date( 'Y-m-d', strtotime( $assoc_args['startdate'] ) );
             $assoc_args['all'] = true;
+				// Check if we're doing a modified_start date without an end date. If so fallback to basic modified date param.
+				} else if ( isset( $assoc_args['modified_start'] ) && ! isset( $assoc_args['modified_end'] ) ) {
+						$params['after'] = date( 'Y-m-d', strtotime( $assoc_args['modified_start'] ) );
+						$assoc_args['all'] = true;
+						// Check if we're both modified start and end dates are present.
+				} else if ( isset( $assoc_args['modified_start'] ) && isset( $assoc_args['modified_end'] ) ) {
+						// If both modified dates are present check if they're the equal. If so fallback to basic modified date param.
+						if ( $assoc_args['modified_start'] === $assoc_args['modified_end'] ) {
+								$params['after'] = date( 'Y-m-d', strtotime( $assoc_args['modified_start'] ) );
+								$assoc_args['all'] = true;
+						// If they're different use the after & before parameters
+						} else {
+								$params['after']  = date( 'Y-m-d', strtotime( $assoc_args['modified_start'] ) );
+								$params['before'] = date( 'Y-m-d', strtotime( $assoc_args['modified_end'] ) );
+								$assoc_args['all'] = true;
+						}
         } else {
             // Only import history relative to a recent import.
             return [];
         }
 
         $listings = $this->otis->call( 'listings/history', $params );
+				$total = ceil( $listings['count'] / $params['page_size'] );
+
+				$this->logger->log('Pre-fetching page ' . $params['page'] . ' of ' . $total . ' of ' . $listings['count'] . ' history items');
 
         $history = !empty($transient_history) ? $transient_history : [];
 
@@ -637,8 +783,6 @@ class Otis_Importer {
 
                 }
             }
-
-            $total = ceil( $listings['count'] / $params['page_size'] );
 
             unset( $listings );
 
@@ -829,8 +973,10 @@ class Otis_Importer {
             ], true);
 
             if (!$post_result) {
+								$this->logger->log('Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid']);
                 throw new Otis_Exception('Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid']);
             } elseif (is_wp_error($post_result)) {
+								$this->logger->log('Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid']);
                 throw new Otis_Exception('Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid'] . ', ' . $post_result->get_error_message());
             } else {
                 $post_id = $post_result;
@@ -841,6 +987,7 @@ class Otis_Importer {
                     $return = update_field($name, $data[$name], $post_id);
 
                     if (is_wp_error($return)) {
+												$this->logger->log('Error: field ' . $name . ', post id ' . $post_id . ', ' . $return->get_error_message());
                         throw new Otis_Exception('Error: field ' . $name . ', post id ' . $post_id . ', ' . $return->get_error_message());
                     }
                 }
@@ -857,6 +1004,7 @@ class Otis_Importer {
             $return = wp_set_object_terms($post_id, $data['type'], 'type');
 
             if (is_wp_error($return)) {
+								$this->logger->log('Error: taxonomy type, post id ' . $post_id . ', ' . $return->get_error_message());
                 throw new Otis_Exception('Error: taxonomy type, post id ' . $post_id . ', ' . $return->get_error_message());
             }
 
@@ -864,13 +1012,11 @@ class Otis_Importer {
             $return = wp_set_object_terms($post_id, $data['glocats'], 'glocats');
 
             if (is_wp_error($return)) {
+								$this->logger->log('Error: taxonomy glocats, post id ' . $post_id . ', ' . $return->get_error_message());
                 throw new Otis_Exception('Error: taxonomy glocats, post id ' . $post_id . ', ' . $return->get_error_message());
             }
 
-            $bulking = get_option(WP_OTIS_BULK_IMPORT_ACTIVE, false);
-            if (!$bulking) {
-                $this->logger->log(ucfirst($upsert_status) . ' POI with UUID: ' . $result['uuid'], $post_id);
-            }
+            $this->logger->log(ucfirst($upsert_status) . ' POI with UUID: ' . $result['uuid'], $post_id);
 
             return $post_id;
         }
