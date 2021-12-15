@@ -107,6 +107,17 @@
               </div>
             </div>
           </div>
+					<div v-if="!displayInitialImport" class="otis-dashboard__setting otis-dashboard__setting--full-width">
+						<div class="postbox">
+							<h2>Sync Deleted POIs</h2>
+							<p>This will sync all deleted POIs from the OTIS to the local database. This is useful if you find there are POIs that are stale/should have been deleted.</p>
+							<div class="otis-dashboard__action">
+								<div class="otis-dashboard__action-button">
+									<label>This will fetch the list of deleted POIs and check them against the POIs still active in WordPress and return it for your review. <strong>This will not delete POIs</strong></label>
+									<button class="button button-primary" :disabled="!bulkImportActive" @click="fetchDeletedPois">Get List of Deleted POIs From Otis</button>
+								</div>
+							</div>
+					</div>
           <div v-if="!displayInitialImport" class="otis-dashboard__setting">
             <div class="postbox">
               <div v-if="logLoading" class="otis-ellipsis"><div /><div /><div /><div /></div>
@@ -161,6 +172,7 @@
 			bulkImportScheduled: false,
 			bulkHistoryImportScheduled: false,
 			bulkHistoryImportActive: "",
+			deletesPulse: [],
 			poiCount: {},
 			importLog: [],
 			importStarting: false,
@@ -286,9 +298,23 @@
 				this.notifyImportStarted();
 				this.importStarting = false;
 			},
+			async triggerRetrieveDeletes() {
+				this.importStarting = true;
+				await this.triggerAction("otis_check_deletes");
+				this.importStarting = false;
+				setInterval(async () => {
+					await this.getDeletesPulse();
+				}, 10000);
+			},
+			async getDeletesPulse() {
+				const { data } = await this.triggerAction("otis_deleted_pois_pulse");
+				this.deletesPulse = data;
+				console.log(data);
+			}
 		},
 		async mounted() {
 			await this.otisStatus();
+			await this.
 		},
 	});
 })();

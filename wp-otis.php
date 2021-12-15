@@ -19,6 +19,7 @@ define( 'WP_OTIS_TOKEN', 'wp_otis_token' );
 define( 'WP_OTIS_LAST_IMPORT_DATE', 'wp_otis_last_import_date' );
 define( 'WP_OTIS_BULK_IMPORT_ACTIVE', 'wp_otis_bulk_import_active' );
 define( 'WP_OTIS_BULK_IMPORT_TRANSIENT', 'wp_otis_bulk_import_transient' );
+define( 'WP_OTIS_BULK_DELETE_TRANSIENT', 'wp_otis_bulk_delete_transient' );
 define( 'WP_OTIS_BULK_HISTORY_ACTIVE', 'wp_otis_bulk_history_active' );
 define( 'WP_OTIS_BULK_DISABLE_CACHE', 0 );
 
@@ -121,6 +122,30 @@ add_action( 'wp_otis_cron', function () {
     }
 
 } );
+
+add_action( 'wp_otis_async_fetch_deleted_pois', function( $params ) {
+	$otis     = new Otis();
+	$logger   = new Otis_Logger_Simple();
+	$importer = new Otis_Importer( $otis, $logger );
+
+	try {
+		$importer->import('deletes-list', $params);
+	} catch ( Exception $e ) {
+		$logger->log( $e->getMessage(), 0, 'error' );
+	}
+}, 10, 1 );
+
+add_action( 'wp_otis_async_delete_transient_pois', function( $params ) {
+	$otis     = new Otis();
+	$logger   = new Otis_Logger_Simple();
+	$importer = new Otis_Importer( $otis, $logger );
+
+	try {
+		$importer->import('deleted-pois', $params);
+	} catch ( Exception $e ) {
+		$logger->log( $e->getMessage(), 0, 'error' );
+	}
+}, 10, 1 );
 
 add_action( 'wp_otis_async_bulk_history_import', function ( $params ) {
 

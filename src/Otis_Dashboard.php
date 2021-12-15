@@ -43,6 +43,14 @@ class Otis_Dashboard
     $this->importer->import( $args, $assoc_args );
   }
 
+  public function otis_start_deleted_fetch() {
+    $this->importer->import('deletes-list', []);
+  }
+
+  public function otis_delete_transient_pois() {
+    $this->importer->import('deleted-pois', []);
+  }
+
   // calculate page_size based on import date
   public function otis_calculate_page_size($modified_start_date, $modified_end_date) {
     $page_size = 25;
@@ -140,6 +148,28 @@ class Otis_Dashboard
     ]);
     wp_die();
   }
+
+  public function otis_check_deleted_pois() {
+    as_enqueue_async_action( 'wp_otis_dashboard_start_async_fetch_deleted_pois' );
+  }
+
+  public function otis_deleted_pois_pulse() {
+    if ( ! get_transient( WP_OTIS_BULK_DELETE_TRANSIENT ) ) {
+      echo wp_json_encode(false);
+      wp_die();
+    }
+    $transient_deletes = get_transient( WP_OTIS_BULK_DELETE_TRANSIENT );
+    $delete_posts = [];
+    foreach ($transient_deletes['deleted_poi_post_ids'] as $poi_post_id) {
+      $delete_posts[] = get_post($poi_post_id);
+    }
+    echo wp_json_encode($delete_posts);
+    wp_die();
+  }
+
+  public function otis_init_delete_pois() {
+    as_enqueue_async_action( 'wp_otis_dashboard_start_async_delete_pois' );
+  }
   
   function __construct( $importer ) {
     add_action( 'admin_menu', [ $this, 'otis_dashboard_page' ] );
@@ -151,8 +181,13 @@ class Otis_Dashboard
     add_action( 'wp_ajax_otis_preview_log', [ $this, 'otis_log_preview' ] );
     add_action( 'wp_ajax_otis_stop_bulk', [ $this, 'otis_stop_bulk_importer' ] );
     add_action( 'wp_ajax_otis_stop_bulk_history', [ $this, 'otis_stop_bulk_history_importer' ] );
+    add_action( 'wp_ajax_otis_check_deletes', [ $this, 'otis_check_deleted_pois' ] );
+    add_action( 'wp_ajax_otis_deleted_pois_pulse', [ $this, 'otis_deleted_pois_pulse' ] );
 
     add_action( 'wp_otis_dashboard_start_async_import', [ $this, 'otis_start_import' ], 10, 2 );
+
+    add_action( 'wp_otis_dashboard_start_async_fetch_deleted_pois', [ $this, 'otis_start_deleted_fetch' ] );
+    add_action( 'wp_otis_dashboard_start_async_delete_pois', [ $this, 'otis_delete_transient_pois' ] );
 
     $this->importer = $importer;
   }

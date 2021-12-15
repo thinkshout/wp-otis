@@ -174,6 +174,20 @@ class Otis_Importer {
 				$log[] = 'History import complete.';
 				return $log;
 
+			case 'deletes-list':
+				$this->_get_deletes();
+
+				$log[] = 'Deleted POIs list retrieved.';
+
+				return $log; // A note: this is just returned here and not actually logged until later. Thus the order of the "logged" messages is not guaranteed.
+
+			case 'deleted-pois':
+					$this->_delete_pois_by_post_id();
+	
+					$log[] = 'POIs deleted via transient.';
+	
+					return $log;
+
 		} // End switch().
 
 		throw new Otis_Exception( 'Unknown command: ' . $args[0] );
@@ -446,16 +460,10 @@ class Otis_Importer {
 
 					foreach ( $listings['results'] as $result ) {
 						$uuid = $result['uuid'];
-						$poi_post = get_posts([
-							'post_type' => 'poi',
-							'post_status' => 'any',
-							'meta_key' => 'uuid',
-							'meta_value' => $uuid,
-							'posts_per_page' => 1,
-						]);
+						$poi_post = wp_otis_get_post_id_for_uuid($uuid);
 						$post_id = 0;
-						if (count($poi_post) > 0) {
-							$post_id = $poi_post[0]->ID;
+						if ( $poi_post ) {
+							$post_id = $poi_post;
 						}
 						$type = strtolower( $result['type']['name'] );
 						if ( 'regions' === $type || 'cities' === $type ) {
@@ -569,6 +577,66 @@ class Otis_Importer {
 	}
 
 	/**
+	 * Retrieve list of deletes from OTIS, parse for WP_Post IDs, and set those IDs in a transient for use later.
+	 */
+	private function _get_deletes() {
+		// Oops all deletes
+		$params = [
+			'alldeletes' => 'True',
+		];
+		// Get Current Deletes from Transient
+		$transient_deletes    = get_transient( WP_OTIS_BULK_DELETE_TRANSIENT );
+		$deleted_poi_post_ids = [];
+		if ( $transient_deletes && isset( $transient_deletes['next_page'] ) ) {
+			$params['page'] = $transient_deletes['next_page'];
+		}
+		// Get data from OTIS
+		$deletes_page = $this->otis->call( 'history', $params );
+
+		foreach ( $deletes_page['results'] as $delete ) {
+			$deleted_uuid = $delete['uuid'];
+			$post_id      = wp_otis_get_post_id_for_uuid( $deleted_uuid );
+			if ( $post_id ) {
+				$deleted_poi_post_ids[] = $post_id;
+			}
+		}
+		// Set Transient w/ Updated Deleted POI Post IDs and next page value from OTIS if available. Enqueue next page retrieval via action scheduler.
+		if ( $transient_deletes ) {
+			$transient_deletes['deleted_poi_post_ids'] = array_merge( $transient_deletes['deleted_poi_post_ids'], $deleted_poi_post_ids );
+			if ( isset( $deletes_page['next'] ) && $deletes_page['next'] ) {
+				$transient_deletes['next_page'] = $deletes_page['next'];
+				set_transient( WP_OTIS_BULK_DELETE_TRANSIENT, $transient_deletes, DAY_IN_SECONDS );
+				as_enqueue_async_action( 'wp_otis_async_fetch_deleted_pois' );
+			} else {
+				set_transient( WP_OTIS_BULK_DELETE_TRANSIENT, $transient_deletes, DAY_IN_SECONDS );
+			}
+		} else {
+			$transient_deletes = [
+				'deleted_poi_post_ids' => $deleted_poi_post_ids,
+				'next_page'            => '2',
+			];
+			set_transient( WP_OTIS_BULK_DELETE_TRANSIENT, $transient_deletes, DAY_IN_SECONDS );
+			as_enqueue_async_action( 'wp_otis_async_fetch_deleted_pois' );
+		}
+	}
+
+	/**
+	 * Run Through Deleted OTIS POIs from Transient and trash them by post ID them from WordPress.
+	 */
+	private function _delete_pois_by_post_id() {
+		$transient_deletes = get_transient( WP_OTIS_BULK_DELETE_TRANSIENT );
+		if ( ! $transient_deletes || ! isset( $transient_deletes['deleted_poi_post_ids'] ) || empty( $transient_deletes['deleted_poi_post_ids'] ) ) {
+			$this->logger->log( 'No deleted POIs Post IDs in transient.' );
+			return;
+		}
+		foreach ( $transient_deletes['deleted_poi_post_ids'] as $poi_post_id ) {
+			$this->logger->log( 'Trashing POI with post ID ' . $poi_post_id, $poi_post_id );
+			wp_trash_post( $poi_post_id );
+		}
+		delete_transient( WP_OTIS_BULK_DELETE_TRANSIENT );
+	}
+
+	/**
 	 * Import POI history, triggering publish, unpublish, and deletes on POIs.
 	 *
 	 * @param array $assoc_args
@@ -613,7 +681,6 @@ class Otis_Importer {
 				$history_bulk       = get_option( WP_OTIS_BULK_HISTORY_ACTIVE, false );
 				$history_total      = count($history);
 				$history_page_count = ceil( $history_total / $history_page_size );
-				$history_deletes    = [];
 
 				if ( $history_page_count > 1 ) {
 					if ( !$history_bulk ) {
@@ -666,15 +733,9 @@ class Otis_Importer {
 							break;
 
 						case 'deleted':
-							$history_deletes[] = get_the_ID();
+							// Deletes will be handled by the bulk delete action.
 							break;
 					}
-				}
-
-				// Run through the post ids in history_deletes and trash the posts.
-				foreach ($history_deletes as $post_id) {
-					$this->logger->log('Trashing post ' . $post_id);
-					wp_trash_post($post_id);
 				}
 
 				// Wrap up this job: either enqueue a follow-up and leave the transient and flags intact,
