@@ -608,6 +608,7 @@ class Otis_Importer {
 				set_transient( WP_OTIS_BULK_DELETE_TRANSIENT, $transient_deletes, DAY_IN_SECONDS );
 				as_enqueue_async_action( 'wp_otis_async_fetch_deleted_pois' );
 			} else {
+				$transient_deletes['next_page'] = null;
 				set_transient( WP_OTIS_BULK_DELETE_TRANSIENT, $transient_deletes, DAY_IN_SECONDS );
 			}
 		} else {

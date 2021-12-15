@@ -159,11 +159,11 @@ class Otis_Dashboard
       wp_die();
     }
     $transient_deletes = get_transient( WP_OTIS_BULK_DELETE_TRANSIENT );
-    $delete_posts = [];
+    $transient_deletes['posts'] = [];
     foreach ($transient_deletes['deleted_poi_post_ids'] as $poi_post_id) {
-      $delete_posts[] = get_post($poi_post_id);
+      $transient_deletes['posts'][] = get_post($poi_post_id);
     }
-    echo wp_json_encode($delete_posts);
+    echo wp_json_encode($transient_deletes);
     wp_die();
   }
 

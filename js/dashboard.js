@@ -247,6 +247,9 @@
 				this.dateRange.from = formattedFromDate;
 				this.dateRange.to = formattedToDate;
 			},
+			async sleep(ms) {
+				return new Promise(resolve => setTimeout(resolve, ms));
+			},
 			async triggerAction(action, data = {}) {
 				const payload = this.makePayload({
 					action,
@@ -302,9 +305,8 @@
 				this.importStarting = true;
 				await this.triggerAction("otis_check_deletes");
 				this.importStarting = false;
-				setInterval(async () => {
-					await this.getDeletesPulse();
-				}, 10000);
+				await this.sleep(100000);
+				await this.getDeletesPulse();
 			},
 			async getDeletesPulse() {
 				const { data } = await this.triggerAction("otis_deleted_pois_pulse");
@@ -314,7 +316,7 @@
 		},
 		async mounted() {
 			await this.otisStatus();
-			await this.
+			await this.getDeletesPulse();
 		},
 	});
 })();
