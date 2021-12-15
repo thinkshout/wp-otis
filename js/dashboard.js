@@ -114,7 +114,7 @@
 							<div class="otis-dashboard__action">
 								<div class="otis-dashboard__action-button">
 									<label>This will fetch the list of deleted POIs and check them against the POIs still active in WordPress and return it for your review. <strong>This will not delete POIs</strong></label>
-									<button class="button button-primary" :disabled="!bulkImportActive" @click="fetchDeletedPois">Get List of Deleted POIs From Otis</button>
+									<button class="button button-primary" :disabled="!bulkImportActive" @click="triggerRetrieveDeletes">Get List of Deleted POIs From Otis</button>
 								</div>
 							</div>
 					</div>
