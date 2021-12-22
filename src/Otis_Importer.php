@@ -606,10 +606,12 @@ class Otis_Importer {
 			if ( isset( $deletes_page['next'] ) && $deletes_page['next'] ) {
 				$transient_deletes['next_page'] = strval( intval( $transient_deletes['next'] ) + 1 );
 				set_transient( WP_OTIS_BULK_DELETE_TRANSIENT, $transient_deletes, DAY_IN_SECONDS );
+				$this->logger->log( 'Set deletes transient moving to page: ' . $transient_deletes['next_page'] );
 				as_enqueue_async_action( 'wp_otis_async_fetch_deleted_pois' );
 			} else {
 				$transient_deletes['next_page'] = null;
 				set_transient( WP_OTIS_BULK_DELETE_TRANSIENT, $transient_deletes, DAY_IN_SECONDS );
+				$this->logger->log( 'Set deletes transient complete' );
 			}
 		} else {
 			$transient_deletes = [
@@ -617,6 +619,7 @@ class Otis_Importer {
 				'next_page'            => '2',
 			];
 			set_transient( WP_OTIS_BULK_DELETE_TRANSIENT, $transient_deletes, DAY_IN_SECONDS );
+			$this->logger->log( 'Set deletes transient moving to page: ' . $transient_deletes['next_page'] );
 			as_enqueue_async_action( 'wp_otis_async_fetch_deleted_pois' );
 		}
 	}
