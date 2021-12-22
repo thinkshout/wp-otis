@@ -591,7 +591,7 @@ class Otis_Importer {
 			$params['page'] = $transient_deletes['next_page'];
 		}
 		// Get data from OTIS
-		$deletes_page = $this->otis->call( 'listings/history', $params );
+		$deletes_page = $this->otis->call( 'listings/history', $params, $this->logger );
 
 		foreach ( $deletes_page['results'] as $delete ) {
 			$deleted_uuid = $delete['uuid'];
