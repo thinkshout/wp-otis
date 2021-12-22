@@ -600,6 +600,10 @@ class Otis_Importer {
 				$deleted_poi_post_ids[] = $post_id;
 			}
 		}
+
+		if ( ! count($deletes_page['results']) ) {
+			$deletes_page['next'] = null;
+		}
 		$this->logger->log( 'Setting deletes transient with post IDs: ' . implode( ', ', $deleted_poi_post_ids ) );
 		// Set Transient w/ Updated Deleted POI Post IDs and next page value from OTIS if available. Enqueue next page retrieval via action scheduler.
 		if ( $transient_deletes ) {
