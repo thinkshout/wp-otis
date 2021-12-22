@@ -604,7 +604,7 @@ class Otis_Importer {
 		if ( $transient_deletes ) {
 			$transient_deletes['deleted_poi_post_ids'] = array_merge( $transient_deletes['deleted_poi_post_ids'], $deleted_poi_post_ids );
 			if ( isset( $deletes_page['next'] ) && $deletes_page['next'] ) {
-				$transient_deletes['next_page'] = strval( intval( $transient_deletes['next'] ) + 1 );
+				$transient_deletes['next_page'] = strval( intval( $transient_deletes['next_page'] ) + 1 );
 				set_transient( WP_OTIS_BULK_DELETE_TRANSIENT, $transient_deletes, DAY_IN_SECONDS );
 				$this->logger->log( 'Set deletes transient moving to page: ' . $transient_deletes['next_page'] );
 				as_enqueue_async_action( 'wp_otis_async_fetch_deleted_pois' );
