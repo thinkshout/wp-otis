@@ -123,29 +123,29 @@ add_action( 'wp_otis_cron', function () {
 
 } );
 
-add_action( 'wp_otis_async_fetch_deleted_pois', function( $params ) {
+add_action( 'wp_otis_async_fetch_deleted_pois', function() {
 	$otis     = new Otis();
 	$logger   = new Otis_Logger_Simple();
 	$importer = new Otis_Importer( $otis, $logger );
 
 	try {
-		$importer->import('deletes-list', $params);
+		$importer->import('deletes-list', []);
 	} catch ( Exception $e ) {
 		$logger->log( $e->getMessage(), 0, 'error' );
 	}
-}, 10, 1 );
+}, 10, 0 );
 
-add_action( 'wp_otis_async_delete_transient_pois', function( $params ) {
+add_action( 'wp_otis_async_delete_transient_pois', function() {
 	$otis     = new Otis();
 	$logger   = new Otis_Logger_Simple();
 	$importer = new Otis_Importer( $otis, $logger );
 
 	try {
-		$importer->import('deleted-pois', $params);
+		$importer->import('deleted-pois', []);
 	} catch ( Exception $e ) {
 		$logger->log( $e->getMessage(), 0, 'error' );
 	}
-}, 10, 1 );
+}, 10, 0 );
 
 add_action( 'wp_otis_async_bulk_history_import', function ( $params ) {
 
