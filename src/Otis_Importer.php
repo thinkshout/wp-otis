@@ -600,14 +600,16 @@ class Otis_Importer {
 			if ( isset( $deletes_page['next'] ) && $deletes_page['next'] ) {
 				$next_page = intval( $page ) + 1;
 				$this->logger->log( 'Processed deletes page: ' . $page . ', enqueuing async action for page: ' . $next_page );
-				as_enqueue_async_action( 'wp_otis_bulk_delete_pois', [ 'deletes_page' => $next_page ] );
+				as_enqueue_async_action( 'wp_otis_bulk_delete_pois', [ 'params' => [ 'deletes_page' => $next_page ] ] );
 			} else {
-				$this->logger->log( 'No next page, finished deletes. Removing bulk import flag' );
+				$this->logger->log( 'No next page, finished deletes. Cleaning up and removing bulk import flag' );
+				as_unschedule_action( 'wp_otis_bulk_delete_pois' );
 				update_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
+				$this->logger->log( 'Deletes sync finished.' );
 			}
 		} else {
 			$this->logger->log( 'Processed deletes page 1, enqueuing async action for page: 2' );
-			as_enqueue_async_action( 'wp_otis_bulk_delete_pois', [ 'deletes_page' => 2 ] );
+			as_enqueue_async_action( 'wp_otis_bulk_delete_pois', [ 'params' => [ 'deletes_page' => 2 ] ] );
 			update_option( WP_OTIS_BULK_IMPORT_ACTIVE, true );
 		}
 	}
