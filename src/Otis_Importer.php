@@ -580,6 +580,15 @@ class Otis_Importer {
 			'alldeletes' => 'True',
 		];
 		$page = isset( $assoc_args['deletes_page'] ) ? intval( $assoc_args['deletes_page'] ) : 1;
+
+		// Check if bulk flag is set. If it isn't and we're not on the first page then someone wants to stop the bulk import.
+		$bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
+		if ( ! $bulk && $page > 1 ) {
+			$this->logger->log( 'Stopping delete sync according to Bulk Import flag' );
+			as_unschedule_all_actions( 'wp_otis_bulk_delete_pois' );
+			$this->logger->log( 'Deletes sync stopped.' );
+			return;
+		}
 		if ( $page ) {
 			$params['page'] = $page;
 		}

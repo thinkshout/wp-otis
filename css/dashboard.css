@@ -26,6 +26,9 @@
 	width: 50%;
 	padding: 10px 10px 10px 0;
 }
+.otis-dashboard .otis-dashboard__setting.otis-dashboard__setting--full-width {
+	width: 100%;
+}
 .otis-dashboard .otis-dashboard__initial-import {
 	box-sizing: border-box;
 	padding: 10px 10px 10px 0;

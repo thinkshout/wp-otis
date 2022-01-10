@@ -114,9 +114,13 @@
 							<div class="otis-dashboard__action">
 								<div class="otis-dashboard__action-button">
 									<label>This will fetch the list of deleted POIs, check them against the POIs still active in WordPress, and delete the POI post if relevant. <strong>This will delete POIs if they've been removed from OTIS.</strong></label>
-									<button class="button button-primary" @click="triggerSyncDeletes">Sync Deleted POIs</button>
+									<button class="button button-primary" :disabled="bulkImportActive" @click="triggerSyncDeletes">
+										<span v-if="bulkImportActive">Sync Running Please Wait...</span>
+										<span v-else>Sync Deleted POIs</span>
+									</button>
 								</div>
 							</div>
+						</div>
 					</div>
           <div v-if="!displayInitialImport" class="otis-dashboard__setting">
             <div class="postbox">
