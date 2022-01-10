@@ -586,11 +586,12 @@ class Otis_Importer {
 		// Get data from OTIS
 		$deletes_page = $this->otis->call( 'listings/history', $params, $this->logger );
 
+		$this->logger->log( 'Checking for relevant deletes but UUID...' );
 		foreach ( $deletes_page['results'] as $delete ) {
 			$deleted_uuid = $delete['uuid'];
 			$post_id      = wp_otis_get_post_id_for_uuid( $deleted_uuid );
 			if ( $post_id ) {
-				$this->logger->log( 'Deleting Post with ID ' . $post_id . ' and UUID ' . $deleted_uuid );
+				$this->logger->log( 'Deleting Post with ID ' . $post_id . ' and UUID ' . $deleted_uuid, $post_id );
 				wp_trash_post( $post_id );
 			}
 		}
