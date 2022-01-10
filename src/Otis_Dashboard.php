@@ -135,7 +135,10 @@ class Otis_Dashboard
 
   public function otis_status() {
     echo json_encode([
-      'bulkImportScheduled' => as_next_scheduled_action( 'wp_otis_dashboard_start_import' ) || as_next_scheduled_action('wp_otis_dashboard_start_async_import'),
+      'bulkImportScheduled' => 
+        as_next_scheduled_action( 'wp_otis_dashboard_start_import' ) ||
+        as_next_scheduled_action('wp_otis_dashboard_start_async_import') ||
+        as_next_scheduled_action( 'wp_otis_dashboard_start_async_delete_pois' ),
       'bulkHistoryImportScheduled' => as_next_scheduled_action('wp_otis_async_bulk_history_import'),
       'bulkImportActive' => get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false ),
       'bulkHistoryImportActive' => get_option( WP_OTIS_BULK_HISTORY_ACTIVE, false ),

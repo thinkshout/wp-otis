@@ -118,6 +118,9 @@
 										<span v-if="bulkImportActive || bulkImportScheduled">Sync Running Please Wait...</span>
 										<span v-else>Sync Deleted POIs</span>
 									</button>
+									<button v-if="bulkImportActive" class="button button-primary" @click="stopBulkImporter">
+										Stop Deletes Sync
+									</button>
 								</div>
 							</div>
 						</div>
