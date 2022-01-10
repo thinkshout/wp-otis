@@ -119,7 +119,7 @@
 										<span v-else>Sync Deleted POIs</span>
 									</button>
 									<button v-if="bulkImportActive" class="button button-primary" @click="stopBulkImporter">
-										Stop Deletes Sync
+										Stop Importer and Syncing
 									</button>
 								</div>
 							</div>
