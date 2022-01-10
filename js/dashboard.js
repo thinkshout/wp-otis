@@ -310,6 +310,7 @@
 					return;
 				}
 				await this.triggerAction("otis_sync_deleted_pois");
+				await this.otisStatus();
 				this.importStarting = false;
 			},
 		},
