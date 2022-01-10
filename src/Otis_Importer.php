@@ -608,6 +608,7 @@ class Otis_Importer {
 		} else {
 			$this->logger->log( 'Processed deletes page 1, enqueuing async action for page: 2' );
 			as_enqueue_async_action( 'wp_otis_bulk_delete_pois', [ 'deletes_page' => 2 ] );
+			update_option( WP_OTIS_BULK_IMPORT_ACTIVE, true );
 		}
 	}
 

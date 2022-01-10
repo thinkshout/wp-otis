@@ -129,6 +129,7 @@ add_action( 'wp_otis_bulk_delete_pois', function( $params ) {
 	$importer = new Otis_Importer( $otis, $logger );
 
 	try {
+		$logger->log( 'Starting bulk delete page with params: ' . print_r( $params, true ) );
 		$importer->import('deleted-pois', $params);
 	} catch ( Exception $e ) {
 		$logger->log( $e->getMessage(), 0, 'error' );
