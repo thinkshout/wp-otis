@@ -174,19 +174,12 @@ class Otis_Importer {
 				$log[] = 'History import complete.';
 				return $log;
 
-			case 'deletes-list':
-				$this->_get_deletes();
-
-				$log[] = 'Deleted POIs list retrieved.';
-
-				return $log; // A note: this is just returned here and not actually logged until later. Thus the order of the "logged" messages is not guaranteed.
-
 			case 'deleted-pois':
-					$this->_delete_pois_by_post_id();
+					$this->_bulk_delete_pois_by_uuid( $assoc_args );
 	
-					$log[] = 'POIs deleted via transient.';
-	
-					return $log;
+					$log[] = 'Deleted POIs processing.';
+
+					return $log; // A note: this is just returned here and not actually logged until later. Thus the order of the "logged" messages is not guaranteed.
 
 		} // End switch().
 
@@ -577,18 +570,18 @@ class Otis_Importer {
 	}
 
 	/**
-	 * Retrieve list of deletes from OTIS, parse for WP_Post IDs, and set those IDs in a transient for use later.
+	 * Retrieve list of deletes from OTIS, parse for WP_Post IDs, trash those posts by ID, and enqueue another action if needed.
+	 * 
+	 * @param int $page Page number to retrieve provided by $assoc_args.
 	 */
-	private function _get_deletes() {
+	private function _bulk_delete_pois_by_uuid( $assoc_args ) {
 		// Oops all deletes
 		$params = [
 			'alldeletes' => 'True',
 		];
-		// Get Current Deletes from Transient
-		$transient_deletes    = get_transient( WP_OTIS_BULK_DELETE_TRANSIENT );
-		$deleted_poi_post_ids = [];
-		if ( $transient_deletes && isset( $transient_deletes['next_page'] ) ) {
-			$params['page'] = $transient_deletes['next_page'];
+		$page = isset( $assoc_args['deletes_page'] ) ? intval( $assoc_args['deletes_page'] ) : 1;
+		if ( $page ) {
+			$params['page'] = $page;
 		}
 		// Get data from OTIS
 		$deletes_page = $this->otis->call( 'listings/history', $params, $this->logger );
@@ -597,52 +590,25 @@ class Otis_Importer {
 			$deleted_uuid = $delete['uuid'];
 			$post_id      = wp_otis_get_post_id_for_uuid( $deleted_uuid );
 			if ( $post_id ) {
-				$deleted_poi_post_ids[] = $post_id;
+				$this->logger->log( 'Deleting Post with ID ' . $post_id . ' and UUID ' . $deleted_uuid );
+				wp_trash_post( $post_id );
 			}
 		}
 
-		if ( ! count($deletes_page['results']) ) {
-			$deletes_page['next'] = null;
-		}
-		$this->logger->log( 'Setting deletes transient with post IDs: ' . implode( ', ', $deleted_poi_post_ids ) );
-		// Set Transient w/ Updated Deleted POI Post IDs and next page value from OTIS if available. Enqueue next page retrieval via action scheduler.
-		if ( $transient_deletes ) {
-			$transient_deletes['deleted_poi_post_ids'] = array_merge( $transient_deletes['deleted_poi_post_ids'], $deleted_poi_post_ids );
+		// Enqueue another action if needed otherwise we're done.
+		if ( $page > 1 ) {
 			if ( isset( $deletes_page['next'] ) && $deletes_page['next'] ) {
-				$transient_deletes['next_page'] = strval( intval( $transient_deletes['next_page'] ) + 1 );
-				set_transient( WP_OTIS_BULK_DELETE_TRANSIENT, $transient_deletes, DAY_IN_SECONDS );
-				$this->logger->log( 'Set deletes transient moving to page: ' . $transient_deletes['next_page'] );
-				as_enqueue_async_action( 'wp_otis_async_fetch_deleted_pois' );
+				$next_page = intval( $page ) + 1;
+				$this->logger->log( 'Processed deletes page: ' . $page . ', enqueuing async action for page: ' . $next_page );
+				as_enqueue_async_action( 'wp_otis_bulk_delete_pois', [ 'deletes_page' => $next_page ] );
 			} else {
-				$transient_deletes['next_page'] = null;
-				set_transient( WP_OTIS_BULK_DELETE_TRANSIENT, $transient_deletes, DAY_IN_SECONDS );
-				$this->logger->log( 'Set deletes transient complete' );
+				$this->logger->log( 'No next page, finished deletes. Removing bulk import flag' );
+				update_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
 			}
 		} else {
-			$transient_deletes = [
-				'deleted_poi_post_ids' => $deleted_poi_post_ids,
-				'next_page'            => '2',
-			];
-			set_transient( WP_OTIS_BULK_DELETE_TRANSIENT, $transient_deletes, DAY_IN_SECONDS );
-			$this->logger->log( 'Set deletes transient moving to page: ' . $transient_deletes['next_page'] );
-			as_enqueue_async_action( 'wp_otis_async_fetch_deleted_pois' );
+			$this->logger->log( 'Processed deletes page 1, enqueuing async action for page: 2' );
+			as_enqueue_async_action( 'wp_otis_bulk_delete_pois', [ 'deletes_page' => 2 ] );
 		}
-	}
-
-	/**
-	 * Run Through Deleted OTIS POIs from Transient and trash them by post ID them from WordPress.
-	 */
-	private function _delete_pois_by_post_id() {
-		$transient_deletes = get_transient( WP_OTIS_BULK_DELETE_TRANSIENT );
-		if ( ! $transient_deletes || ! isset( $transient_deletes['deleted_poi_post_ids'] ) || empty( $transient_deletes['deleted_poi_post_ids'] ) ) {
-			$this->logger->log( 'No deleted POIs Post IDs in transient.' );
-			return;
-		}
-		foreach ( $transient_deletes['deleted_poi_post_ids'] as $poi_post_id ) {
-			$this->logger->log( 'Trashing POI with post ID ' . $poi_post_id, $poi_post_id );
-			wp_trash_post( $poi_post_id );
-		}
-		delete_transient( WP_OTIS_BULK_DELETE_TRANSIENT );
 	}
 
 	/**

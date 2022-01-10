@@ -113,8 +113,8 @@
 							<p>This will sync all deleted POIs from the OTIS to the local database. This is useful if you find there are POIs that are stale/should have been deleted.</p>
 							<div class="otis-dashboard__action">
 								<div class="otis-dashboard__action-button">
-									<label>This will fetch the list of deleted POIs and check them against the POIs still active in WordPress and return it for your review. <strong>This will not delete POIs</strong></label>
-									<button class="button button-primary" @click="triggerRetrieveDeletes">Get List of Deleted POIs From Otis</button>
+									<label>This will fetch the list of deleted POIs, check them against the POIs still active in WordPress, and delete the POI post if relevant. <strong>This will delete POIs if they've been removed from OTIS.</strong></label>
+									<button class="button button-primary" @click="triggerSyncDeletes">Sync Deleted POIs</button>
 								</div>
 							</div>
 					</div>
@@ -172,7 +172,6 @@
 			bulkImportScheduled: false,
 			bulkHistoryImportScheduled: false,
 			bulkHistoryImportActive: "",
-			deletesPulse: [],
 			poiCount: {},
 			importLog: [],
 			importStarting: false,
@@ -247,9 +246,6 @@
 				this.dateRange.from = formattedFromDate;
 				this.dateRange.to = formattedToDate;
 			},
-			async sleep(ms) {
-				return new Promise(resolve => setTimeout(resolve, ms));
-			},
 			async triggerAction(action, data = {}) {
 				const payload = this.makePayload({
 					action,
@@ -295,28 +291,22 @@
 				this.importStarting = true;
 				const importData = {from_date: this.dateRange.from, to_date: this.dateRange.to};
 				if (this.onlyImportHistory) importData.only_history = true;
-				console.log(importData);
 				await this.triggerAction('otis_import', importData);
 				await this.otisStatus();
 				this.notifyImportStarted();
 				this.importStarting = false;
 			},
-			async triggerRetrieveDeletes() {
+			async triggerSyncDeletes() {
 				this.importStarting = true;
-				await this.triggerAction("otis_check_deletes");
+				if ( !confirm('Are you sure you want to delete all POIs that have been deleted from OTIS?') ) {
+					return;
+				}
+				await this.triggerAction("otis_sync_deleted_pois");
 				this.importStarting = false;
-				await this.sleep(100000);
-				await this.getDeletesPulse();
 			},
-			async getDeletesPulse() {
-				const { data } = await this.triggerAction("otis_deleted_pois_pulse");
-				this.deletesPulse = data;
-				console.log(data);
-			}
 		},
 		async mounted() {
 			await this.otisStatus();
-			await this.getDeletesPulse();
 		},
 	});
 })();
