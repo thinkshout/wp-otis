@@ -137,8 +137,8 @@ class Otis_Dashboard
     echo json_encode([
       'bulkImportScheduled' => as_next_scheduled_action( 'wp_otis_dashboard_start_import' ) || as_next_scheduled_action('wp_otis_dashboard_start_async_import'),
       'bulkHistoryImportScheduled' => as_next_scheduled_action('wp_otis_async_bulk_history_import'),
-      'bulkImportActive' => get_option( WP_OTIS_BULK_IMPORT_ACTIVE ),
-      'bulkHistoryImportActive' => get_option( WP_OTIS_BULK_HISTORY_ACTIVE ),
+      'bulkImportActive' => get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false ),
+      'bulkHistoryImportActive' => get_option( WP_OTIS_BULK_HISTORY_ACTIVE, false ),
       'lastImportDate' => get_option( WP_OTIS_LAST_IMPORT_DATE ),
       'poiCount' => $this->otis_poi_counts(),
     ]);
