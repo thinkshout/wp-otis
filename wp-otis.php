@@ -7,7 +7,7 @@
  * Author URI:      thinkshout.com
  * Text Domain:     wp-otis
  * Domain Path:     /languages
- * Version:         1.0.5
+ * Version:         1.1.2
  *
  * @package         Otis
  */
@@ -19,12 +19,16 @@ define( 'WP_OTIS_SETTINGS_PATH', plugin_dir_path( __FILE__ ) . 'acf-json/group_6
 define( 'WP_OTIS_TOKEN', 'wp_otis_token' );
 define( 'WP_OTIS_LAST_IMPORT_DATE', 'wp_otis_last_import_date' );
 define( 'WP_OTIS_BULK_IMPORT_ACTIVE', 'wp_otis_bulk_import_active' );
+define( 'WP_OTIS_BULK_IMPORT_TRANSIENT', 'wp_otis_bulk_import_transient' );
 define( 'WP_OTIS_BULK_HISTORY_ACTIVE', 'wp_otis_bulk_history_active' );
+define( 'WP_OTIS_BULK_DISABLE_CACHE', 0 );
 
 require_once 'wp-otis-poi.php';
+require_once  plugin_dir_path( __FILE__ ) . '/libraries/action-scheduler/action-scheduler.php';
 require_once 'src/Otis_Importer.php';
 require_once 'src/Otis_Logger_Simple.php';
 require_once 'src/Otis_Command.php';
+require_once 'src/Otis_Dashboard.php';
 require_once 'wp-logging/WP_Logging.php';
 // require_once 'wp-otis-debug.php';
 
@@ -77,14 +81,18 @@ add_filter( 'acf/settings/load_json', 'wp_otis_acf_json_load_point' );
 
 // On initial plugin installation or restart after a bulk import, begin hourly update schedule one minute later
 if ( ! wp_next_scheduled( 'wp_otis_cron' ) ) {
-    $bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, '' );
+	$bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, '' );
 	$bulk_history = get_option( WP_OTIS_BULK_HISTORY_ACTIVE, '' );
-    if ( ! wp_next_scheduled( 'wp_otis_bulk_importer' ) && !($bulk) & ! wp_next_scheduled( 'wp_otis_bulk_history_importer' ) && !($bulk_history))  {
-        wp_schedule_event(time() + 60 * 1, 'hourly', 'wp_otis_cron');
-    }
+	if ( ! wp_next_scheduled( 'wp_otis_bulk_importer' ) && !($bulk) & ! wp_next_scheduled( 'wp_otis_bulk_history_importer' ) && !($bulk_history))  {
+		wp_schedule_event(time() + 60 * 1, 'hourly', 'wp_otis_cron');
+	}
 }
 
 add_action( 'wp_otis_cron', function () {
+
+	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
+		wp_cache_add_non_persistent_groups( ['acf'] );
+	}
 
     $bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
 
@@ -104,7 +112,7 @@ add_action( 'wp_otis_cron', function () {
 
         try {
             $importer->import( 'pois', [
-                'modified' => $last_import_date,
+              'modified' => $last_import_date,
             ] );
             update_option( WP_OTIS_LAST_IMPORT_DATE, $current_date );
 
@@ -115,7 +123,66 @@ add_action( 'wp_otis_cron', function () {
 
 } );
 
-add_action( 'wp_otis_bulk_importer', function($modified, $all, $page, $related_only = false) {
+add_action( 'wp_otis_async_bulk_history_import', function ( $params ) {
+
+		if ( WP_OTIS_BULK_DISABLE_CACHE ) {
+			wp_cache_add_non_persistent_groups( ['acf'] );
+		}
+
+		$otis     = new Otis();
+		$logger   = new Otis_Logger_Simple();
+		$importer = new Otis_Importer( $otis, $logger );
+		if ($params['page'] > 1) {
+			$logger->log( "Bulk OTIS history import continuing on page ".$params['page'].". (".wp_otis_get_logger_modified_date_string($params).")");
+		}
+
+		try {
+			$importer_params = [
+				'bulk-history-page' => $params['page'],
+				'related_only' => isset($params['related_only']),
+				'all' => $params['all'],
+			];
+			$importer_params = wp_otis_make_modified_date_param($params, $importer_params);
+			$importer->import( 'history-only', $importer_params );
+		} catch ( Exception $e ) {
+			$logger->log( $e->getMessage(), 0, 'error' );
+		}
+},10, 1 );
+
+add_action( 'wp_otis_async_bulk_import', function( $params ) {
+	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
+		wp_cache_add_non_persistent_groups( ['acf'] );
+	}
+
+	$all = $params['all'];
+	$page = $params['page'];
+	$page_size = $params['page_size'];
+	$related_only = isset($params['related_only']);
+
+	$otis     = new Otis();
+	$logger   = new Otis_Logger_Simple();
+	$importer = new Otis_Importer( $otis, $logger );
+	$logger->log( "Bulk OTIS import continuing on page ".$page.". (".wp_otis_get_logger_modified_date_string($params).")");
+
+	try {
+		$importer_params = [
+			'page' => $page,
+			'page_size' => $page_size,
+			'related_only' => $related_only,
+			'all' => $all,
+		];
+		$importer_params = wp_otis_make_modified_date_param($params, $importer_params);
+		$importer->import( 'pois-only', $importer_params );
+	} catch ( Exception $e ) {
+		$logger->log( $e->getMessage(), 0, 'error' );
+	}
+}, 10, 1 );
+
+add_action( 'wp_otis_bulk_importer', function($modified, $all, $page, $page_size = 50, $related_only = false) {
+
+	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
+		wp_cache_add_non_persistent_groups( ['acf'] );
+	}
 
     $otis     = new Otis();
     $logger   = new Otis_Logger_Simple();
@@ -126,6 +193,7 @@ add_action( 'wp_otis_bulk_importer', function($modified, $all, $page, $related_o
         $importer->import( 'pois-only', [
             'modified' => $modified,
             'page' => $page,
+						'page_size' => $page_size,
             'related_only' => $related_only,
             'all' => $all
         ] );
@@ -136,6 +204,10 @@ add_action( 'wp_otis_bulk_importer', function($modified, $all, $page, $related_o
 }, 10, 3 );
 
 add_action( 'wp_otis_bulk_history_importer', function($modified, $all, $page, $related_only = false) {
+
+	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
+		wp_cache_add_non_persistent_groups( ['acf'] );
+	}
 
 	$otis     = new Otis();
 	$logger   = new Otis_Logger_Simple();
@@ -160,6 +232,11 @@ if ( ! wp_next_scheduled( 'wp_otis_expire_events' ) ) {
 }
 
 add_action( 'wp_otis_expire_events', function () {
+
+  if ( WP_OTIS_BULK_DISABLE_CACHE ) {
+  	wp_cache_add_non_persistent_groups( ['acf'] );
+  }
+
   $logger = new Otis_Logger_Simple();
 
   $logger->log( 'Checking for expired posts -----------------------');
@@ -328,6 +405,60 @@ function wp_otis_fields_save( $field_group ) {
 }
 
 /**
+ * Get Logger modified Date
+ *
+ * @param array $args
+ * @return string
+ */
+function wp_otis_get_logger_modified_date_string( $args = [] ) {
+	if ( isset( $args['modified'] ) ) {
+		return $args['modified'];
+	// Check if we're doing a modified_start date without an end date. If so fallback to basic modified date param.
+	} else if ( isset( $args['modified_start'] ) && ! isset( $args['modified_end'] ) ) {
+		return $args['modified_start'];
+	// Check if we're both modified start and end dates are present.
+	} else if ( isset( $args['modified_start'] ) && isset( $args['modified_end'] ) ) {
+		// If both modified dates are present check if they're the equal. If so fallback to basic modified date param.
+		if ( $args['modified_start'] === $args['modified_end'] ) {
+			return $args['modified_start'];
+		// If they're different use the start & end dates.
+		} else {
+			return $args['modified_start'] . ' - ' . $args['modified_end'];
+		}
+	} else if ( isset( $args['start_date'] ) && isset( $args['end_date'] ) ) {
+		return $args['start_date'] . ' - ' . $args['end_date'];
+	} else if ( isset( $args['start_date'] ) ) {
+		return $args['start_date'];
+	} else {
+		return '';
+	}
+}
+
+/**
+ * Make modified date param.
+ *
+ * @param array $params
+ * @param array $args_to_modify
+ *
+ * @return array
+ */
+function wp_otis_make_modified_date_param( $params = [], $args_to_modify = [] ) {
+	if ( isset( $params['modified_start'] ) && isset( $params['modified_end'] ) ) {
+		// If both modified dates are present check if they're the equal. If so fallback to basic modified date param.
+		if ( $params['modified_start'] === $params['modified_end'] ) {
+			$args_to_modify['modified'] = $params['modified'];
+		// If they're different use the start & end dates.
+		} else {
+			$args_to_modify['modified_start'] = $params['modified_start'];
+			$args_to_modify['modified_end'] = $params['modified_end'];
+		}
+	} else {
+		$args_to_modify['modified'] = $params['modified'];
+	}
+	return $args_to_modify;
+}
+
+/**
  * Laravel helper
  */
 if ( ! function_exists('array_pluck'))
@@ -370,21 +501,34 @@ if ( ! function_exists('array_pluck'))
 /**
  * Laravel helper
  */
-if ( ! function_exists('array_flatten'))
-{
+if ( ! function_exists('array_flatten') ) {
 	/**
 	 * Flatten a multi-dimensional array into a single level.
 	 *
-	 * @param  array  $array
+	 * @param  iterable  $array
+	 * @param  int  $depth
+	 *
 	 * @return array
 	 */
-	function array_flatten($array)
+	function array_flatten(iterable $array, int $depth): array
 	{
-		$return = array();
+			$result = [];
 
-		array_walk_recursive($array, function($x) use (&$return) { $return[] = $x; });
+			foreach ($array as $item) {
+					if (!is_array($item)) {
+							$result[] = $item;
+					} else {
+							$values = $depth === 1
+									? array_values($item)
+									: array_flatten($item, $depth - 1);
 
-		return $return;
+							foreach ($values as $value) {
+									$result[] = $value;
+							}
+					}
+			}
+
+			return $result;
 	}
 }
 
@@ -631,3 +775,20 @@ function wp_otis_options_init() {
     ));
   }
 }
+
+function as_increase_time_limit( $time_limit ) {
+	if ( isset( $_ENV['PANTHEON_ENVIRONMENT'] ) ) {
+		return 120;
+	}
+	return $time_limit;
+}
+add_filter( 'action_scheduler_queue_runner_time_limit', 'as_increase_time_limit' );
+
+
+/**
+ * Init the dashboard
+ */
+$otis          = new Otis();
+$otis_logger   = new Otis_Logger_Simple();
+$otis_importer = new Otis_Importer( $otis, $otis_logger );
+new Otis_Dashboard( $otis_importer );

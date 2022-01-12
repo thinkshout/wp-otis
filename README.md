@@ -1,4 +1,4 @@
 # wp-otis
 WordPress plugin for the Oregon Tourism Information System
 
-Version 1.0.5
+Version 1.1.2

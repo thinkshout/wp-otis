@@ -84,7 +84,7 @@ class Otis {
 	 * @return array
 	 * @throws \Otis_Exception
 	 */
-	public function call( $path, $params = array() ) {
+	public function call( $path, $params = array(), $logger = null, $verbose = false ) {
 		if ( $path && substr( $path, - 1 ) !== '/' ) {
 			$path .= '/';
 		}
@@ -102,8 +102,9 @@ class Otis {
 			return $this->_fetch( self::API_ROOT . '/' . $path, array(
 				'headers' => $headers,
 				'get'     => $params,
-			) );
+			), $logger, $verbose );
 		} catch ( Otis_Exception $exception ) {
+			$logger->log('Otis Exception: ' . $exception->getCode() . ' - ' . $exception->getMessage());
 			if ( 401 === $exception->getCode() ) {
 				// Try fetching a new token if auth failed.
 				$token = $this->token( true );
@@ -125,7 +126,7 @@ class Otis {
 	 * @return array
 	 * @throws \Otis_Exception
 	 */
-	private function _fetch( $url, $options = array() ) {
+	private function _fetch( $url, $options = array(), $logger = null, $verbose = false ) {
 		if ( ! empty( $options['get'] ) ) {
 			$url .= '?' . http_build_query( $options['get'] );
 		}
@@ -136,18 +137,35 @@ class Otis {
 		}
 
 		curl_setopt( $this->ch, CURLOPT_HTTPHEADER, $options['headers'] ?? array() );
+		curl_setopt( $this->ch, CURLOPT_TIMEOUT, 30 );
 
+		if ($logger && $verbose) {
+			$logger->log("About to curl_exec url ".$url);
+		}
 		$response_body = curl_exec( $this->ch );
+		if ($logger && $verbose) {
+			$logger->log("Call returned with options".json_encode($options));
+		}
 
 		if ( curl_error( $this->ch ) ) {
+			if ($logger) {
+				$logger->log("API call to $url failed: " . curl_error( $this->ch ));
+			}
 			throw new Otis_Exception( "API call to $url failed: " . curl_error( $this->ch ) );
 		}
 
 		$info = curl_getinfo( $this->ch );
 		if ( $info['http_code'] >= 300 ) {
+			if ($logger) {
+				$logger->log("API call to $url failed: " . $info['http_code']);
+			}
 			throw new Otis_Exception( 'We received an unexpected error (code ' . $info['http_code'] . '): ' . $response_body, $info['http_code'] );
 		}
 
+
+		if ($logger && $verbose) {
+			$logger->log("Returning from call with options".json_encode($options));
+		}
 		return json_decode( $response_body, true );
 	}
 }
