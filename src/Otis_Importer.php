@@ -174,6 +174,13 @@ class Otis_Importer {
 				$log[] = 'History import complete.';
 				return $log;
 
+			case 'deleted-pois':
+					$this->_bulk_delete_pois_by_uuid( $assoc_args );
+	
+					$log[] = 'Deleted POIs processing.';
+
+					return $log; // A note: this is just returned here and not actually logged until later. Thus the order of the "logged" messages is not guaranteed.
+
 		} // End switch().
 
 		throw new Otis_Exception( 'Unknown command: ' . $args[0] );
@@ -446,16 +453,10 @@ class Otis_Importer {
 
 					foreach ( $listings['results'] as $result ) {
 						$uuid = $result['uuid'];
-						$poi_post = get_posts([
-							'post_type' => 'poi',
-							'post_status' => 'any',
-							'meta_key' => 'uuid',
-							'meta_value' => $uuid,
-							'posts_per_page' => 1,
-						]);
+						$poi_post = wp_otis_get_post_id_for_uuid($uuid);
 						$post_id = 0;
-						if (count($poi_post) > 0) {
-							$post_id = $poi_post[0]->ID;
+						if ( $poi_post ) {
+							$post_id = $poi_post;
 						}
 						$type = strtolower( $result['type']['name'] );
 						if ( 'regions' === $type || 'cities' === $type ) {
@@ -569,6 +570,61 @@ class Otis_Importer {
 	}
 
 	/**
+	 * Retrieve list of deletes from OTIS, parse for WP_Post IDs, trash those posts by ID, and enqueue another action if needed.
+	 * 
+	 * @param int $page Page number to retrieve provided by $assoc_args.
+	 */
+	private function _bulk_delete_pois_by_uuid( $assoc_args ) {
+		// Oops all deletes
+		$params = [
+			'alldeletes' => 'True',
+		];
+		$page = isset( $assoc_args['deletes_page'] ) ? intval( $assoc_args['deletes_page'] ) : 1;
+
+		// Check if bulk flag is set. If it isn't and we're not on the first page then someone wants to stop the bulk import.
+		$bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
+		if ( ! $bulk && $page > 1 ) {
+			$this->logger->log( 'Stopping delete sync according to Bulk Import flag' );
+			as_unschedule_all_actions( 'wp_otis_bulk_delete_pois' );
+			$this->logger->log( 'Deletes sync stopped.' );
+			return;
+		}
+		if ( $page ) {
+			$params['page'] = $page;
+		}
+		// Get data from OTIS
+		$deletes_page = $this->otis->call( 'listings/history', $params, $this->logger );
+
+		$this->logger->log( 'Checking for relevant deletes but UUID...' );
+		foreach ( $deletes_page['results'] as $delete ) {
+			$deleted_uuid = $delete['uuid'];
+			$post_id      = wp_otis_get_post_id_for_uuid( $deleted_uuid );
+			if ( $post_id ) {
+				$this->logger->log( 'Deleting Post with ID ' . $post_id . ' and UUID ' . $deleted_uuid, $post_id );
+				wp_trash_post( $post_id );
+			}
+		}
+
+		// Enqueue another action if needed otherwise we're done.
+		if ( $page > 1 ) {
+			if ( isset( $deletes_page['next'] ) && $deletes_page['next'] ) {
+				$next_page = intval( $page ) + 1;
+				$this->logger->log( 'Processed deletes page: ' . $page . ', enqueuing async action for page: ' . $next_page );
+				as_enqueue_async_action( 'wp_otis_bulk_delete_pois', [ 'params' => [ 'deletes_page' => $next_page ] ] );
+			} else {
+				$this->logger->log( 'No next page, finished deletes. Cleaning up and removing bulk import flag' );
+				as_unschedule_action( 'wp_otis_bulk_delete_pois' );
+				update_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
+				$this->logger->log( 'Deletes sync finished.' );
+			}
+		} else {
+			$this->logger->log( 'Processed deletes page 1, enqueuing async action for page: 2' );
+			as_enqueue_async_action( 'wp_otis_bulk_delete_pois', [ 'params' => [ 'deletes_page' => 2 ] ] );
+			update_option( WP_OTIS_BULK_IMPORT_ACTIVE, true );
+		}
+	}
+
+	/**
 	 * Import POI history, triggering publish, unpublish, and deletes on POIs.
 	 *
 	 * @param array $assoc_args
@@ -613,7 +669,6 @@ class Otis_Importer {
 				$history_bulk       = get_option( WP_OTIS_BULK_HISTORY_ACTIVE, false );
 				$history_total      = count($history);
 				$history_page_count = ceil( $history_total / $history_page_size );
-				$history_deletes    = [];
 
 				if ( $history_page_count > 1 ) {
 					if ( !$history_bulk ) {
@@ -666,15 +721,9 @@ class Otis_Importer {
 							break;
 
 						case 'deleted':
-							$history_deletes[] = get_the_ID();
+							// Deletes will be handled by the bulk delete action.
 							break;
 					}
-				}
-
-				// Run through the post ids in history_deletes and trash the posts.
-				foreach ($history_deletes as $post_id) {
-					$this->logger->log('Trashing post ' . $post_id);
-					wp_trash_post($post_id);
 				}
 
 				// Wrap up this job: either enqueue a follow-up and leave the transient and flags intact,

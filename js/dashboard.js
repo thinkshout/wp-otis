@@ -107,6 +107,24 @@
               </div>
             </div>
           </div>
+					<div v-if="!displayInitialImport" class="otis-dashboard__setting otis-dashboard__setting--full-width">
+						<div class="postbox">
+							<h2>Sync Deleted POIs</h2>
+							<p>This will sync all deleted POIs from the OTIS to the local database. This is useful if you find there are POIs that are stale/should have been deleted.</p>
+							<div class="otis-dashboard__action">
+								<div class="otis-dashboard__action-button">
+									<label>This will fetch the list of deleted POIs, check them against the POIs still active in WordPress, and delete the POI post if relevant. <strong>This will delete POIs if they've been removed from OTIS.</strong></label>
+									<button class="button button-primary" :disabled="importStarting || bulkImportActive != '' || bulkImportScheduled" @click="triggerSyncDeletes">
+										<span v-if="bulkImportActive || bulkImportScheduled">Sync Running Please Wait...</span>
+										<span v-else>Sync Deleted POIs</span>
+									</button>
+									<button v-if="bulkImportActive" class="button button-primary" @click="stopBulkImporter">
+										Stop Importer and Syncing
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
           <div v-if="!displayInitialImport" class="otis-dashboard__setting">
             <div class="postbox">
               <div v-if="logLoading" class="otis-ellipsis"><div /><div /><div /><div /></div>
@@ -252,6 +270,7 @@
 				Object.keys(data).forEach((key) => {
 					this[key] = data[key];
 				});
+				console.log(data);
 				this.countsLoading = false;
 				await this.otisLogPreview();
 			},
@@ -280,10 +299,18 @@
 				this.importStarting = true;
 				const importData = {from_date: this.dateRange.from, to_date: this.dateRange.to};
 				if (this.onlyImportHistory) importData.only_history = true;
-				console.log(importData);
 				await this.triggerAction('otis_import', importData);
 				await this.otisStatus();
 				this.notifyImportStarted();
+				this.importStarting = false;
+			},
+			async triggerSyncDeletes() {
+				this.importStarting = true;
+				if ( !confirm('Are you sure you want to delete all POIs that have been deleted from OTIS?') ) {
+					return;
+				}
+				await this.triggerAction("otis_sync_deleted_pois");
+				await this.otisStatus();
 				this.importStarting = false;
 			},
 		},
