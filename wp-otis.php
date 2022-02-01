@@ -142,6 +142,8 @@ add_action( 'wp_otis_async_bulk_history_import', function ( $params ) {
 			wp_cache_add_non_persistent_groups( ['acf'] );
 		}
 
+		update_option( WP_OTIS_BULK_HISTORY_ACTIVE, true );
+
 		$otis     = new Otis();
 		$logger   = new Otis_Logger_Simple();
 		$importer = new Otis_Importer( $otis, $logger );
