@@ -764,7 +764,7 @@ class Otis_Importer {
 	 * @return array
 	 */
     private function _fetch_history( $assoc_args = [], $transient_history = null ) {
-
+				$this->logger->log("Fetching history w/ args: " . print_r($assoc_args, true) . ".");
         $params = [
             'page_size' => 500,
             'page'      => isset( $assoc_args['history-page'] ) && ! empty( $assoc_args['history-page'] ) ? intval( $assoc_args['history-page'] ) : 1,
