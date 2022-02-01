@@ -675,12 +675,14 @@ class Otis_Importer {
 						$this->logger->log("OTIS bulk history import detected: " . $history_total . " updates. " . $logger_date);
 					}
 				} else {
+					update_option(WP_OTIS_BULK_HISTORY_ACTIVE, false);
+					$history_bulk = false;
 					$logger_date = wp_otis_get_logger_modified_date_string($assoc_args);
 					$this->logger->log("OTIS nonbulk history import detected: " . $history_total . " updates. " . $logger_date);
 				}
 
 				$uuids = array_keys($history);
-
+				$this->logger->log("Processing " . count($uuids) . " updates.");
 				if ($history_bulk) {
 					// Trim any history updates that have already been processed:
 					$history_trim = $history_page_size * ($assoc_args['bulk-history-page'] - 1);
