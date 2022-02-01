@@ -771,7 +771,7 @@ class Otis_Importer {
 
         $params = [
             'page_size' => 500,
-            'page'      => isset( $assoc_args['history-page'] ) && ! empty( $assoc_args['history-page'] ) ? $assoc_args['history-page'] : 1,
+            'page'      => isset( $assoc_args['history-page'] ) && ! empty( $assoc_args['history-page'] ) ? intval( $assoc_args['history-page'] ) : 1,
         ];
 
         if ( isset( $assoc_args['modified'] ) ) {
