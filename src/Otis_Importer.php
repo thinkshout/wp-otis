@@ -771,7 +771,7 @@ class Otis_Importer {
 
         $params = [
             'page_size' => 500,
-            'page'      => $assoc_args['history-page'] ?? 1,
+            'page'      => isset( $assoc_args['history-page'] ) && ! empty( $assoc_args['history-page'] ) ? $assoc_args['history-page'] : 1,
         ];
 
         if ( isset( $assoc_args['modified'] ) ) {
@@ -848,13 +848,14 @@ class Otis_Importer {
 
         }
 
-		set_transient(WP_OTIS_BULK_IMPORT_TRANSIENT,
-			[
-				"history-complete" => true,
-				"history-data" => $history,
-			],
-			HOUR_IN_SECONDS);
-        return true;
+				set_transient(WP_OTIS_BULK_IMPORT_TRANSIENT,
+					[
+						"history-complete" => true,
+						"history-data" => $history,
+					],
+					HOUR_IN_SECONDS
+				);
+				return true;
     }
 
 	/**
