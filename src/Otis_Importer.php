@@ -134,7 +134,6 @@ class Otis_Importer {
 
 			case 'pois-only':
 					$this->_import_pois( $assoc_args );
-					$assoc_args['history-page'] = 1;
 					$this->_import_history( $assoc_args );
 
 					if (!$bulk) {
@@ -806,45 +805,45 @@ class Otis_Importer {
         $history = !empty($transient_history) ? $transient_history : [];
 
         if ( ! empty( $listings['results'] ) ) {
-            foreach ( $listings['results'] as $result ) {
-                $uuid = $result['uuid'];
-                $verb = $result['verb'];
+					foreach ( $listings['results'] as $result ) {
+							$uuid = $result['uuid'];
+							$verb = $result['verb'];
 
-                if ( !array_key_exists( $uuid, $history ) && ( 'updated' === $verb || 'deleted' === $verb ) ) {
+							if ( !array_key_exists( $uuid, $history ) && ( 'updated' === $verb || 'deleted' === $verb ) ) {
 
-                    // Results are ordered by modified - only store the most recent update or delete for each uuid
-                    $isapproved = $result['data']['isapproved'] ?? '';
+									// Results are ordered by modified - only store the most recent update or delete for each uuid
+									$isapproved = $result['data']['isapproved'] ?? '';
 
-                    $end_date = '';
-                    if ( ! empty( $result['data']['attributes'] ) ) {
-                        foreach ( $result['data']['attributes'] as $attribute ) {
-                            if ( ! empty( $attribute['schema']['name'] ) && 'end_date' === $attribute['schema']['name'] ) {
-                                $end_date = $attribute['value'];
-                            }
-                        }
-                    }
+									$end_date = '';
+									if ( ! empty( $result['data']['attributes'] ) ) {
+											foreach ( $result['data']['attributes'] as $attribute ) {
+													if ( ! empty( $attribute['schema']['name'] ) && 'end_date' === $attribute['schema']['name'] ) {
+															$end_date = $attribute['value'];
+													}
+											}
+									}
 
-                    $history[$uuid] = [
-                        'verb' => $verb,
-                        'isapproved' => $isapproved,
-                        'end_date' => $end_date,
-                    ];
+									$history[$uuid] = [
+											'verb' => $verb,
+											'isapproved' => $isapproved,
+											'end_date' => $end_date,
+									];
 
-                }
-            }
+							}
+					}
 
-            unset( $listings );
+					unset( $listings );
 
-            if ( $params['page'] < $total ) {
-                set_transient(WP_OTIS_BULK_IMPORT_TRANSIENT,
-					[
-						"history-page" => $params['page'] + 1,
-						"history-data" => $history,
-						"history-complete" => false,
-					],
-					HOUR_IN_SECONDS);
-                return false;
-            }
+					if ( $params['page'] < $total ) {
+						set_transient(WP_OTIS_BULK_IMPORT_TRANSIENT,
+						[
+							"history-page" => $params['page'] + 1,
+							"history-data" => $history,
+							"history-complete" => false,
+						],
+						HOUR_IN_SECONDS);
+						return false;
+					}
 
         }
 
