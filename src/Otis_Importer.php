@@ -638,6 +638,9 @@ class Otis_Importer {
 			if ( empty( $transient_history ) ) {
 				// If there is no data to process, go get it.
 				$this->_fetch_history( $assoc_args );
+			} else if ( ! isset( $transient_history['history-complete'] ) || ! $transient_history['history-complete'] ) {
+				$assoc_args['history-page'] = $transient_history['history-page'];
+				$this->_fetch_history($assoc_args, $transient_history['history-data']);
 			}
 
 			// This may have changed during the _fetch_history call, so retrieve it again.
