@@ -652,7 +652,7 @@ class Otis_Importer {
 				$bulk_history_params = [
 					'params' => [
 						'all' => $assoc_args['all'],
-						'page' => isset( $transient_history['history-page'] ) ? $transient_history['history-page'] : 1,
+						'history-page' => isset( $transient_history['history-page'] ) ? $transient_history['history-page'] : 1,
 						'related_only' => $assoc_args['related_only']
 					]
 				];
