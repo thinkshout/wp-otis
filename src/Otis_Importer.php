@@ -798,7 +798,7 @@ class Otis_Importer {
             return [];
         }
 
-        $listings = $this->otis->call( 'listings/history', $params );
+        $listings = $this->otis->call( 'listings/history', $params, $this->logger );
 				$total = ceil( $listings['count'] / $params['page_size'] );
 
 				$this->logger->log('Pre-fetching page ' . $params['page'] . ' of ' . $total . ' of ' . $listings['count'] . ' history items');
