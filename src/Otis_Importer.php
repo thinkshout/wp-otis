@@ -638,7 +638,7 @@ class Otis_Importer {
 			if ( empty( $transient_history ) ) {
 				// If there is no data to process, go get it.
 				$this->_fetch_history( $assoc_args );
-			} else if ( ! isset( $transient_history['history-complete'] ) || ! $transient_history['history-complete'] ) {
+			} else if ( isset( $transient_history['history-complete'] ) && ! $transient_history['history-complete'] ) {
 				$assoc_args['history-page'] = $transient_history['history-page'];
 				$this->_fetch_history($assoc_args, $transient_history['history-data']);
 			}
@@ -652,7 +652,7 @@ class Otis_Importer {
 				$bulk_history_params = [
 					'params' => [
 						'all' => $assoc_args['all'],
-						'page' => isset( $transient_history['history-page'] ) ? $transient_history['history-page'] + 1 : 1,
+						'page' => isset( $transient_history['history-page'] ) ? $transient_history['history-page'] : 1,
 						'related_only' => $assoc_args['related_only']
 					]
 				];
