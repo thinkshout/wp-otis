@@ -134,7 +134,6 @@ class Otis_Importer {
 
 			case 'pois-only':
 					$this->_import_pois( $assoc_args );
-					$assoc_args['history-page'] = 1;
 					$this->_import_history( $assoc_args );
 
 					if (!$bulk) {
@@ -391,7 +390,6 @@ class Otis_Importer {
 						}
 				}
 
-        $this->logger->log('Calling to OTIS w/ params: ' . print_r( $params, true ) );
 				$listings = $this->otis->call( 'listings', $params, $this->logger );
 
 				if ( isset( $params['start_date']) && isset( $params['end_date'] ) ) {
@@ -639,10 +637,7 @@ class Otis_Importer {
 			if ( empty( $transient_history ) ) {
 				// If there is no data to process, go get it.
 				$this->_fetch_history( $assoc_args );
-			} elseif ( isset( $transient_history["history-complete"] )
-				&& isset( $transient_history["history-data"] )
-				&& !$transient_history["history-complete"] ) {
-				// If a retrieval process is ongoing, continue it.
+			} else if ( isset( $transient_history['history-complete'] ) && ! $transient_history['history-complete'] ) {
 				$assoc_args['history-page'] = $transient_history['history-page'];
 				$this->_fetch_history($assoc_args, $transient_history['history-data']);
 			}
@@ -656,7 +651,7 @@ class Otis_Importer {
 				$bulk_history_params = [
 					'params' => [
 						'all' => $assoc_args['all'],
-						'page' => 1,
+						'history-page' => isset( $transient_history['history-page'] ) ? $transient_history['history-page'] : 1,
 						'related_only' => $assoc_args['related_only']
 					]
 				];
@@ -679,12 +674,14 @@ class Otis_Importer {
 						$this->logger->log("OTIS bulk history import detected: " . $history_total . " updates. " . $logger_date);
 					}
 				} else {
+					update_option(WP_OTIS_BULK_HISTORY_ACTIVE, false);
+					$history_bulk = false;
 					$logger_date = wp_otis_get_logger_modified_date_string($assoc_args);
 					$this->logger->log("OTIS nonbulk history import detected: " . $history_total . " updates. " . $logger_date);
 				}
 
 				$uuids = array_keys($history);
-
+				$this->logger->log("Processing " . count($uuids) . " updates.");
 				if ($history_bulk) {
 					// Trim any history updates that have already been processed:
 					$history_trim = $history_page_size * ($assoc_args['bulk-history-page'] - 1);
@@ -734,7 +731,7 @@ class Otis_Importer {
 						$bulk_history_params = [
 							'params' => [
 								'all' => $assoc_args['all'],
-								'page' => $assoc_args['bulk-history-page'],
+								'bulk-history-page' => $assoc_args['bulk-history-page'],
 								'related_only' => $assoc_args['related_only']
 							]
 						];
@@ -768,10 +765,9 @@ class Otis_Importer {
 	 * @return array
 	 */
     private function _fetch_history( $assoc_args = [], $transient_history = null ) {
-
         $params = [
             'page_size' => 500,
-            'page'      => $assoc_args['history-page'] ?? 1,
+            'page'      => isset( $assoc_args['history-page'] ) && ! empty( $assoc_args['history-page'] ) ? intval( $assoc_args['history-page'] ) : 1,
         ];
 
         if ( isset( $assoc_args['modified'] ) ) {
@@ -798,7 +794,7 @@ class Otis_Importer {
             return [];
         }
 
-        $listings = $this->otis->call( 'listings/history', $params );
+        $listings = $this->otis->call( 'listings/history', $params, $this->logger );
 				$total = ceil( $listings['count'] / $params['page_size'] );
 
 				$this->logger->log('Pre-fetching page ' . $params['page'] . ' of ' . $total . ' of ' . $listings['count'] . ' history items');
@@ -806,55 +802,56 @@ class Otis_Importer {
         $history = !empty($transient_history) ? $transient_history : [];
 
         if ( ! empty( $listings['results'] ) ) {
-            foreach ( $listings['results'] as $result ) {
-                $uuid = $result['uuid'];
-                $verb = $result['verb'];
+					foreach ( $listings['results'] as $result ) {
+							$uuid = $result['uuid'];
+							$verb = $result['verb'];
 
-                if ( !array_key_exists( $uuid, $history ) && ( 'updated' === $verb || 'deleted' === $verb ) ) {
+							if ( !array_key_exists( $uuid, $history ) && ( 'updated' === $verb || 'deleted' === $verb ) ) {
 
-                    // Results are ordered by modified - only store the most recent update or delete for each uuid
-                    $isapproved = $result['data']['isapproved'] ?? '';
+									// Results are ordered by modified - only store the most recent update or delete for each uuid
+									$isapproved = $result['data']['isapproved'] ?? '';
 
-                    $end_date = '';
-                    if ( ! empty( $result['data']['attributes'] ) ) {
-                        foreach ( $result['data']['attributes'] as $attribute ) {
-                            if ( ! empty( $attribute['schema']['name'] ) && 'end_date' === $attribute['schema']['name'] ) {
-                                $end_date = $attribute['value'];
-                            }
-                        }
-                    }
+									$end_date = '';
+									if ( ! empty( $result['data']['attributes'] ) ) {
+											foreach ( $result['data']['attributes'] as $attribute ) {
+													if ( ! empty( $attribute['schema']['name'] ) && 'end_date' === $attribute['schema']['name'] ) {
+															$end_date = $attribute['value'];
+													}
+											}
+									}
 
-                    $history[$uuid] = [
-                        'verb' => $verb,
-                        'isapproved' => $isapproved,
-                        'end_date' => $end_date,
-                    ];
+									$history[$uuid] = [
+											'verb' => $verb,
+											'isapproved' => $isapproved,
+											'end_date' => $end_date,
+									];
 
-                }
-            }
+							}
+					}
 
-            unset( $listings );
+					unset( $listings );
 
-            if ( $params['page'] < $total ) {
-                set_transient(WP_OTIS_BULK_IMPORT_TRANSIENT,
-					[
-						"history-page" => $params['page'] + 1,
-						"history-data" => $history,
-						"history-complete" => false,
-					],
-					HOUR_IN_SECONDS);
-                return false;
-            }
+					if ( $params['page'] < $total ) {
+						set_transient(WP_OTIS_BULK_IMPORT_TRANSIENT,
+						[
+							"history-page" => $params['page'] + 1,
+							"history-data" => $history,
+							"history-complete" => false,
+						],
+						HOUR_IN_SECONDS);
+						return false;
+					}
 
         }
 
-		set_transient(WP_OTIS_BULK_IMPORT_TRANSIENT,
-			[
-				"history-complete" => true,
-				"history-data" => $history,
-			],
-			HOUR_IN_SECONDS);
-        return true;
+				set_transient(WP_OTIS_BULK_IMPORT_TRANSIENT,
+					[
+						"history-complete" => true,
+						"history-data" => $history,
+					],
+					HOUR_IN_SECONDS
+				);
+				return true;
     }
 
 	/**

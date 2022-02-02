@@ -104,14 +104,16 @@ class Otis {
 				'get'     => $params,
 			), $logger, $verbose );
 		} catch ( Otis_Exception $exception ) {
-			$logger->log('Otis Exception: ' . $exception->getCode() . ' - ' . $exception->getMessage());
+			if ( $logger ) {
+				$logger->log('Otis Exception: ' . $exception->getCode() . ' - ' . $exception->getMessage());
+			}
 			if ( 401 === $exception->getCode() ) {
 				// Try fetching a new token if auth failed.
 				$token = $this->token( true );
 
 				if ( $token ) {
 					// Try the call one more time.
-					return $this->call( $path, $params );
+					return $this->call( $path, $params, $logger );
 				}
 			}
 		}

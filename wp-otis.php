@@ -142,16 +142,19 @@ add_action( 'wp_otis_async_bulk_history_import', function ( $params ) {
 			wp_cache_add_non_persistent_groups( ['acf'] );
 		}
 
+		update_option( WP_OTIS_BULK_HISTORY_ACTIVE, true );
+
 		$otis     = new Otis();
 		$logger   = new Otis_Logger_Simple();
 		$importer = new Otis_Importer( $otis, $logger );
-		if ($params['page'] > 1) {
-			$logger->log( "Bulk OTIS history import continuing on page ".$params['page'].". (".wp_otis_get_logger_modified_date_string($params).")");
+		if ($params['history-page'] > 1) {
+			$logger->log( "Bulk OTIS history import continuing on page ".$params['history-page'].". (".wp_otis_get_logger_modified_date_string($params).")");
 		}
 
 		try {
 			$importer_params = [
-				'bulk-history-page' => $params['page'],
+				'bulk-history-page' => $params['bulk-history-page'],
+				'history-page' => $params['history-page'],
 				'related_only' => isset($params['related_only']),
 				'all' => $params['all'],
 			];
