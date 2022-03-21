@@ -765,21 +765,21 @@ class Otis_Importer {
 	 * @return array
 	 */
     private function _fetch_history( $assoc_args = [], $transient_history = null ) {
-        $params = [
-            'page_size' => 500,
-            'page'      => isset( $assoc_args['history-page'] ) && ! empty( $assoc_args['history-page'] ) ? intval( $assoc_args['history-page'] ) : 1,
-        ];
+			$params = [
+					'page_size' => 500,
+					'page'      => isset( $assoc_args['history-page'] ) && ! empty( $assoc_args['history-page'] ) ? intval( $assoc_args['history-page'] ) : 1,
+			];
 
-        if ( isset( $assoc_args['modified'] ) ) {
-        	$startdate = $assoc_args['start_date'] ?? date('Y-d-m',strtotime("-1 days"));
-            $params['after']   = date( 'Y-m-d', strtotime( $startdate ) );
-            $assoc_args['all'] = true;
-				// Check if we're doing a modified_start date without an end date. If so fallback to basic modified date param.
-		} else if ( isset( $assoc_args['modified_start'] ) && ! isset( $assoc_args['modified_end'] ) ) {
+			if ( isset( $assoc_args['modified'] ) && ! empty( $assoc_args['modified'] ) ) {
+					$startdate = $assoc_args['start_date'] ?? date('Y-d-m',strtotime("-1 days"));
+					$params['after']   = date( 'Y-m-d', strtotime( $startdate ) );
+					$assoc_args['all'] = true;
+			// Check if we're doing a modified_start date without an end date. If so fallback to basic modified date param.
+			} else if ( isset( $assoc_args['modified_start'] ) && ! empty( $assoc_args['modified_start'] ) && ! isset( $assoc_args['modified_end'] ) ) {
 				$params['after'] = date( 'Y-m-d', strtotime( $assoc_args['modified_start'] ) );
 				$assoc_args['all'] = true;
 				// Check if we're both modified start and end dates are present.
-		} else if ( isset( $assoc_args['modified_start'] ) && isset( $assoc_args['modified_end'] ) ) {
+			} else if ( isset( $assoc_args['modified_start'] )  && ! empty( $assoc_args['modified_start'] ) && isset( $assoc_args['modified_end'] )  && ! empty( $assoc_args['modified_end'] ) ) {
 				// If both modified dates are present check if they're the equal. If so fallback to basic modified date param.
 				if ( $assoc_args['modified_start'] === $assoc_args['modified_end'] ) {
 						$params['after'] = date( 'Y-m-d', strtotime( $assoc_args['modified_start'] ) );
@@ -790,69 +790,69 @@ class Otis_Importer {
 						$params['before'] = date( 'Y-m-d', strtotime( $assoc_args['modified_end'] ) );
 						$assoc_args['all'] = true;
 				}
-        } else {
-            // Only import history relative to a recent import.
-            return [];
-        }
+			} else {
+					// Only import history relative to a recent import.
+					return [];
+			}
 
-        $listings = $this->otis->call( 'listings/history', $params, $this->logger );
-				$total = ceil( $listings['count'] / $params['page_size'] );
+			$listings = $this->otis->call( 'listings/history', $params, $this->logger );
+			$total = ceil( $listings['count'] / $params['page_size'] );
 
-				$this->logger->log('Pre-fetching page ' . $params['page'] . ' of ' . $total . ' of ' . $listings['count'] . ' history items');
+			$this->logger->log('Pre-fetching page ' . $params['page'] . ' of ' . $total . ' of ' . $listings['count'] . ' history items');
 
-        $history = !empty($transient_history) ? $transient_history : [];
+			$history = !empty($transient_history) ? $transient_history : [];
 
-        if ( ! empty( $listings['results'] ) ) {
-					foreach ( $listings['results'] as $result ) {
-							$uuid = $result['uuid'];
-							$verb = $result['verb'];
+			if ( ! empty( $listings['results'] ) ) {
+				foreach ( $listings['results'] as $result ) {
+						$uuid = $result['uuid'];
+						$verb = $result['verb'];
 
-							if ( !array_key_exists( $uuid, $history ) && ( 'updated' === $verb || 'deleted' === $verb ) ) {
+						if ( !array_key_exists( $uuid, $history ) && ( 'updated' === $verb || 'deleted' === $verb ) ) {
 
-									// Results are ordered by modified - only store the most recent update or delete for each uuid
-									$isapproved = $result['data']['isapproved'] ?? '';
+								// Results are ordered by modified - only store the most recent update or delete for each uuid
+								$isapproved = $result['data']['isapproved'] ?? '';
 
-									$end_date = '';
-									if ( ! empty( $result['data']['attributes'] ) ) {
-											foreach ( $result['data']['attributes'] as $attribute ) {
-													if ( ! empty( $attribute['schema']['name'] ) && 'end_date' === $attribute['schema']['name'] ) {
-															$end_date = $attribute['value'];
-													}
-											}
-									}
+								$end_date = '';
+								if ( ! empty( $result['data']['attributes'] ) ) {
+										foreach ( $result['data']['attributes'] as $attribute ) {
+												if ( ! empty( $attribute['schema']['name'] ) && 'end_date' === $attribute['schema']['name'] ) {
+														$end_date = $attribute['value'];
+												}
+										}
+								}
 
-									$history[$uuid] = [
-											'verb' => $verb,
-											'isapproved' => $isapproved,
-											'end_date' => $end_date,
-									];
+								$history[$uuid] = [
+										'verb' => $verb,
+										'isapproved' => $isapproved,
+										'end_date' => $end_date,
+								];
 
-							}
-					}
+						}
+				}
 
-					unset( $listings );
+				unset( $listings );
 
-					if ( $params['page'] < $total ) {
-						set_transient(WP_OTIS_BULK_IMPORT_TRANSIENT,
-						[
-							"history-page" => $params['page'] + 1,
-							"history-data" => $history,
-							"history-complete" => false,
-						],
-						HOUR_IN_SECONDS);
-						return false;
-					}
-
-        }
-
-				set_transient(WP_OTIS_BULK_IMPORT_TRANSIENT,
+				if ( $params['page'] < $total ) {
+					set_transient(WP_OTIS_BULK_IMPORT_TRANSIENT,
 					[
-						"history-complete" => true,
+						"history-page" => $params['page'] + 1,
 						"history-data" => $history,
+						"history-complete" => false,
 					],
-					HOUR_IN_SECONDS
-				);
-				return true;
+					HOUR_IN_SECONDS);
+					return false;
+				}
+
+			}
+
+			set_transient(WP_OTIS_BULK_IMPORT_TRANSIENT,
+				[
+					"history-complete" => true,
+					"history-data" => $history,
+				],
+				HOUR_IN_SECONDS
+			);
+			return true;
     }
 
 	/**
