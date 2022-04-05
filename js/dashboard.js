@@ -190,7 +190,12 @@
 			lastImport() {
 				if (!this.lastImportDate) return "N/A";
 				const lastImportDate = new Date(this.lastImportDate);
-				return `${lastImportDate.getMonth() + 1}/${lastImportDate.getDate()}/${lastImportDate.getFullYear()} @ ${lastImportDate.getHours()}:${lastImportDate.getMinutes()}`;
+				const month = lastImportDate.getMonth() + 1; // months are zero indexed
+				const day = lastImportDate.getDate();
+				const year = lastImportDate.getFullYear();
+				const hours = lastImportDate.getHours();
+				const minutes = lastImportDate.getMinutes();
+				return `${month}/${day}/${year} @ ${hours}:${minutes}`;
 			},
 			importerStatus() {
 				if (this.bulkImportActive) return "Active";
