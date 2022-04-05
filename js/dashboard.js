@@ -190,7 +190,7 @@
 			lastImport() {
 				if (!this.lastImportDate) return "N/A";
 				const lastImportDate = new Date(this.lastImportDate);
-				return `${lastImportDate.getMonth()}/${lastImportDate.getDate()}/${lastImportDate.getFullYear()} @ ${lastImportDate.getHours()}:${lastImportDate.getMinutes()}`;
+				return `${lastImportDate.getMonth() + 1}/${lastImportDate.getDate()}/${lastImportDate.getFullYear()} @ ${lastImportDate.getHours()}:${lastImportDate.getMinutes()}`;
 			},
 			importerStatus() {
 				if (this.bulkImportActive) return "Active";
