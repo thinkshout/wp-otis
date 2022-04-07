@@ -699,6 +699,7 @@ class Otis_Importer {
 					'meta_key' => 'uuid',
 					'meta_value' => $uuids,
 				]);
+				$history_deletes    = [];
 
 				while ($the_query->have_posts()) {
 					$the_query->the_post();
@@ -718,9 +719,15 @@ class Otis_Importer {
 							break;
 
 						case 'deleted':
-							// Deletes will be handled by the bulk delete action.
+							// Deletes will be handled by delete loop.
+							$history_deletes[] = get_the_ID();
 							break;
 					}
+				}
+
+				// Run through the POIs flagged for deletion.
+				foreach ($history_deletes as $post_id) {
+					wp_trash_post($post_id);
 				}
 
 				// Wrap up this job: either enqueue a follow-up and leave the transient and flags intact,
