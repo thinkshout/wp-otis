@@ -668,7 +668,7 @@ class Otis_Importer {
 				if ( $history_page_count > 1 ) {
 					if ( !$history_bulk ) {
 						update_option(WP_OTIS_BULK_HISTORY_ACTIVE, true);
-						$assoc_args['bulk-history-page'] = 1;
+						$assoc_args['bulk-history-page'] = isset($assoc_args['bulk-history-page']) && !empty($assoc_args['bulk-history-page']) ? $assoc_args['bulk-history-page'] : 1;
 						$history_bulk = true;
 						$logger_date = wp_otis_get_logger_modified_date_string($assoc_args);
 						$this->logger->log("OTIS bulk history import detected: " . $history_total . " updates. " . $logger_date);
