@@ -194,7 +194,7 @@
 				const day = lastImportDate.getDate();
 				const year = lastImportDate.getFullYear();
 				const hours = lastImportDate.getHours();
-				const minutes = lastImportDate.getMinutes();
+				const minutes = lastImportDate.getMinutes() > 9 ? lastImportDate.getMinutes() : "0" + lastImportDate.getMinutes();
 				return `${month}/${day}/${year} @ ${hours}:${minutes}`;
 			},
 			importerStatus() {
@@ -275,7 +275,6 @@
 				Object.keys(data).forEach((key) => {
 					this[key] = data[key];
 				});
-				console.log(data);
 				this.countsLoading = false;
 				await this.otisLogPreview();
 			},
