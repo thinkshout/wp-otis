@@ -110,13 +110,14 @@ add_action( 'wp_otis_cron', function () {
         $logger   = new Otis_Logger_Simple();
         $importer = new Otis_Importer( $otis, $logger );
 
+				update_option( WP_OTIS_LAST_IMPORT_DATE, $current_date );
         try {
-						update_option( WP_OTIS_LAST_IMPORT_DATE, $current_date );
-            $importer->import( 'pois', [
-              'modified' => $last_import_date,
-            ] );
+					$importer->import( 'pois', [
+						'modified' => $last_import_date,
+					] );
         } catch ( Exception $e ) {
-            $logger->log( $e->getMessage(), 0, 'error' );
+					$logger->log( $e->getMessage(), 0, 'error' );
+					update_option( WP_OTIS_LAST_IMPORT_DATE, $last_import_date );
         }
     }
 
