@@ -111,11 +111,10 @@ add_action( 'wp_otis_cron', function () {
         $importer = new Otis_Importer( $otis, $logger );
 
         try {
+						update_option( WP_OTIS_LAST_IMPORT_DATE, $current_date );
             $importer->import( 'pois', [
               'modified' => $last_import_date,
             ] );
-            update_option( WP_OTIS_LAST_IMPORT_DATE, $current_date );
-
         } catch ( Exception $e ) {
             $logger->log( $e->getMessage(), 0, 'error' );
         }
