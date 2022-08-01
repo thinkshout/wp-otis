@@ -141,8 +141,8 @@ class Otis {
 		curl_setopt( $this->ch, CURLOPT_HTTPHEADER, $options['headers'] ?? array() );
 		curl_setopt( $this->ch, CURLOPT_TIMEOUT, 30 );
 
-		if ($logger && $verbose) {
-			$logger->log("About to curl_exec url ".$url);
+		if ($logger) {
+			$logger->log("About to call url ".$url);
 		}
 		$response_body = curl_exec( $this->ch );
 		if ($logger && $verbose) {
