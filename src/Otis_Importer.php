@@ -652,9 +652,11 @@ class Otis_Importer {
 					'params' => [
 						'all' => $assoc_args['all'],
 						'history-page' => isset( $transient_history['history-page'] ) ? $transient_history['history-page'] : 1,
-						'related_only' => $assoc_args['related_only']
 					]
 				];
+				if ( isset( $assoc_args['related_only'] ) && $assoc_args['related_only'] ) {
+					$bulk_history_params['params']['related_only'] = $assoc_args['related_only'];
+				}
 				$bulk_history_params['params'] = wp_otis_make_modified_date_param($assoc_args, $bulk_history_params['params']);
 				as_enqueue_async_action('wp_otis_async_bulk_history_import', $bulk_history_params);
 			} else {
