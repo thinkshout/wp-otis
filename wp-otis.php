@@ -155,9 +155,11 @@ add_action( 'wp_otis_async_bulk_history_import', function ( $params ) {
 			$importer_params = [
 				'bulk-history-page' => $params['bulk-history-page'],
 				'history-page' => $params['history-page'],
-				'related_only' => isset($params['related_only']),
 				'all' => $params['all'],
 			];
+			if ( isset( $params['related_only'] ) && $params['related_only'] == 'true' || $params['related_only'] == true ) {
+				$importer_params['related_only'] = true;
+			}
 			$importer_params = wp_otis_make_modified_date_param($params, $importer_params);
 			$importer->import( 'history-only', $importer_params );
 		} catch ( Exception $e ) {
@@ -173,7 +175,6 @@ add_action( 'wp_otis_async_bulk_import', function( $params ) {
 	$all = $params['all'];
 	$page = $params['page'];
 	$page_size = $params['page_size'];
-	$related_only = isset($params['related_only']);
 
 	$otis     = new Otis();
 	$logger   = new Otis_Logger_Simple();
@@ -184,9 +185,11 @@ add_action( 'wp_otis_async_bulk_import', function( $params ) {
 		$importer_params = [
 			'page' => $page,
 			'page_size' => $page_size,
-			'related_only' => $related_only,
 			'all' => $all,
 		];
+		if ( isset( $params['related_only'] ) && $params['related_only'] == 'true' || $params['related_only'] == true ) {
+			$importer_params['related_only'] = true;
+		}
 		$importer_params = wp_otis_make_modified_date_param($params, $importer_params);
 		$importer->import( 'pois-only', $importer_params );
 	} catch ( Exception $e ) {
