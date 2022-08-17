@@ -707,7 +707,11 @@ class Otis_Importer {
 					$the_query->the_post();
 
 					$uuid = get_field('uuid');
-					$poi_history = $history[$uuid];
+					$poi_history = isset( $history[$uuid] ) ? $history[$uuid] : null;
+
+					if ( is_null( $poi_history ) ) {
+						continue;
+					}
 
 					switch ($poi_history['verb']) {
 						case 'updated':
