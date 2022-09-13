@@ -17,7 +17,7 @@ class Otis {
 	public function __construct() {
 		$this->ch = curl_init();
 
-		curl_setopt( $this->ch, CURLOPT_USERAGENT, 'Otis-PHP/1.1.14' );
+		curl_setopt( $this->ch, CURLOPT_USERAGENT, 'Otis-PHP/1.1.15' );
 		curl_setopt( $this->ch, CURLOPT_HEADER, false );
 		curl_setopt( $this->ch, CURLOPT_RETURNTRANSFER, true );
 		curl_setopt( $this->ch, CURLOPT_CONNECTTIMEOUT, 30 );

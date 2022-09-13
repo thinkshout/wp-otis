@@ -786,7 +786,7 @@ class Otis_Importer {
 			];
 
 			if ( isset( $assoc_args['modified'] ) && ! empty( $assoc_args['modified'] ) ) {
-					$startdate = $assoc_args['start_date'] ?? date('Y-d-m',strtotime("-1 days"));
+					$startdate = $assoc_args['start_date'] ?? date('Y-m-d',strtotime("-1 days"));
 					$params['after']   = date( 'Y-m-d', strtotime( $startdate ) );
 					$assoc_args['all'] = true;
 			// Check if we're doing a modified_start date without an end date. If so fallback to basic modified date param.
