@@ -869,6 +869,97 @@ class Otis_Importer {
 			);
 			return true;
     }
+	
+	/** Get Listings transient if it exists */
+	private function get_listings_transient() {
+		$transient = get_transient(WP_OTIS_BULK_IMPORT_TRANSIENT);
+		if ( false !== $transient ) {
+			return $transient;
+		}
+		return false;
+	}
+	
+	/** Set Listings transient */
+	private function set_listings_transient($data) {
+		return set_transient(WP_OTIS_BULK_IMPORT_TRANSIENT, $data, HOUR_IN_SECONDS);
+	}
+
+	/** Delete Listings transient */
+	private function delete_listings_transient() {
+		return delete_transient(WP_OTIS_BULK_IMPORT_TRANSIENT);
+	}
+
+	/** Schedule action scheduler action */
+	private function schedule_action($action, $args = []) {
+		$timestamp = as_next_scheduled_action($action, $args);
+		if ( false === $timestamp ) {
+			as_enqueue_async_action($action, $args);
+		}
+	}
+
+	/** Unschedule action scheduler action */
+	private function unschedule_action($action, $args = []) {
+		$timestamp = as_next_scheduled_action($action, $args);
+		if ( false !== $timestamp ) {
+			as_unschedule_all_actions($action, $args);
+		}
+	}
+
+	/** Fetch listings from OTIS with passed args and store them in a transient for later use */
+	private function _fetch_listings( $assoc_args = [] ) {
+		// Look for listing page in args and set it to the first one if it's not present.
+		$listings_page = $assoc_args['listings_page'] ?? 1;
+		// Create API params to pass to array.
+		$api_params    = [
+			'page'      => $listings_page,
+		];
+		// Merge API params with passed args.
+		$api_params    = array_merge( $assoc_args, $api_params );
+		// Fetch listings from OTIS.
+		$this->logger->log( 'Fetching page ' . $listings_page . ' of listings' );
+		$listings = $this->otis->call( 'listings', $api_params, $this->logger );
+		// Check if we have any listings and if there are more pages.
+		$has_next_page = $listings['next'] ?? false;
+		$listings = $listings['results'] ?? [];
+
+		// If we have listings, store them in a transient.
+		$listings_transient = $this->get_listings_transient();
+		$listings_transient = $listings_transient ?? [];
+		$listings_transient = array_merge( $listings_transient, $listings );
+		$this->set_listings_transient( $listings_transient );
+		// If we have more pages, schedule another action to fetch them.
+		if ( $has_next_page ) {
+			$assoc_args['listings_page'] = $listings_page + 1;
+			$this->schedule_action( 'wp_otis_bulk_import_fetch_listings', $assoc_args );
+			$this->logger->log( 'Scheduling fetch of next page of listings' );
+			return;
+		}
+		// If we don't have more pages, schedule an action to process the listings.
+		$this->schedule_action( 'wp_otis_bulk_import_process_listings' );
+		$this->logger->log( 'Scheduling process listings action' );
+	}
+
+	/** Process listings stored in transient */
+	private function _process_listings() {
+		// Get listings from transient.
+		$listings_transient = $this->get_listings_transient();
+		// If we don't have any listings, return.
+		if ( empty( $listings_transient ) ) {
+			return;
+		}
+		// Loop through listings and process them.
+		foreach ( $listings_transient as $listing ) {
+			// Get the existing listing ID from Wordpress if it exists.
+			$found_poi_post_id = wp_otis_get_post_id_for_uuid( $listing['uuid'] );
+			try {
+				$this->_upsert_poi( $found_poi_post_id, $listing );
+			} catch (\Throwable $th) {
+				$this->logger->log( 'Error processing listing '. $listing['uuid'] . ' - ' . $th->getMessage() );
+			}
+		}
+		// Delete transient.
+		$this->delete_listings_transient();
+	}
 
 	/**
 	 * Create/update a WordPress POI based on OTIS result data. If post_id is
