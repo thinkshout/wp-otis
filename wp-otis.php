@@ -197,7 +197,7 @@ add_action( 'wp_otis_async_bulk_import', function( $params ) {
 	}
 }, 10, 1 );
 
-add_action( 'wp_otis_fetch_listings', function($modified, $all, $page, $related_only = false) {
+add_action( 'wp_otis_fetch_listings', function($modified, $all, $page, $type, $related_only = false) {
 
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
@@ -206,7 +206,7 @@ add_action( 'wp_otis_fetch_listings', function($modified, $all, $page, $related_
     $otis     = new Otis();
     $logger   = new Otis_Logger_Simple();
     $importer = new Otis_Importer( $otis, $logger );
-    $logger->log( "Bulk OTIS import continuing on page ".$page.". (".$modified.")");
+    $logger->log( "OTIS $type import continuing on page ".$page.". (".$modified.")");
 
     try {
         $importer->import( 'pois-only', [
@@ -219,7 +219,7 @@ add_action( 'wp_otis_fetch_listings', function($modified, $all, $page, $related_
         $logger->log( $e->getMessage(), 0, 'error' );
     }
 
-}, 10, 4 );
+}, 10, 0 );
 
 add_action( 'wp_otis_process_listings', function() {
 

@@ -921,6 +921,7 @@ class Otis_Importer {
 	private function _fetch_otis_listings( $assoc_args = [] ) {
 		// Look for listing page in args and set it to the first one if it's not present.
 		$listings_page = $assoc_args['page'] ?? 1;
+		$listings_type = $assoc_args['type'] ?? 'Listings';
 		// Create API params to pass to array.
 		$api_params    = [
 			'page'      => $listings_page,
@@ -928,8 +929,7 @@ class Otis_Importer {
 		// Merge API params with passed args.
 		$api_params    = array_merge( $assoc_args, $api_params );
 		// Fetch listings from OTIS.
-		$fetch_type = $assoc_args['type'] ?? 'Listings';
-		$this->logger->log( 'Fetching page ' . $listings_page . ' of ' . $fetch_type );
+		$this->logger->log( 'Fetching page ' . $listings_page . ' of ' . $listings_type );
 		$listings = $this->otis->call( 'listings', $api_params, $this->logger );
 		// Check if we have any listings and if there are more pages.
 		$has_next_page = $listings['next'] ?? false;
@@ -944,12 +944,12 @@ class Otis_Importer {
 		if ( $has_next_page ) {
 			$assoc_args['page'] = $listings_page + 1;
 			$this->schedule_action( 'wp_otis_fetch_listings', $assoc_args );
-			$this->logger->log( 'Scheduling fetch of next page of listings' );
+			$this->logger->log( 'Scheduling fetch of next page of ' . $listings_type );
 			return;
 		}
 		// If we don't have more pages, schedule an action to process the listings.
 		$this->schedule_action( 'wp_otis_process_listings' );
-		$this->logger->log( 'No more pages to fetch, scheduling process listings action' );
+		$this->logger->log( 'No more pages to fetch, scheduling process ' . $listings_type . ' action' );
 	}
 
 	/** Process listings stored in transient */
