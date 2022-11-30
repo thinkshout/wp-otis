@@ -102,7 +102,6 @@ class Otis_Importer {
 			case 'regions':
 				$assoc_args['type'] = 'Regions';
 				$assoc_args['all']  = true;
-				$assoc_args['page'] = 1;
 
 				$this->_fetch_otis_listings( $assoc_args );
 
@@ -124,6 +123,7 @@ class Otis_Importer {
 					$this->import( 'terms', $assoc_args );
 					$this->import( 'regions', $assoc_args );
 					$this->import( 'cities', $assoc_args );
+					$assoc_args['type'] = 'pois';
 
 					$this->_fetch_otis_listings( $assoc_args );
 					// $this->_import_history( $assoc_args );
@@ -920,7 +920,8 @@ class Otis_Importer {
 		$this->logger->log( 'Fetching page ' . $listings_page . ' of ' . $listings_type );
 		$listings = $this->otis->call( 'listings', $api_params, $this->logger );
 		// Check if we have any listings and if there are more pages.
-		$has_next_page = $listings['next'] ?? false;
+		$listings_next = is_null( $listings['next'] ) ? $listings['next'] : trim( $listings['next'] );
+		$has_next_page = empty( $listings_next ) || 'null' === $listings_next ? false : true;
 		$listings = $listings['results'] ?? [];
 
 		// If we have listings, store them in a transient.
