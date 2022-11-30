@@ -197,7 +197,7 @@ add_action( 'wp_otis_async_bulk_import', function( $params ) {
 	}
 }, 10, 1 );
 
-add_action( 'wp_otis_fetch_listings', function($modified, $all, $page, $type, $related_only = false) {
+add_action( 'wp_otis_fetch_listings', function($modified, $all, $page, $type = 'pois', $related_only = false) {
 
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
@@ -209,14 +209,38 @@ add_action( 'wp_otis_fetch_listings', function($modified, $all, $page, $type, $r
     $logger->log( "OTIS $type import continuing on page ".$page.". (".$modified.")");
 
     try {
-        $importer->import( 'pois-only', [
-            'modified' => $modified,
-            'page' => $page,
-            'related_only' => $related_only,
-            'all' => $all
-        ] );
+      $import_args = [
+				'page' => $page,
+				'all' => $all,
+				'related_only' => $related_only,
+				'modified' => $modified,
+			];
+			switch ($type) {
+				case 'Cities':
+					$importer->import( 'cities', $import_args );
+					break;
+				case 'Terms':
+					$importer->import( 'terms', $import_args );
+					break;
+				case 'Regions':
+					$importer->import( 'regions', $import_args );
+					break;
+				case 'pois-only':
+					$importer->import( 'pois-only', $import_args );
+					break;
+				case 'related-pois-only':
+					$importer->import( 'related-pois-only', $import_args );
+					break;
+				case 'poi':
+					$importer->import( 'poi', $import_args );
+					break;
+				case 'pois':
+				default:
+					$importer->import( 'pois', $import_args );
+					break;
+			}
     } catch ( Exception $e ) {
-        $logger->log( $e->getMessage(), 0, 'error' );
+      $logger->log( $e->getMessage(), 0, 'error' );
     }
 
 }, 10, 0 );
