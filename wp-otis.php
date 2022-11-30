@@ -197,7 +197,7 @@ add_action( 'wp_otis_async_bulk_import', function( $params ) {
 	}
 }, 10, 1 );
 
-add_action( 'wp_otis_fetch_listings', function($modified, $all, $page, $type = 'pois', $related_only = false) {
+add_action( 'wp_otis_fetch_listings', function( $modified = null, $all = false, $page = 1, $type = 'pois', $related_only = false ) {
 
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
@@ -213,8 +213,10 @@ add_action( 'wp_otis_fetch_listings', function($modified, $all, $page, $type = '
 				'page' => $page,
 				'all' => $all,
 				'related_only' => $related_only,
-				'modified' => $modified,
 			];
+			if ( $modified ) {
+				$import_args['modified'] = $modified;
+			}
 			switch ($type) {
 				case 'Cities':
 					$importer->import( 'cities', $import_args );
@@ -245,7 +247,7 @@ add_action( 'wp_otis_fetch_listings', function($modified, $all, $page, $type = '
 
 }, 10, 0 );
 
-add_action( 'wp_otis_process_listings', function() {
+add_action( 'wp_otis_process_listings', function( $type = 'pois' ) {
 
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
@@ -256,7 +258,7 @@ add_action( 'wp_otis_process_listings', function() {
 	$importer = new Otis_Importer( $otis, $logger );
 
 	try {
-		$importer->process_listings();
+		$importer->process_listings( $type );
 	} catch ( Exception $e ) {
 		$logger->log( $e->getMessage(), 0, 'error' );
 	}
