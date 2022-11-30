@@ -133,6 +133,7 @@ class Otis_Importer {
 					return $log;
 
 			case 'pois-only':
+					$assoc_args['type'] = 'pois';
 					$this->_fetch_otis_listings( $assoc_args );
 					// $this->_import_history( $assoc_args );
 
@@ -907,7 +908,8 @@ class Otis_Importer {
 	private function _fetch_otis_listings( $assoc_args = [] ) {
 		// Look for listing page in args and set it to the first one if it's not present.
 		$listings_page = $assoc_args['page'] ?? 1;
-		$listings_type = $assoc_args['type'] ?? 'Listings';
+		// Look for listing type in args and set it to pois if it's not present.
+		$listings_type = $assoc_args['type'] ?? 'pois';
 		// Create API params to pass to array.
 		$api_params    = [
 			'page'      => $listings_page,
@@ -928,7 +930,9 @@ class Otis_Importer {
 		$this->set_listings_transient( $listings_transient );
 		// If we have more pages, schedule another action to fetch them.
 		if ( $has_next_page ) {
-			$api_params['page'] = $listings_page + 1;
+			$api_params['page'] = intval( $listings_page ) + 1;
+			// Importer import function expects import type and pois is the general call so we need to pass change the type to pois-only if it's pois.
+			$api_params['type'] = $listings_type === 'pois' ? 'pois-only' : $listings_type;
 			$this->schedule_action( 'wp_otis_fetch_listings', $api_params );
 			$this->logger->log( 'Scheduling fetch of next page of ' . $listings_type );
 			return;
