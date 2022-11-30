@@ -916,6 +916,10 @@ class Otis_Importer {
 		];
 		// Merge API params with passed args.
 		$api_params    = array_merge( $assoc_args, $api_params );
+		// Check if API params type is pois and unset it if so (OTIS listings are all POIs).
+		if ( 'pois' === $api_params['type'] ) {
+			unset( $api_params['type'] );
+		}
 		// Fetch listings from OTIS.
 		$this->logger->log( 'Fetching page ' . $listings_page . ' of ' . $listings_type );
 		$listings = $this->otis->call( 'listings', $api_params, $this->logger );
