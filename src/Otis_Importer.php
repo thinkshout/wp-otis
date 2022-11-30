@@ -928,7 +928,8 @@ class Otis_Importer {
 		// Merge API params with passed args.
 		$api_params    = array_merge( $assoc_args, $api_params );
 		// Fetch listings from OTIS.
-		$this->logger->log( 'Fetching page ' . $listings_page . ' of listings' );
+		$fetch_type = $assoc_args['type'] ?? 'listings';
+		$this->logger->log( 'Fetching page ' . $listings_page . ' of ' . $fetch_type );
 		$listings = $this->otis->call( 'listings', $api_params, $this->logger );
 		// Check if we have any listings and if there are more pages.
 		$has_next_page = $listings['next'] ?? false;
