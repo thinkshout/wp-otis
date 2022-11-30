@@ -197,7 +197,7 @@ add_action( 'wp_otis_async_bulk_import', function( $params ) {
 	}
 }, 10, 1 );
 
-add_action( 'wp_otis_bulk_importer', function($modified, $all, $page, $page_size = 50, $related_only = false) {
+add_action( 'wp_otis_fetch_listings', function($modified, $all, $page, $related_only = false) {
 
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
@@ -212,7 +212,6 @@ add_action( 'wp_otis_bulk_importer', function($modified, $all, $page, $page_size
         $importer->import( 'pois-only', [
             'modified' => $modified,
             'page' => $page,
-						'page_size' => $page_size,
             'related_only' => $related_only,
             'all' => $all
         ] );
@@ -220,9 +219,9 @@ add_action( 'wp_otis_bulk_importer', function($modified, $all, $page, $page_size
         $logger->log( $e->getMessage(), 0, 'error' );
     }
 
-}, 10, 3 );
+}, 10, 4 );
 
-add_action( 'wp_otis_bulk_history_importer', function($modified, $all, $page, $related_only = false) {
+add_action( 'wp_otis_process_listings', function() {
 
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
@@ -231,20 +230,32 @@ add_action( 'wp_otis_bulk_history_importer', function($modified, $all, $page, $r
 	$otis     = new Otis();
 	$logger   = new Otis_Logger_Simple();
 	$importer = new Otis_Importer( $otis, $logger );
-	$logger->log( "Bulk OTIS history import continuing on page ".$page.". (".$modified.")");
 
 	try {
-		$importer->import( 'history-only', [
-			'modified' => $modified,
-			'bulk-history-page' => $page,
-			'related_only' => $related_only,
-			'all' => $all
-		] );
+		$importer->process_listings();
 	} catch ( Exception $e ) {
 		$logger->log( $e->getMessage(), 0, 'error' );
 	}
 
-}, 10, 3 );
+}, 10, 0 );
+
+add_action( 'wp_otis_delete_removed_listings', function() {
+
+	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
+		wp_cache_add_non_persistent_groups( ['acf'] );
+	}
+
+	$otis     = new Otis();
+	$logger   = new Otis_Logger_Simple();
+	$importer = new Otis_Importer( $otis, $logger );
+
+	try {
+		$importer->delete_removed_listings();
+	} catch ( Exception $e ) {
+		$logger->log( $e->getMessage(), 0, 'error' );
+	}
+
+}, 10, 0 );
 
 if ( ! wp_next_scheduled( 'wp_otis_expire_events' ) ) {
   wp_schedule_event( time(), 'daily', 'wp_otis_expire_events' );

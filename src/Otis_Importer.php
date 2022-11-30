@@ -99,7 +99,7 @@ class Otis_Importer {
 				$assoc_args['all']  = true;
 				$assoc_args['page'] = 1;
 
-				$this->_import_pois( $assoc_args );
+				$this->_fetch_otis_listings( $assoc_args );
 
 				$log[] = 'Regions import complete.';
 
@@ -110,7 +110,7 @@ class Otis_Importer {
 				$assoc_args['all']  = true;
 				$assoc_args['page'] = 1;
 
-				$this->_import_pois( $assoc_args );
+				$this->_fetch_otis_listings( $assoc_args );
 
 				$log[] = 'Cities import complete.';
 
@@ -121,8 +121,8 @@ class Otis_Importer {
 					$this->import( 'regions', $assoc_args );
 					$this->import( 'cities', $assoc_args );
 
-					$this->_import_pois( $assoc_args );
-					$this->_import_history( $assoc_args );
+					$this->_fetch_otis_listings( $assoc_args );
+					// $this->_import_history( $assoc_args );
 
 					if (!$bulk) {
 						$log[] = 'POI import complete.';
@@ -133,8 +133,8 @@ class Otis_Importer {
 					return $log;
 
 			case 'pois-only':
-					$this->_import_pois( $assoc_args );
-					$this->_import_history( $assoc_args );
+					$this->_fetch_otis_listings( $assoc_args );
+					// $this->_import_history( $assoc_args );
 
 					if (!$bulk) {
 							$log[] = 'POI import complete.';
@@ -144,7 +144,7 @@ class Otis_Importer {
 
 			case 'related-pois-only':
 					$assoc_args['related_only'] = true;
-					$this->_import_pois( $assoc_args );
+					$this->_fetch_otis_listings( $assoc_args );
 
 					if (!$bulk) {
 							$log[] = 'POI import complete.';
@@ -168,7 +168,7 @@ class Otis_Importer {
 				return $log;
 
 			case 'history-only':
-				$this->_import_history( $assoc_args );
+				// $this->_import_history( $assoc_args );
 
 				$log[] = 'History import complete.';
 				return $log;
@@ -183,6 +183,18 @@ class Otis_Importer {
 		} // End switch().
 
 		throw new Otis_Exception( 'Unknown command: ' . $args[0] );
+	}
+
+	/** Process Transient Data */
+	public function process_listings() {
+		$this->logger->log( 'Processing listings...' );
+		$this->_process_listings();
+	}
+
+	/** Delete POIs */
+	public function delete_removed_listings() {
+		$this->logger->log( 'Deleting removed listings...' );
+		$this->_delete_removed_listings();
 	}
 
     /**
@@ -345,7 +357,7 @@ class Otis_Importer {
      *
      * @param array $assoc_args
      */
-    private function _import_pois( $assoc_args = [] ) {
+    private function _fetch_listings( $assoc_args = [] ) {
 
 		$params = [
             'geo_data' => 'true',
@@ -414,7 +426,7 @@ class Otis_Importer {
 								if ($next_chapter) {
 										as_enqueue_async_action( 'wp_otis_async_bulk_import', ['params' => $assoc_args] );
 								} else {
-										$this->_import_pois( $assoc_args );
+										$this->_fetch_listings( $assoc_args );
 								}
 						}
 
@@ -525,7 +537,7 @@ class Otis_Importer {
 							if ($next_chapter) {
 									as_enqueue_async_action( 'wp_otis_async_bulk_import', ['params' => $assoc_args] );
 							} else {
-									$this->_import_pois( $assoc_args );
+									$this->_fetch_listings( $assoc_args );
 							}
 					}
 
@@ -906,7 +918,7 @@ class Otis_Importer {
 	}
 
 	/** Fetch listings from OTIS with passed args and store them in a transient for later use */
-	private function _fetch_listings( $assoc_args = [] ) {
+	private function _fetch_otis_listings( $assoc_args = [] ) {
 		// Look for listing page in args and set it to the first one if it's not present.
 		$listings_page = $assoc_args['listings_page'] ?? 1;
 		// Create API params to pass to array.
@@ -930,12 +942,12 @@ class Otis_Importer {
 		// If we have more pages, schedule another action to fetch them.
 		if ( $has_next_page ) {
 			$assoc_args['listings_page'] = $listings_page + 1;
-			$this->schedule_action( 'wp_otis_bulk_import_fetch_listings', $assoc_args );
+			$this->schedule_action( 'wp_otis_fetch_listings', $assoc_args );
 			$this->logger->log( 'Scheduling fetch of next page of listings' );
 			return;
 		}
 		// If we don't have more pages, schedule an action to process the listings.
-		$this->schedule_action( 'wp_otis_bulk_import_process_listings' );
+		$this->schedule_action( 'wp_otis_process_listings' );
 		$this->logger->log( 'Scheduling process listings action' );
 	}
 
@@ -944,22 +956,67 @@ class Otis_Importer {
 		// Get listings from transient.
 		$listings_transient = $this->get_listings_transient();
 		// If we don't have any listings, return.
-		if ( empty( $listings_transient ) ) {
+		if ( false === $listings_transient ) {
 			return;
 		}
 		// Loop through listings and process them.
 		foreach ( $listings_transient as $listing ) {
 			// Get the existing listing ID from Wordpress if it exists.
 			$found_poi_post_id = wp_otis_get_post_id_for_uuid( $listing['uuid'] );
-			try {
-				$this->_upsert_poi( $found_poi_post_id, $listing );
-			} catch (\Throwable $th) {
-				$this->logger->log( 'Error processing listing '. $listing['uuid'] . ' - ' . $th->getMessage() );
-			}
+			$this->_upsert_poi( $found_poi_post_id, $listing );
 		}
 		// Delete transient.
 		$this->delete_listings_transient();
+		// Schedule action to delete removed OTIS listings.
+		$this->schedule_action( 'wp_otis_delete_removed_listings' );
+		$this->logger->log( 'Scheduling delete removed listings action' );
 	}
+
+	/** Delete listings that have been removed from OTIS */
+	private function _delete_removed_listings( $assoc_args = [] ) {
+		// Get before and after dates from args.
+		$before = $assoc_args['before'] ?? null;
+		$after = $assoc_args['after'] ?? null;
+
+		// Check if there's a page in args and set it to the first one if it's not present.
+		$history_page = $assoc_args['deletes_page'] ? intval( $assoc_args['deletes_page'] ) : 1;
+		
+		// Construct API params.
+		$api_params = [];
+		if ( ! is_null( $before ) ) {
+			$api_params['before'] = $before;
+		}
+		if ( ! is_null( $after ) ) {
+			$api_params['after'] = $after;
+		}
+		// Add page to API params if it is greater than 1.
+		if ( 1 < $history_page ) {
+			$api_params['page'] = $history_page;
+		}
+		// Fetch removed listings from OTIS.
+		$this->logger->log( 'Fetching removed listings' );
+		$removed_listings = $this->otis->call( 'listings/deleted', $api_params, $this->logger );
+		// Loop through removed listings and delete them.
+		foreach ( $removed_listings['results'] as $removed_listing ) {
+			// Get the existing listing ID from Wordpress if it exists.
+			$found_poi_post_id = wp_otis_get_post_id_for_uuid( $removed_listing['uuid'] );
+			// If the listing exists, trash it.
+			if ( $found_poi_post_id ) {
+				$this->logger->log( 'Deleting removed listing ' . $removed_listing['uuid'] );
+				wp_trash_post( $found_poi_post_id );
+			}
+		}
+		// Check if there are more pages.
+		$has_next_page = $removed_listings['next'] ?? false;
+		// If there are more pages, schedule another action to fetch them.
+		if ( $has_next_page ) {
+			$assoc_args['deletes_page'] = $history_page + 1;
+			$this->schedule_action( 'wp_otis_delete_removed_listings', $assoc_args );
+			$this->logger->log( 'Scheduling fetch of next page of removed listings' );
+			return;
+		}
+	}
+
 
 	/**
 	 * Create/update a WordPress POI based on OTIS result data. If post_id is
