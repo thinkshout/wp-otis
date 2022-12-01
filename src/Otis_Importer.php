@@ -18,11 +18,6 @@ class Otis_Importer {
 	private $logger;
 
 	/**
-	 * @var transient_name
-	 */
-	private $transient_name = 'otis_importer';
-
-	/**
 	 * Duplicate OTIS attributes: keys = dupe fields, values = fields they map to.
 	 *
 	 * @var array
@@ -199,7 +194,7 @@ class Otis_Importer {
 		 */
 		function nohistory() {
 				update_option( WP_OTIS_BULK_HISTORY_ACTIVE, false );
-				delete_transient( $this->transient_name );
+				delete_transient( WP_OTIS_BULK_IMPORT_TRANSIENT );
 				$log[] = 'OTIS bulk history flag set to false';
 				return $log;
 		}
@@ -628,7 +623,7 @@ class Otis_Importer {
 		$bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
 
 		if (!$bulk) {
-			$transient_history = get_transient($this->transient_name);
+			$transient_history = get_transient(WP_OTIS_BULK_IMPORT_TRANSIENT);
 
 			if ( empty( $transient_history ) ) {
 				// If there is no data to process, go get it.
@@ -639,7 +634,7 @@ class Otis_Importer {
 			}
 
 			// This may have changed during the _fetch_history call, so retrieve it again.
-			$transient_history = get_transient($this->transient_name);
+			$transient_history = get_transient(WP_OTIS_BULK_IMPORT_TRANSIENT);
 
 			// Did the most recent fetch job finish filling out the retrieved history data?
 			if ( !$transient_history["history-complete"] ) {
@@ -750,13 +745,13 @@ class Otis_Importer {
 						as_enqueue_async_action('wp_otis_async_bulk_history_import', $bulk_history_params);
 					} elseif ($assoc_args['bulk-history-page'] == $history_page_count) {
 						update_option(WP_OTIS_BULK_HISTORY_ACTIVE, false);
-						delete_transient($this->transient_name);
+						delete_transient(WP_OTIS_BULK_IMPORT_TRANSIENT);
 						as_unschedule_all_actions('wp_otis_async_bulk_history_import');
 						$this->logger->log("OTIS bulk history import complete.");
 					}
 				} else {
 					update_option(WP_OTIS_BULK_HISTORY_ACTIVE, false);
-					delete_transient($this->transient_name);
+					delete_transient(WP_OTIS_BULK_IMPORT_TRANSIENT);
 					as_unschedule_all_actions('wp_otis_async_bulk_history_import');
 					$this->logger->log("OTIS nonbulk history import complete.");
 				}
@@ -844,7 +839,7 @@ class Otis_Importer {
 				unset( $listings );
 
 				if ( $params['page'] < $total ) {
-					set_transient($this->transient_name,
+					set_transient(WP_OTIS_BULK_IMPORT_TRANSIENT,
 					[
 						"history-page" => $params['page'] + 1,
 						"history-data" => $history,
@@ -856,7 +851,7 @@ class Otis_Importer {
 
 			}
 
-			set_transient($this->transient_name,
+			set_transient(WP_OTIS_BULK_IMPORT_TRANSIENT,
 				[
 					"history-complete" => true,
 					"history-data" => $history,
@@ -870,7 +865,7 @@ class Otis_Importer {
 	private function make_listings_transient_key( $listings_type ) {
 		$listings_key_type = strtolower( $listings_type );
 		$listings_key_type = str_replace( ' ', '_', $listings_key_type );
-		return $this->transient_name . '_' . $listings_key_type;
+		return 'wp_otis_listings' . '_' . $listings_key_type;
 	}
 	
 	/** Get Listings transient if it exists */
@@ -882,7 +877,7 @@ class Otis_Importer {
 	/** Set Listings transient */
 	private function set_listings_transient( $data = [], $listings_type = 'pois' ) {
 		$transient_key = $this->make_listings_transient_key( $listings_type );
-		return set_transient( $transient_key, $data, HOUR_IN_SECONDS );
+		return set_transient( $transient_key, $data, 3600 );
 	}
 
 	/** Delete Listings transient */
@@ -935,10 +930,6 @@ class Otis_Importer {
 		$listings_transient = $this->get_listings_transient( $listings_type );
 		$listings_transient = $listings_transient ? $listings_transient : [];
 		$listings_transient = array_merge( $listings_transient, $listings );
-		$listings_transient_set = $this->set_listings_transient( $listings_transient, $listings_type );
-		if ( ! $listings_transient_set ) {
-			$this->logger->log( 'Failed to set listings transient' );
-		}
 		// If we have more pages, schedule another action to fetch them.
 		if ( $has_next_page ) {
 			$api_params['page'] = intval( $listings_page ) + 1;
