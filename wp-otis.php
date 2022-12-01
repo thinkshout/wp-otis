@@ -209,14 +209,18 @@ add_action( 'wp_otis_fetch_listings', function( $modified = null, $all = false, 
     $logger->log( "OTIS $type import continuing on page ".$page.". (".$modified.")");
 
     try {
+			// Set up import arguments.
       $import_args = [
 				'page' => $page,
 				'all' => $all,
 				'related_only' => $related_only,
+				'type' => $type,
 			];
+			// Check if there's a modified param set and add it if so.
 			if ( $modified ) {
 				$import_args['modified'] = $modified;
 			}
+			// Switch on the type of import.
 			switch ($type) {
 				case 'Cities':
 					$importer->import( 'cities', $import_args );
