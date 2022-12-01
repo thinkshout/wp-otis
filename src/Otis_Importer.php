@@ -952,7 +952,7 @@ class Otis_Importer {
 	private function _process_listings( $listings_type = 'pois' ) {
 		// Get listings from transient.
 		$listings_transient = $this->get_listings_transient( $listings_type );
-		$this->logger->log( 'Processing ' . count( $listings_transient ) . ' ' . $listings_type . ' listings' );
+		$this->logger->log( 'Processing listings: ' . print_r( $listings_transient, true ) );
 		// If we don't have any listings, return.
 		if ( false === $listings_transient ) {
 			return;
