@@ -170,9 +170,9 @@ class Otis_Importer {
 	}
 
 	/** Process Transient Data */
-	public function process_listings() {
+	public function process_listings( $listings_type = 'pois' ) {
 		$this->logger->log( 'Processing listings...' );
-		$this->_process_listings();
+		$this->_process_listings( $listings_type );
 	}
 
 	/** Delete POIs */
@@ -932,7 +932,7 @@ class Otis_Importer {
 		$listings_transient = $this->get_listings_transient( $listings_type );
 		$listings_transient = $listings_transient ?? [];
 		$listings_transient = array_merge( $listings_transient, $listings );
-		$this->set_listings_transient( $listings_transient );
+		$this->set_listings_transient( $listings_transient, $listings_type );
 		// If we have more pages, schedule another action to fetch them.
 		if ( $has_next_page ) {
 			$api_params['page'] = intval( $listings_page ) + 1;
