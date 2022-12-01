@@ -939,7 +939,7 @@ class Otis_Importer {
 			// Importer import function expects import type and pois is the general call so we need to pass change the type to pois-only if it's pois.
 			$api_params['type'] = $listings_type === 'pois' ? 'pois-only' : $listings_type;
 			$this->schedule_action( 'wp_otis_fetch_listings', $api_params );
-			$this->logger->log( 'Scheduling fetch of next page of ' . $listings_type );
+			$this->logger->log( 'Scheduling fetch of next page of ' . $listings_type . ' with args ' . print_r( $api_params, true ) );
 			return;
 		}
 		// If we don't have more pages, schedule an action to process the listings.
