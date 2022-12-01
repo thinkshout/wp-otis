@@ -20,7 +20,7 @@ class Otis_Importer {
 	/**
 	 * @var transient_name
 	 */
-	private $transient_name;
+	private $transient_name = 'otis_importer';
 
 	/**
 	 * Duplicate OTIS attributes: keys = dupe fields, values = fields they map to.
@@ -866,25 +866,26 @@ class Otis_Importer {
 			return true;
     }
 	
+	/** Make Listings Transient Key */
+	private function make_listings_transient_key( $listings_type ) {
+		return $this->transient_name . '_' . $listings_type;
+	}
+	
 	/** Get Listings transient if it exists */
 	private function get_listings_transient( $listings_type = 'pois' ) {
-		$transient_key = $this->transient_name . '-' . $listings_type;
-		$transient = get_transient( $transient_key );
-		if ( false !== $transient ) {
-			return $transient;
-		}
-		return false;
+		$transient_key = $this->make_listings_transient_key( $listings_type );
+		return get_transient( $transient_key );
 	}
 	
 	/** Set Listings transient */
 	private function set_listings_transient( $data = [], $listings_type = 'pois' ) {
-		$transient_key = $this->transient_name . '-' . $listings_type;
+		$transient_key = $this->make_listings_transient_key( $listings_type );
 		return set_transient( $transient_key, $data, HOUR_IN_SECONDS );
 	}
 
 	/** Delete Listings transient */
 	private function delete_listings_transient( $listings_type = 'pois' ) {
-		$transient_key = $this->transient_name . '-' . $listings_type;
+		$transient_key = $this->make_listings_transient_key( $listings_type );
 		return delete_transient( $transient_key );
 	}
 
