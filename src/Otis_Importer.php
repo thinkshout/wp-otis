@@ -931,7 +931,7 @@ class Otis_Importer {
 
 		// If we have listings, store them in a transient.
 		$listings_transient = $this->get_listings_transient( $listings_type );
-		$listings_transient = $listings_transient ?? [];
+		$listings_transient = $listings_transient ? $listings_transient : [];
 		$listings_transient = array_merge( $listings_transient, $listings );
 		$this->logger->log( 'Storing ' . count( $listings_transient ) . ' listings in transient' );
 		$this->set_listings_transient( $listings_transient, $listings_type );
