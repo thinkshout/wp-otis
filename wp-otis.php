@@ -197,7 +197,7 @@ add_action( 'wp_otis_async_bulk_import', function( $params ) {
 	}
 }, 10, 1 );
 
-add_action( 'wp_otis_fetch_listings', function( $modified = null, $all = false, $page = 1, $type = 'pois-only', $related_only = false ) {
+add_action( 'wp_otis_fetch_listings', function( $params ) {
 
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
@@ -206,54 +206,43 @@ add_action( 'wp_otis_fetch_listings', function( $modified = null, $all = false, 
     $otis     = new Otis();
     $logger   = new Otis_Logger_Simple();
     $importer = new Otis_Importer( $otis, $logger );
-    $logger->log( "OTIS $type import continuing on page ".$page.". (".$modified.")");
+    $logger->log( "OTIS " . $params['type'] . " import continuing on page ".$params['page'].". (".$params['modified'].")");
 
     try {
-			// Set up import arguments.
-      $import_args = [
-				'page' => $page,
-				'all' => $all,
-				'related_only' => $related_only,
-				'type' => $type,
-			];
-			// Check if there's a modified param set and add it if so.
-			if ( $modified ) {
-				$import_args['modified'] = $modified;
-			}
 			// Switch on the type of import.
-			switch ($type) {
+			switch ($params['type']) {
 				case 'Cities':
-					$importer->import( 'cities', $import_args );
+					$importer->import( 'cities', $params );
 					break;
 				case 'Terms':
-					$importer->import( 'terms', $import_args );
+					$importer->import( 'terms', $params );
 					break;
 				case 'Regions':
-					$importer->import( 'regions', $import_args );
+					$importer->import( 'regions', $params );
 					break;
 				case 'pois-only':
-					$importer->import( 'pois-only', $import_args );
+					$importer->import( 'pois-only', $params );
 					break;
 				case 'related-pois-only':
-					$importer->import( 'related-pois-only', $import_args );
+					$importer->import( 'related-pois-only', $params );
 					break;
 				case 'poi':
-					$importer->import( 'poi', $import_args );
+					$importer->import( 'poi', $params );
 					break;
 				case 'pois':
-					$importer->import( 'pois', $import_args );
+					$importer->import( 'pois', $params );
 					break;
 				default:
-					$importer->import( 'pois-only', $import_args );
+					$importer->import( 'pois-only', $params );
 					break;
 			}
     } catch ( Exception $e ) {
       $logger->log( $e->getMessage(), 0, 'error' );
     }
 
-}, 10, 0 );
+}, 10, 1 );
 
-add_action( 'wp_otis_process_listings', function( $type = 'pois' ) {
+add_action( 'wp_otis_process_listings', function( $params ) {
 
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
@@ -264,7 +253,7 @@ add_action( 'wp_otis_process_listings', function( $type = 'pois' ) {
 	$importer = new Otis_Importer( $otis, $logger );
 
 	try {
-		$importer->process_listings( $type );
+		$importer->process_listings( $params['type'] );
 	} catch ( Exception $e ) {
 		$logger->log( $e->getMessage(), 0, 'error' );
 	}
