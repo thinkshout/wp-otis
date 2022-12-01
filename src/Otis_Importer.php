@@ -171,7 +171,7 @@ class Otis_Importer {
 
 	/** Process Transient Data */
 	public function process_listings( $listings_type = 'pois' ) {
-		$this->logger->log( 'Processing listings...' );
+		$this->logger->log( "Processing $listings_type listings..." );
 		$this->_process_listings( $listings_type );
 	}
 
@@ -868,7 +868,9 @@ class Otis_Importer {
 	
 	/** Make Listings Transient Key */
 	private function make_listings_transient_key( $listings_type ) {
-		return $this->transient_name . '_' . $listings_type;
+		$listings_key_type = strtolower( $listings_type );
+		$listings_key_type = str_replace( ' ', '_', $listings_key_type );
+		return $this->transient_name . '_' . $listings_key_type;
 	}
 	
 	/** Get Listings transient if it exists */
