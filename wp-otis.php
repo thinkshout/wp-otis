@@ -206,7 +206,7 @@ add_action( 'wp_otis_fetch_listings', function( $params ) {
     $otis     = new Otis();
     $logger   = new Otis_Logger_Simple();
     $importer = new Otis_Importer( $otis, $logger );
-    $logger->log( "OTIS " . $params['type'] . " import continuing on page ".$params['page'].". (".$params['modified'].")");
+    $logger->log( "OTIS " . $params['type'] . " import continuing on page ".$params['page'].". (Modified since ".$params['modified'].")");
 
     try {
 			// Switch on the type of import.
@@ -258,7 +258,7 @@ add_action( 'wp_otis_process_listings', function( $params ) {
 		$logger->log( $e->getMessage(), 0, 'error' );
 	}
 
-}, 10, 0 );
+}, 10, 1 );
 
 add_action( 'wp_otis_delete_removed_listings', function() {
 
