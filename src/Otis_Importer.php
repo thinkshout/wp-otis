@@ -933,7 +933,6 @@ class Otis_Importer {
 		$listings_transient = $this->get_listings_transient( $listings_type );
 		$listings_transient = $listings_transient ? $listings_transient : [];
 		$listings_transient = array_merge( $listings_transient, $listings );
-		$this->logger->log( 'Storing ' . count( $listings_transient ) . ' listings in transient' );
 		$this->set_listings_transient( $listings_transient, $listings_type );
 		// If we have more pages, schedule another action to fetch them.
 		if ( $has_next_page ) {
@@ -953,6 +952,7 @@ class Otis_Importer {
 	private function _process_listings( $listings_type = 'pois' ) {
 		// Get listings from transient.
 		$listings_transient = $this->get_listings_transient( $listings_type );
+		$this->logger->log( 'Processing ' . count( $listings_transient ) . ' ' . $listings_type . ' listings' );
 		// If we don't have any listings, return.
 		if ( false === $listings_transient ) {
 			return;
