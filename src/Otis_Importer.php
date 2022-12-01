@@ -935,7 +935,10 @@ class Otis_Importer {
 		$listings_transient = $this->get_listings_transient( $listings_type );
 		$listings_transient = $listings_transient ? $listings_transient : [];
 		$listings_transient = array_merge( $listings_transient, $listings );
-		$this->set_listings_transient( $listings_transient, $listings_type );
+		$listings_transient_set = $this->set_listings_transient( $listings_transient, $listings_type );
+		if ( ! $listings_transient_set ) {
+			$this->logger->log( 'Failed to set listings transient' );
+		}
 		// If we have more pages, schedule another action to fetch them.
 		if ( $has_next_page ) {
 			$api_params['page'] = intval( $listings_page ) + 1;
@@ -956,7 +959,7 @@ class Otis_Importer {
 		$listings_transient = $this->get_listings_transient( $listings_type );
 		// If we don't have any listings, return.
 		if ( false === $listings_transient ) {
-			$this->logger->log( 'No listings transient to process' );
+			$this->logger->log( "No $listings_type listings transient to process" );
 			return;
 		}
 		// Loop through listings and process them.
