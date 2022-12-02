@@ -165,9 +165,9 @@ class Otis_Importer {
 	}
 
 	/** Process Transient Data */
-	public function process_listings( $listings_type = 'pois' ) {
-		$this->logger->log( "Processing $listings_type listings..." );
-		$this->_process_listings( $listings_type );
+	public function process_listings( $assoc_args ) {
+		$this->logger->log( 'Processing ' . $assoc_args['type'] . ' listings...' );
+		$this->_process_listings( $assoc_args );
 	}
 
 	/** Delete POIs */
