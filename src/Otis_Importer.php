@@ -974,6 +974,9 @@ class Otis_Importer {
 		// Get before and after dates from args.
 		$before = $assoc_args['before'] ?? null;
 		$after = $assoc_args['modified'] ?? null;
+		// Reformat dates to be in Y-m-d we need.
+		$before = $before ? date( 'Y-m-d', strtotime( $before ) ) : null;
+		$after = $after ? date( 'Y-m-d', strtotime( $after ) ) : null;
 
 		// Check if there's a page in args and set it to the first one if it's not present.
 		$deletes_page = $assoc_args['deletes_page'] ? intval( $assoc_args['deletes_page'] ) : 1;
@@ -1004,10 +1007,12 @@ class Otis_Importer {
 			}
 		}
 		// Check if there are more pages.
-		$has_next_page = $removed_listings['next'] ?? false;
+		$deletes_next = is_null( $removed_listings['next'] ) ? $removed_listings['next'] : trim( $removed_listings['next'] );
+		$has_next_page = empty( $deletes_next ) || 'null' === $deletes_next ? false : true;
 		// If there are more pages, schedule another action to fetch them.
 		if ( $has_next_page ) {
 			$assoc_args['deletes_page'] = $deletes_page + 1;
+			$assoc_args = array_merge( $assoc_args, $api_params );
 			$this->schedule_action( 'wp_otis_delete_removed_listings', $assoc_args );
 			$this->logger->log( 'Scheduling fetch of next page of removed listings' );
 			return;
