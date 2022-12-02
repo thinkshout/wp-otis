@@ -171,9 +171,9 @@ class Otis_Importer {
 	}
 
 	/** Delete POIs */
-	public function delete_removed_listings() {
+	public function delete_removed_listings( $assoc_args ) {
 		$this->logger->log( 'Deleting removed listings...' );
-		$this->_delete_removed_listings();
+		$this->_delete_removed_listings( $assoc_args );
 	}
 
     /**
@@ -941,12 +941,14 @@ class Otis_Importer {
 			return;
 		}
 		// If we don't have more pages, schedule an action to process the listings.
-		$this->schedule_action( 'wp_otis_process_listings', [ 'params' => [ 'type' => $listings_type ] ] );
+		$this->schedule_action( 'wp_otis_process_listings', [ 'params' => $api_params ] );
 		$this->logger->log( 'No more pages to fetch, scheduling process ' . $listings_type . ' action' );
 	}
 
 	/** Process listings stored in transient */
-	private function _process_listings( $listings_type = 'pois' ) {
+	private function _process_listings( $assoc_args = [] ) {
+		// Get listings type from args.
+		$listings_type = $assoc_args['type'] ?? 'pois';
 		// Get listings from transient.
 		$listings_transient = $this->get_listings_transient( $listings_type );
 		// If we don't have any listings, return.
@@ -963,7 +965,7 @@ class Otis_Importer {
 		// Delete transient.
 		$this->delete_listings_transient( $listings_type );
 		// Schedule action to delete removed OTIS listings.
-		$this->schedule_action( 'wp_otis_delete_removed_listings' );
+		$this->schedule_action( 'wp_otis_delete_removed_listings', [ 'params' => $assoc_args ] );
 		$this->logger->log( 'Scheduling delete removed listings action' );
 	}
 
@@ -971,10 +973,10 @@ class Otis_Importer {
 	private function _delete_removed_listings( $assoc_args = [] ) {
 		// Get before and after dates from args.
 		$before = $assoc_args['before'] ?? null;
-		$after = $assoc_args['after'] ?? null;
+		$after = $assoc_args['modified'] ?? null;
 
 		// Check if there's a page in args and set it to the first one if it's not present.
-		$history_page = $assoc_args['deletes_page'] ? intval( $assoc_args['deletes_page'] ) : 1;
+		$deletes_page = $assoc_args['deletes_page'] ? intval( $assoc_args['deletes_page'] ) : 1;
 		
 		// Construct API params.
 		$api_params = [];
@@ -985,8 +987,8 @@ class Otis_Importer {
 			$api_params['after'] = $after;
 		}
 		// Add page to API params if it is greater than 1.
-		if ( 1 < $history_page ) {
-			$api_params['page'] = $history_page;
+		if ( 1 < $deletes_page ) {
+			$api_params['page'] = $deletes_page;
 		}
 		// Fetch removed listings from OTIS.
 		$this->logger->log( 'Fetching removed listings' );
@@ -1005,7 +1007,7 @@ class Otis_Importer {
 		$has_next_page = $removed_listings['next'] ?? false;
 		// If there are more pages, schedule another action to fetch them.
 		if ( $has_next_page ) {
-			$assoc_args['deletes_page'] = $history_page + 1;
+			$assoc_args['deletes_page'] = $deletes_page + 1;
 			$this->schedule_action( 'wp_otis_delete_removed_listings', $assoc_args );
 			$this->logger->log( 'Scheduling fetch of next page of removed listings' );
 			return;

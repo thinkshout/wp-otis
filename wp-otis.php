@@ -253,14 +253,14 @@ add_action( 'wp_otis_process_listings', function( $params ) {
 	$importer = new Otis_Importer( $otis, $logger );
 
 	try {
-		$importer->process_listings( $params['type'] );
+		$importer->process_listings( $params );
 	} catch ( Exception $e ) {
 		$logger->log( $e->getMessage(), 0, 'error' );
 	}
 
 }, 10, 1 );
 
-add_action( 'wp_otis_delete_removed_listings', function() {
+add_action( 'wp_otis_delete_removed_listings', function( $params ) {
 
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
@@ -271,12 +271,12 @@ add_action( 'wp_otis_delete_removed_listings', function() {
 	$importer = new Otis_Importer( $otis, $logger );
 
 	try {
-		$importer->delete_removed_listings();
+		$importer->delete_removed_listings( $params );
 	} catch ( Exception $e ) {
 		$logger->log( $e->getMessage(), 0, 'error' );
 	}
 
-}, 10, 0 );
+}, 10, 1 );
 
 if ( ! wp_next_scheduled( 'wp_otis_expire_events' ) ) {
   wp_schedule_event( time(), 'daily', 'wp_otis_expire_events' );
