@@ -912,6 +912,10 @@ class Otis_Importer {
 		$api_params    = [
 			'page'      => $listings_page,
 		];
+		// Check if we have a modified date and add it to the API params in MM/DD/YYYY format if we do.
+		if ( $assoc_args['modified'] ) {
+			$api_params['modified'] = date( 'm/d/Y', strtotime( $assoc_args['modified'] ) );
+		}
 		// Merge API params with passed args.
 		$api_params    = array_merge( $assoc_args, $api_params );
 		// Check if API params type is pois and unset it if so (OTIS listings are all POIs).
