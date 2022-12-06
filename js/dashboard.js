@@ -50,7 +50,7 @@
               <p><em>Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme or a different plugin.</em></p>
               <div class="otis-dashboard__action">
                 <label for="modified-date">Date To Import From</label>
-								<datepicker
+								<vuejs-datepicker
 									format="MM/DD/YYYY"
 									placeholder="Click to select a date"
 									:clear-button="true"
