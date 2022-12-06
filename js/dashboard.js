@@ -2,8 +2,7 @@
 	new Vue({
 		el: document.getElementById("otis-dashboard-mount"),
 		components: {
-			'datepicker' : vdprDatePicker.default,
-			'calendar-dialog' : vdprDatePicker.CalendarDialog
+			vuejsDatepicker
 		},
 		template: `
       <div class="otis-dashboard">
@@ -41,12 +40,6 @@
               <p>{{ importerStatus }}</p>
             </div>
           </div>
-          <div class="otis-dashboard__status">
-            <div class="postbox">
-              <h2>Bulk History Importer Status</h2>
-              <p>{{ historyImporterActive }}</p>
-            </div>
-          </div>
         </div>
         <div class="otis-dashboard__settings">
           <div v-if="!displayInitialImport" class="otis-dashboard__setting">
@@ -56,31 +49,16 @@
               <p>Start an import of POIs that have been modified since a given date. POIs that already exist on the site will be updated if they fall in the date range.</p>
               <p><em>Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme or a different plugin.</em></p>
               <div class="otis-dashboard__action">
-                <label for="modified-date">Date Range To Import</label>
+                <label for="modified-date">Date To Import From</label>
 								<datepicker
 									format="MM/DD/YYYY"
-									:show-helper-buttons="false"
-									:date-input="{
-										placeholder: 'Click to select a date range',
-									}"
-									:calendar-date-input="{
-										format: 'MM/DD/YYYY'
-									}"
-									:same-date-format="{
-										from: 'MM/DD/YYYY',
-										to: 'MM/DD/YYYY',
-									}"
-									:time-input="{
-										readonly: true,
-									}"
-									reset-button-label="Clear"
-									:switch-button-initial="true"
+									placeholder="Click to select a date"
+									:clear-button="true"
 									:disabled-dates="disabledDates"
 									:disabled="importStarting"
-									:readonly="importStarting"
-									@date-applied="setDateRange"
+									:value=""
+									@input="setModifiedDate"
 								/>
-								<label for="history-only"><input type="checkbox" name="history-only" id="history-only" v-model="onlyImportHistory"/>Only import history, do not import new POIs.</label>
                 <p v-if="importStarting">POI import starting, please wait this usually takes a few minutes...</p>
                 <button class="button button-primary" :disabled="!dateIsValid || importStarting || bulkImportActive || bulkImportScheduled" @click="triggerModifiedImport">
                   <span v-if="importStarting">
@@ -96,13 +74,10 @@
           <div v-if="!displayInitialImport" class="otis-dashboard__setting">
             <div class="postbox">
               <h2>Stop Bulk Importers</h2>
-              <p>Manually deactivates the bulk importer or the bulk history importer. If a large import is interrupted for some reason, the "bulk" flag can stay active on the server (see above). Use this button to turn the "bulk" flag off, and re-start hourly imports.</p>
+              <p>Manually deactivates the bulk importer. If a large import is interrupted for some reason, the "bulk" flag can stay active on the server (see above). Use this button to turn the "bulk" flag off, and re-start hourly imports.</p>
               <div class="otis-dashboard__action">
                 <button class="button button-primary" :disabled="!bulkImportActive" @click="stopBulkImporter">
                   Stop Bulk Importer
-                </button>
-								<button class="button button-primary" :disabled="!bulkHistoryImportActive" @click="stopHistoryImporter">
-                  Stop Bulk History Importer
                 </button>
               </div>
             </div>
@@ -169,16 +144,10 @@
       </div>
     `,
 		data: {
-			dateRange: {
-				from: '',
-				to: '',
-			},
-			onlyImportHistory: false,
+			modifiedDate: "",
 			lastImportDate: "",
 			bulkImportActive: "",
 			bulkImportScheduled: false,
-			bulkHistoryImportScheduled: false,
-			bulkHistoryImportActive: "",
 			poiCount: {},
 			importLog: [],
 			importStarting: false,
@@ -202,11 +171,6 @@
 				if (this.bulkImportScheduled) return "Scheduled";
 				return "Inactive";
 			},
-			historyImporterActive() {
-				if (this.bulkHistoryImportActive) return "Active";
-				if (this.bulkHistoryImportScheduled) return "Scheduled";
-				return "Inactive";
-			},
 			disabledDates() {
 				return {
 					from: new Date(),
@@ -224,7 +188,7 @@
 				return count === 0;
 			},
 			dateIsValid() {
-				return this.dateRange.to && this.dateRange.from ? true : false;
+				return this.modifiedDate ? true : false;
 			},
 			otisDashObject() {
 				return otisDash;
@@ -252,11 +216,9 @@
 					this.importStarted = false;
 				}, 1000);
 			},
-			setDateRange(fromDate, toDate) {
+			setModifiedDate(fromDate) {
 				const formattedFromDate = new Date(fromDate).toISOString().substring(0, 10);
-				const formattedToDate = new Date(toDate).toISOString().substring(0, 10);
-				this.dateRange.from = formattedFromDate;
-				this.dateRange.to = formattedToDate;
+				this.modifiedDate = formattedFromDate;
 			},
 			async triggerAction(action, data = {}) {
 				const payload = this.makePayload({
@@ -288,10 +250,6 @@
 				await this.triggerAction('otis_stop_bulk');
 				await this.otisStatus();
 			},
-			async stopHistoryImporter() {
-				await this.triggerAction('otis_stop_bulk_history');
-				await this.otisStatus();
-			},
 			async triggerInitialImport() {
 				this.importStarting = true;
 				await this.triggerAction("otis_import", {initial_import: true});
@@ -301,8 +259,7 @@
 			async triggerModifiedImport() {
 				if (!this.dateIsValid) return;
 				this.importStarting = true;
-				const importData = {from_date: this.dateRange.from, to_date: this.dateRange.to};
-				if (this.onlyImportHistory) importData.only_history = true;
+				const importData = {from_date: this.modifiedDate};
 				await this.triggerAction('otis_import', importData);
 				await this.otisStatus();
 				this.notifyImportStarted();
