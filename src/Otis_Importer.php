@@ -905,9 +905,9 @@ class Otis_Importer {
 	/** Fetch listings from OTIS with passed args and store them in a transient for later use */
 	private function _fetch_otis_listings( $assoc_args = [] ) {
 		// Look for listing page in args and set it to the first one if it's not present.
-		$listings_page = empty( $assoc_args['page'] ) ? $assoc_args['page'] : 1;
+		$listings_page = ! empty( $assoc_args['page'] ) ? $assoc_args['page'] : 1;
 		// Look for listing type in args and set it to pois if it's not present.
-		$listings_type = empty( $assoc_args['type'] ) ? $assoc_args['type'] : 'pois';
+		$listings_type = ! empty( $assoc_args['type'] ) ? $assoc_args['type'] : 'pois';
 		// Create API params to pass to array.
 		$api_params    = [
 			'page'      => $listings_page,
