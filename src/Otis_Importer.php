@@ -1001,9 +1001,9 @@ class Otis_Importer {
 		$this->logger->log( 'Fetching removed listings' );
 		$removed_listings_results = $this->otis->call( 'listings/deleted', $api_params, $this->logger );
 		// It looks like the API is returning redundant results.
-		$removed_listings = $removed_listings_results['results'] ? $removed_listings_results['results'] : [ 'results' => [] ];
+		$removed_listings = $removed_listings_results ? $removed_listings_results['results'] : [];
 		// Loop through removed listings and delete them.
-		foreach ( $removed_listings['results'] as $removed_listing_uuid ) {
+		foreach ( $removed_listings as $removed_listing_uuid ) {
 			// Get the existing listing ID from Wordpress if it exists.
 			$found_poi_post_id = wp_otis_get_post_id_for_uuid( $removed_listing_uuid );
 			// If the listing exists, trash it.
