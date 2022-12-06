@@ -65,18 +65,17 @@ class Otis_Dashboard
   public function otis_init_import() {
     $modified_start = isset($_POST['from_date']) ? _sanitize_text_fields($_POST['from_date']) : false;
     $initial = isset($_POST['initial_import']);
-    $args = array();
     $assoc_args = array();
     if ($initial) {
-      $args[0] = 'pois';
+      $assoc_args['type'] = 'pois';
     } else {
-      $args[0] = 'pois-only';
+      $assoc_args['type'] = 'pois-only';
     }
     if ($modified_start) {
       $assoc_args['modified'] = $modified_start;
     }
     try {
-      as_enqueue_async_action( 'wp_otis_fetch_listings', ['args' => $args, 'assoc_args' => $assoc_args] );
+      as_enqueue_async_action( 'wp_otis_fetch_listings', ['params' => $assoc_args] );
       echo json_encode('scheduling import');
     } catch ( Exception $e ) {
       echo json_encode($e->getMessage());
