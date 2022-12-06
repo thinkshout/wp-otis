@@ -51,12 +51,11 @@
               <div class="otis-dashboard__action">
                 <label for="modified-date">Date To Import From</label>
 								<vuejs-datepicker
-									format="MM/DD/YYYY"
+									format="MM/dd/yyyy"
 									placeholder="Click to select a date"
 									:clear-button="true"
 									:disabled-dates="disabledDates"
 									:disabled="importStarting"
-									:value=""
 									@input="setModifiedDate"
 								/>
                 <p v-if="importStarting">POI import starting, please wait this usually takes a few minutes...</p>
@@ -217,7 +216,7 @@
 				}, 1000);
 			},
 			setModifiedDate(fromDate) {
-				const formattedFromDate = new Date(fromDate).toISOString().substring(0, 10);
+				const formattedFromDate = fromDate.toISOString().substring(0, 10);
 				this.modifiedDate = formattedFromDate;
 			},
 			async triggerAction(action, data = {}) {
