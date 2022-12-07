@@ -948,9 +948,21 @@ class Otis_Importer {
 			$this->logger->log( 'Scheduling fetch of next page of ' . $listings_type );
 			return;
 		}
-		// If we don't have more pages, schedule an action to process the listings.
-		$this->schedule_action( 'wp_otis_process_listings', [ 'params' => $api_params ] );
-		$this->logger->log( 'No more pages to fetch, scheduling process ' . $listings_type . ' action' );
+		// Do post fetch actions.
+		do_action( 'wp_otis_after_fetch_listings', $assoc_args );
+
+		// If we don't have more pages, check if there are listings to process and schedule an action if so.
+		if ( count( $listings_transient ) ) {
+			$this->schedule_action( 'wp_otis_process_listings', [ 'params' => $api_params ] );
+			$this->logger->log( 'No more pages to fetch, scheduling process ' . $listings_type . ' action' );
+			return;
+		}
+		// If we don't have more pages and no listings to process, skip to deletes run.
+		$this->logger->log( 'No more pages to fetch and no ' . $listings_type . ' listings to process.' );
+		if ( 'pois' === $listings_type ) {
+			$this->schedule_action( 'wp_otis_delete_removed_listings', [ 'params' => [ 'modified' => $assoc_args['modified'] ] ] );
+			$this->logger->log( 'Scheduling delete removed listings action.' );
+		}
 	}
 
 	/** Process listings stored in transient */
