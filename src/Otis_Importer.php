@@ -1002,6 +1002,10 @@ class Otis_Importer {
 
 	/** Delete listings that have been removed from OTIS */
 	private function _delete_removed_listings( $assoc_args = [] ) {
+		// Run actions for before deleting listings.
+		do_action( 'wp_otis_before_delete_removed_listings', $assoc_args );
+		$assoc_args = apply_filters( 'wp_otis_before_delete_removed_listings_args', $assoc_args );
+
 		// Get before and after dates from args.
 		$before = $assoc_args['before'] ?? null;
 		$after = $assoc_args['modified'] ?? null;
@@ -1029,6 +1033,11 @@ class Otis_Importer {
 		$removed_listings_results = $this->otis->call( 'listings/deleted', $api_params, $this->logger );
 		// It looks like the API is returning redundant results.
 		$removed_listings = $removed_listings_results ? $removed_listings_results['results'] : [];
+		// If we don't have any removed listings, log that and return.
+		if ( ! count( $removed_listings ) ) {
+			$this->logger->log( 'No removed listings to delete' );
+			return;
+		}
 		// Loop through removed listings and delete them.
 		foreach ( $removed_listings as $removed_listing_uuid ) {
 			// Get the existing listing ID from Wordpress if it exists.
@@ -1050,6 +1059,10 @@ class Otis_Importer {
 			$this->logger->log( 'Scheduling fetch of next page of removed listings' );
 			return;
 		}
+		// Run actions for after deleting listings.
+		do_action( 'wp_otis_after_delete_removed_listings', $assoc_args );
+		// Log that we're done.
+		$this->logger->log( 'Finished deleting removed listings' );
 	}
 
 
