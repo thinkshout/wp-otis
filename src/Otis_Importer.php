@@ -904,6 +904,10 @@ class Otis_Importer {
 
 	/** Fetch listings from OTIS with passed args and store them in a transient for later use */
 	private function _fetch_otis_listings( $assoc_args = [] ) {
+		// Run actions and filters to allow other plugins to modify the API params.
+		do_action( 'wp_otis_before_fetch_listings', $assoc_args );
+		$api_params = apply_filters( 'wp_otis_listings_api_params', $assoc_args );
+
 		// Look for listing page in args and set it to the first one if it's not present.
 		$listings_page = ! empty( $assoc_args['page'] ) ? $assoc_args['page'] : 1;
 		// Look for listing type in args and set it to pois if it's not present.
@@ -951,6 +955,10 @@ class Otis_Importer {
 
 	/** Process listings stored in transient */
 	private function _process_listings( $assoc_args = [] ) {
+		// Run actions for before processing listings.
+		do_action( 'wp_otis_before_process_listings', $assoc_args );
+		$assoc_args = apply_filters( 'wp_otis_before_process_listings_args', $assoc_args );
+
 		// Get listings type from args.
 		$listings_type = $assoc_args['type'] ?? 'pois';
 		// Get listings from transient.
@@ -960,6 +968,8 @@ class Otis_Importer {
 			$this->logger->log( "No $listings_type listings transient to process" );
 			return;
 		}
+		// Apply filters to listings.
+		$listings_transient = apply_filters( 'wp_otis_listings_to_process', $listings_transient, $listings_type );
 		// Loop through listings and process them.
 		foreach ( $listings_transient as $listing ) {
 			// Get the existing listing ID from Wordpress if it exists.
@@ -973,6 +983,9 @@ class Otis_Importer {
 			$this->schedule_action( 'wp_otis_delete_removed_listings', [ 'params' => [ 'modified' => $assoc_args['modified'] ] ] );
 			$this->logger->log( 'Scheduling delete removed listings action' );
 		}
+
+		// Run actions for after processing listings.
+		do_action( 'wp_otis_after_process_listings', $assoc_args );
 	}
 
 	/** Delete listings that have been removed from OTIS */
