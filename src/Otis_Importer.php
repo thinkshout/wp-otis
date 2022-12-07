@@ -969,8 +969,10 @@ class Otis_Importer {
 		// Delete transient.
 		$this->delete_listings_transient( $listings_type );
 		// Schedule action to delete removed OTIS listings.
-		$this->schedule_action( 'wp_otis_delete_removed_listings', [ 'params' => [ 'modified' => $assoc_args['modified'] ] ] );
-		$this->logger->log( 'Scheduling delete removed listings action' );
+		if ( 'pois' === $listings_type ) {
+			$this->schedule_action( 'wp_otis_delete_removed_listings', [ 'params' => [ 'modified' => $assoc_args['modified'] ] ] );
+			$this->logger->log( 'Scheduling delete removed listings action' );
+		}
 	}
 
 	/** Delete listings that have been removed from OTIS */
