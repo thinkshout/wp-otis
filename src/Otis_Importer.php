@@ -934,6 +934,19 @@ class Otis_Importer {
 		$has_next_page = empty( $listings_next ) || 'null' === $listings_next ? false : true;
 		$listings = $listings['results'] ?? [];
 
+		// Loop through listings and add end date to each one.
+		foreach ($listings as $listing_key => $listing) {
+			$end_date = '';
+			if ( ! empty( $listing['attributes'] ) ) {
+				foreach ( $listing['attributes'] as $attribute ) {
+					if ( ! empty( $attribute['schema']['name'] ) && 'end_date' === $attribute['schema']['name'] ) {
+						$end_date = $attribute['value'];
+					}
+				}
+			}
+			$listings[ $listing_key ]['end_date'] = $end_date;
+		}
+
 		// If we have listings, store them in a transient.
 		$listings_transient = $this->get_listings_transient( $listings_type );
 		$listings_transient = $listings_transient ? $listings_transient : [];
