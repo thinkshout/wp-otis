@@ -115,6 +115,12 @@
 	text-align: left;
 }
 
+.otis-dashboard .otis-dashboard__notifications {
+	position: fixed;
+	bottom: 0;
+	width: 85%;
+}
+
 .otis-dashboard .otis-ellipsis {
 	display: inline-block;
 	position: absolute;

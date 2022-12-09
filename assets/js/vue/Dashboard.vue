@@ -131,7 +131,7 @@
       </div>
       
     </div>
-    <div class="otis-dashboard__notifications">
+    <div v-if="importStarted" class="otis-dashboard__notifications">
       <va-alert v-model="importStarted" color="success" border="top" icon="info" closeable>
         OTIS Importer Started.
       </va-alert>
@@ -139,7 +139,7 @@
   </div>
 </template>
 
-<style src="vuestic-ui/dist/vuestic-ui.css">
+<style scoped src="vuestic-ui/dist/vuestic-ui.css">
 </style>
 
 <script>
