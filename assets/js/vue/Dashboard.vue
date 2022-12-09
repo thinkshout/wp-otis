@@ -35,29 +35,6 @@
           </va-card-content>
         </va-card>
       </div>
-      <div v-if="!displayInitialImport" class="otis-dashboard__status">
-        <va-card>
-          <va-card-title>POI Counts</va-card-title>
-          <va-card-content>
-            <div class="va-table-responsive">
-              <table class="va-table va-table--striped">
-                <thead>
-                  <tr>
-                    <th>Status</th>
-                    <th>Count</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(count, status) of poiCount" :key="status">
-                    <td>{{ status }}</td>
-                    <td><a :href="poiPostsUrl(status)">{{ count }}</a></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </va-card-content>
-        </va-card>
-      </div>
     </div>
     <div class="otis-dashboard__settings">
       <div v-if="!displayInitialImport" class="otis-dashboard__setting">
@@ -71,7 +48,7 @@
               v-model="modifiedDate"
               :enable-time-picker="false"
               :max-date="maxDate"
-              format="yyyy-MM-dd"
+              format="MM/dd/yyyy"
             />
           </va-card-content>
           <va-card-actions>
@@ -99,7 +76,7 @@
           </va-card-actions>
         </va-card>
       </div>
-      <div v-if="!displayInitialImport" class="otis-dashboard__setting otis-dashboard__setting--full-width">
+      <div v-if="!displayInitialImport" class="otis-dashboard__setting">
         <va-card>
           <va-card-title>Sync Deleted POIs</va-card-title>
           <va-card-content>
@@ -115,6 +92,29 @@
               Stop Importer and Syncing
             </button>
           </va-card-actions>
+        </va-card>
+      </div>
+      <div v-if="!displayInitialImport" class="otis-dashboard__setting otis-dashboard__setting--full-width">
+        <va-card>
+          <va-card-title>POI Counts</va-card-title>
+          <va-card-content>
+            <div class="va-table-responsive">
+              <table class="va-table va-table--striped">
+                <thead>
+                  <tr>
+                    <th>Status</th>
+                    <th>Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(count, status) of poiCount" :key="status">
+                    <td>{{ status }}</td>
+                    <td><a :href="poiPostsUrl(status)">{{ count }}</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </va-card-content>
         </va-card>
       </div>
       <div v-if="!displayInitialImport" class="otis-dashboard__setting otis-dashboard__setting--full-width">
