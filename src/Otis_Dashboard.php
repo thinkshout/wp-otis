@@ -14,7 +14,7 @@ class Otis_Dashboard
     wp_localize_script( 'otis-js', 'otisDash', array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'admin_url' => admin_url() ) );
 
     wp_enqueue_script( 'otis-js' );
-    wp_enqueue_style( 'otis-dashboard-styles', plugins_url( '../css/dashboard.css', __FILE__ ), [], '1.0' );
+    wp_enqueue_style( 'otis-styles', plugins_url( '../dist/otis.css', __FILE__ ), [], '2.0' );
   }
 
   public function otis_dashboard_page() {

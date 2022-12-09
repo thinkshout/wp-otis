@@ -44,13 +44,11 @@
           <p><em>Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme or a different plugin.</em></p>
           <div class="otis-dashboard__action">
             <label for="modified-date">Date To Import From</label>
-            <vuejs-datepicker
-              format="MM/dd/yyyy"
-              placeholder="Click to select a date"
-              :clear-button="true"
-              :disabled-dates="disabledDates"
-              :disabled="importStarting"
-              @input="setModifiedDate"
+            <Datepicker
+              v-model="modifiedDate"
+              :enable-time-picker="false"
+              :max-date="maxDate"
+              format="yyyy-MM-dd"
             />
             <p v-if="importStarting">POI import starting, please wait this usually takes a few minutes...</p>
             <button class="button button-primary" :disabled="!dateIsValid || importStarting || bulkImportActive || bulkImportScheduled" @click="triggerModifiedImport">
@@ -139,14 +137,10 @@
 
 <script>
   import { ref, computed, onMounted } from "vue";
-  import vuejsDatepicker from "vue-datepicker";
   import axios from "axios";
 
   export default {
     name: "OtisDashboard",
-    components: {
-			vuejsDatepicker
-		},
     setup() {
       // Refs
       const modifiedDate = ref("");
@@ -163,12 +157,12 @@
       // Computed
       const lastImport = computed(() => {
         if (!lastImportDate.value) return "N/A";
-        const lastImportDate = new Date(lastImportDate.value);
-        const month = lastImportDate.getMonth() + 1; // months are zero indexed
-        const day = lastImportDate.getDate();
-        const year = lastImportDate.getFullYear();
-        const hours = lastImportDate.getHours();
-        const minutes = lastImportDate.getMinutes() > 9 ? lastImportDate.getMinutes() : "0" + lastImportDate.getMinutes();
+        const lastImportDateObject = new Date(lastImportDate.value);
+        const month = lastImportDateObject.getMonth() + 1; // months are zero indexed
+        const day = lastImportDateObject.getDate();
+        const year = lastImportDateObject.getFullYear();
+        const hours = lastImportDateObject.getHours();
+        const minutes = lastImportDateObject.getMinutes() > 9 ? lastImportDateObject.getMinutes() : "0" + lastImportDateObject.getMinutes();
         return `${month}/${day}/${year} @ ${hours}:${minutes}`;
       });
       const importerStatus = computed(() => {
@@ -176,10 +170,8 @@
         if (bulkImportScheduled.value) return "Scheduled";
         return "Inactive";
       });
-      const disabledDates = computed(() => {
-        return {
-          from: new Date(),
-        }
+      const maxDate = computed(() => {
+        return new Date();
       });
       const displayInitialImport = computed(() => {
         if (countsLoading.value) return false;
@@ -220,10 +212,6 @@
         setTimeout(() => {
           importStarted.value = false;
         }, 1000);
-      };
-      const setModifiedDate = (fromDate) => {
-        const formattedFromDate = fromDate.toISOString().substring(0, 10);
-        modifiedDate.value = formattedFromDate;
       };
       const triggerAction = async (action, data = {}) => {
         const payload = makePayload({
@@ -298,13 +286,12 @@
         countsLoading,
         lastImport,
         importerStatus,
-        disabledDates,
+        maxDate,
         displayInitialImport,
         dateIsValid,
         otisDashObject,
         importLogUrl,
         poiPostsUrl,
-        setModifiedDate,
         triggerAction,
         otisStatus,
         otisLogPreview,
