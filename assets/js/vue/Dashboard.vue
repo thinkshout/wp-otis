@@ -139,7 +139,7 @@
   </div>
 </template>
 
-<style scoped src="vuestic-ui/dist/vuestic-ui.css">
+<style src="vuestic-ui/dist/vuestic-ui.css">
 </style>
 
 <script>
