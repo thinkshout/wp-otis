@@ -10,18 +10,10 @@ class Otis_Dashboard
 
   public function otis_dashboard_scripts() {
     wp_enqueue_media();
-    wp_register_script( 'axios', 'https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js', [], '0.21.1' );
-    wp_register_script( 'vue-moment', 'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment-with-locales.min.js', [], '2.27.0' );
-    wp_register_script( 'vue-datepicker', 'https://unpkg.com/vuejs-datepicker', [], '1.6.2' );
-    wp_register_script( 'vue', 'https://cdn.jsdelivr.net/npm/vue@2.6.14', [], '2.6.14' );
-    wp_enqueue_script( 'axios' );
-    wp_enqueue_script( 'vue-moment' );
-    wp_enqueue_script( 'vue-datepicker' );
-    wp_enqueue_script( 'vue' );
-    wp_register_script( 'otis-dashboard', plugins_url( '../js/dashboard.js', __FILE__ ), [], '1.0', true );
-    wp_localize_script( 'otis-dashboard', 'otisDash', array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'admin_url' => admin_url() ) );
+    wp_register_script( 'otis-js', plugins_url( '../dist/otis.js', __FILE__ ), [], '2.0', true );
+    wp_localize_script( 'otis-js', 'otisDash', array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'admin_url' => admin_url() ) );
 
-    wp_enqueue_script( 'otis-dashboard' );
+    wp_enqueue_script( 'otis-js' );
     wp_enqueue_style( 'otis-dashboard-styles', plugins_url( '../css/dashboard.css', __FILE__ ), [], '1.0' );
   }
 
