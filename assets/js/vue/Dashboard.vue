@@ -4,7 +4,7 @@
     <div v-if="displayInitialImport" class="otis-dashboard__banner">
       <div class="otis-dashboard__initial-import">
         <div class="postbox">
-          <div v-if="importStarting" class="otis-ellipsis"><div /><div /><div /><div /></div>
+          <OtisLoader v-if="importStarting" />
           <h2>Initial POI Import</h2>
           <p>Start here if this is your first time running the plugin. This button will trigger the initial import of POI data from OTIS.</p>
           <p><em>Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme or a different plugin.</em></p>
@@ -22,14 +22,14 @@
     </div>
     <div class="otis-dashboard__statuses">
       <div class="otis-dashboard__status">
-        <div class="postbox">
-          <h2>Last Import</h2>
-          <p>{{ lastImport }}</p>
-        </div>
+        <va-card>
+          <va-card-title>Last Import</va-card-title>
+          <va-card-content>{{ lastImport }}</va-card-content>
+        </va-card>
       </div>
       <div class="otis-dashboard__status">
         <div :class="['postbox', { success: importStarted }]">
-          <div v-if="importStarting" class="otis-ellipsis"><div /><div /><div /><div /></div>
+          <OtisLoader v-if="importStarting" />
           <h2>Bulk Importer Status</h2>
           <p>{{ importerStatus }}</p>
         </div>
@@ -38,7 +38,7 @@
     <div class="otis-dashboard__settings">
       <div v-if="!displayInitialImport" class="otis-dashboard__setting">
         <div :class="['postbox', { success: importStarted }]">
-          <div v-if="importStarting" class="otis-ellipsis"><div /><div /><div /><div /></div>
+          <OtisLoader v-if="importStarting" />
           <h2>Modified POI Import & Update</h2>
           <p>Start an import of POIs that have been modified since a given date. POIs that already exist on the site will be updated if they fall in the date range.</p>
           <p><em>Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme or a different plugin.</em></p>
@@ -138,9 +138,13 @@
 <script>
   import { ref, computed, onMounted } from "vue";
   import axios from "axios";
+  import OtisLoader from "./components/OtisLoader.vue";
 
   export default {
     name: "OtisDashboard",
+    components: {
+      OtisLoader,
+    },
     setup() {
       // Refs
       const modifiedDate = ref("");
