@@ -136,66 +136,6 @@ add_action( 'wp_otis_bulk_delete_pois', function( $params ) {
 	}
 }, 10, 1 );
 
-add_action( 'wp_otis_async_bulk_history_import', function ( $params ) {
-
-		if ( WP_OTIS_BULK_DISABLE_CACHE ) {
-			wp_cache_add_non_persistent_groups( ['acf'] );
-		}
-
-		update_option( WP_OTIS_BULK_HISTORY_ACTIVE, true );
-
-		$otis     = new Otis();
-		$logger   = new Otis_Logger_Simple();
-		$importer = new Otis_Importer( $otis, $logger );
-		if ($params['history-page'] > 1) {
-			$logger->log( "Bulk OTIS history import continuing on page ".$params['history-page'].". (".wp_otis_get_logger_modified_date_string($params).")");
-		}
-
-		try {
-			$importer_params = [
-				'bulk-history-page' => $params['bulk-history-page'],
-				'history-page' => $params['history-page'],
-				'all' => $params['all'],
-			];
-			if ( isset( $params['related_only'] ) && $params['related_only'] == 'true' || $params['related_only'] == true ) {
-				$importer_params['related_only'] = true;
-			}
-			$importer_params = wp_otis_make_modified_date_param($params, $importer_params);
-			$importer->import( 'history-only', $importer_params );
-		} catch ( Exception $e ) {
-			$logger->log( $e->getMessage(), 0, 'error' );
-		}
-},10, 1 );
-
-add_action( 'wp_otis_async_bulk_import', function( $params ) {
-	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
-		wp_cache_add_non_persistent_groups( ['acf'] );
-	}
-
-	$all = $params['all'];
-	$page = $params['page'];
-	$page_size = $params['page_size'];
-
-	$otis     = new Otis();
-	$logger   = new Otis_Logger_Simple();
-	$importer = new Otis_Importer( $otis, $logger );
-	$logger->log( "Bulk OTIS import continuing on page ".$page.". (".wp_otis_get_logger_modified_date_string($params).")");
-
-	try {
-		$importer_params = [
-			'page' => $page,
-			'page_size' => $page_size,
-			'all' => $all,
-		];
-		if ( isset( $params['related_only'] ) && $params['related_only'] == 'true' || $params['related_only'] == true ) {
-			$importer_params['related_only'] = true;
-		}
-		$importer_params = wp_otis_make_modified_date_param($params, $importer_params);
-		$importer->import( 'pois-only', $importer_params );
-	} catch ( Exception $e ) {
-		$logger->log( $e->getMessage(), 0, 'error' );
-	}
-}, 10, 1 );
 
 add_action( 'wp_otis_fetch_listings', function( $params ) {
 

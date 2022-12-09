@@ -31,14 +31,6 @@ class Otis_Dashboard
     $this->otis_dashboard_ui();
   }
 
-  public function otis_start_import($args, $assoc_args) {
-    $this->importer->import( $args, $assoc_args );
-  }
-
-  public function otis_bulk_delete_pois() {
-    $this->importer->import('deleted-pois', [ 'deletes_page' => 1 ]);
-  }
-
   // calculate page_size based on import date
   public function otis_calculate_page_size($modified_start_date, $modified_end_date) {
     $page_size = 25;
@@ -118,7 +110,7 @@ class Otis_Dashboard
 
 
   public function otis_init_deleted_pois_sync() {
-    as_enqueue_async_action( 'wp_otis_dashboard_start_async_delete_pois' );
+    as_enqueue_async_action( 'wp_otis_delete_removed_listings' );
   }
   
   function __construct( $importer ) {
@@ -131,10 +123,6 @@ class Otis_Dashboard
     add_action( 'wp_ajax_otis_preview_log', [ $this, 'otis_log_preview' ] );
     add_action( 'wp_ajax_otis_stop_bulk', [ $this, 'otis_stop_bulk_importer' ] );
     add_action( 'wp_ajax_otis_sync_deleted_pois', [ $this, 'otis_init_deleted_pois_sync' ] );
-
-    add_action( 'wp_otis_dashboard_start_async_import', [ $this, 'otis_start_import' ], 10, 2 );
-
-    add_action( 'wp_otis_dashboard_start_async_delete_pois', [ $this, 'otis_bulk_delete_pois' ] );
 
     $this->importer = $importer;
   }
