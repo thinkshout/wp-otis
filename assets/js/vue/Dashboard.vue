@@ -37,7 +37,7 @@
       </div>
     </div>
     <div class="otis-dashboard__settings">
-      <div v-if="!displayInitialImport" class="otis-dashboard__setting">
+      <div v-if="!displayInitialImport" class="otis-dashboard__setting otis-dashboard__setting--full-width">
         <va-card>
           <va-card-title>Modified POI Import & Update</va-card-title>
           <va-card-content>
@@ -63,27 +63,14 @@
           </va-card-actions>
         </va-card>
       </div>
-      <div v-if="!displayInitialImport" class="otis-dashboard__setting">
-        <va-card>
-          <va-card-title>Stop Bulk Importer</va-card-title>
-          <va-card-content>
-            <p>Manually deactivates the bulk importer. If a large import is interrupted for some reason, the "bulk" flag can stay active on the server (see above). Use this button to turn the "bulk" flag off, and re-start hourly imports.</p>
-          </va-card-content>
-          <va-card-actions>
-            <button class="button button-primary" :disabled="!bulkImportActive" @click="stopBulkImporter">
-              Stop Bulk Importer
-            </button>
-          </va-card-actions>
-        </va-card>
-      </div>
-      <div v-if="!displayInitialImport" class="otis-dashboard__setting">
+      <div v-if="!displayInitialImport" class="otis-dashboard__setting otis-dashboard__setting--full-width">
         <va-card>
           <va-card-title>Sync Deleted POIs</va-card-title>
           <va-card-content>
             <p>This will sync all deleted POIs from the OTIS to the local database. This is useful if you find there are POIs that are stale/should have been deleted.</p>
+            <label>This will fetch the list of deleted POIs, check them against the POIs still active in WordPress, and delete the POI post if relevant. <strong>This will delete POIs if they've been removed from OTIS.</strong></label>
           </va-card-content>
           <va-card-actions>
-            <label>This will fetch the list of deleted POIs, check them against the POIs still active in WordPress, and delete the POI post if relevant. <strong>This will delete POIs if they've been removed from OTIS.</strong></label>
             <button class="button button-primary" :disabled="importStarting || bulkImportActive != '' || bulkImportScheduled" @click="triggerSyncDeletes">
               <span v-if="bulkImportActive || bulkImportScheduled">Sync Running Please Wait...</span>
               <span v-else>Sync Deleted POIs</span>
@@ -94,30 +81,7 @@
           </va-card-actions>
         </va-card>
       </div>
-      <div v-if="!displayInitialImport" class="otis-dashboard__setting otis-dashboard__setting--full-width">
-        <va-card>
-          <va-card-title>POI Counts</va-card-title>
-          <va-card-content>
-            <div class="va-table-responsive">
-              <table class="va-table va-table--striped">
-                <thead>
-                  <tr>
-                    <th>Status</th>
-                    <th>Count</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(count, status) of poiCount" :key="status">
-                    <td>{{ status }}</td>
-                    <td><a :href="poiPostsUrl(status)">{{ count }}</a></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </va-card-content>
-        </va-card>
-      </div>
-      <div v-if="!displayInitialImport" class="otis-dashboard__setting otis-dashboard__setting--full-width">
+      <div v-if="!displayInitialImport" class="otis-dashboard__setting">
         <va-card>
           <va-card-title>Import Log Preview</va-card-title>
           <va-card-content>
@@ -140,6 +104,29 @@
           <va-card-actions>
             <a :href="importLogUrl" role="button" class="button">View Full Import Log</a>
           </va-card-actions>
+        </va-card>
+      </div>
+      <div v-if="!displayInitialImport" class="otis-dashboard__setting">
+        <va-card>
+          <va-card-title>POI Counts</va-card-title>
+          <va-card-content>
+            <div class="va-table-responsive">
+              <table class="va-table va-table--striped">
+                <thead>
+                  <tr>
+                    <th>Status</th>
+                    <th>Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(count, status) of poiCount" :key="status">
+                    <td>{{ status }}</td>
+                    <td><a :href="poiPostsUrl(status)">{{ count }}</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </va-card-content>
         </va-card>
       </div>
     </div>
