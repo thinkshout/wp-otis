@@ -151,7 +151,7 @@
     },
     setup() {
       // Refs
-      const modifiedDate = ref("");
+      const modifiedDate = ref(new Date());
       const lastImportDate = ref("");
       const bulkImportActive = ref("");
       const bulkImportScheduled = ref(false);
@@ -269,10 +269,11 @@
       const triggerModifiedImport = async () => {
         if (!dateIsValid.value) return;
         importStarting.value = true;
-        const importData = {from_date: modifiedDate.value};
+        const modifiedFromDate = modifiedDate.value.toISOString().split('T')[0];
+        const importData = {from_date: modifiedFromDate};
         await triggerAction('otis_import', importData);
         await otisStatus();
-        notifyImportStarted.value();
+        notifyImportStarted();
         importStarting.value = false;
       };
       const triggerSyncDeletes = async () => {
