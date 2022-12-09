@@ -119,8 +119,11 @@
 	position: fixed;
 	bottom: 0;
 	width: 85%;
-	background-color: #28834c;
 	z-index: 9999;
+}
+.otis-dashboard .otis-dashboard__notifications .va-alert {
+	--va-alert-margin-y: 0;
+	--va-alert-stripe-border-size: 3px;
 }
 
 .otis-dashboard .otis-ellipsis {
