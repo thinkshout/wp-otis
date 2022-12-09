@@ -119,6 +119,8 @@
 	position: fixed;
 	bottom: 0;
 	width: 85%;
+	background-color: #28834c;
+	z-index: 9999;
 }
 
 .otis-dashboard .otis-ellipsis {
