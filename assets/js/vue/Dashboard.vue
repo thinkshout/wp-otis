@@ -132,7 +132,7 @@
       
     </div>
     <div v-if="importStarted" class="otis-dashboard__notifications">
-      <va-alert v-model="importStarted" color="success" border="top" icon="info" closeable>
+      <va-alert v-model="importStarted" color="success" icon="info" closeable>
         OTIS Importer Started.
       </va-alert>
     </div>
