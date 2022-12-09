@@ -115,12 +115,23 @@
 	text-align: left;
 }
 
+@keyframes fade-up {
+	0% {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
 .otis-dashboard .otis-dashboard__notifications {
 	position: fixed;
 	bottom: 0;
 	width: 85%;
-	padding-bottom: 10px;
+	padding-bottom: 30px;
 	z-index: 9999;
+	animation: fade-up 0.25s ease;
 }
 .otis-dashboard .otis-dashboard__notifications .va-alert {
 	--va-alert-margin-y: 0;
