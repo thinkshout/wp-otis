@@ -129,6 +129,12 @@
           </va-card-content>
         </va-card>
       </div>
+      
+    </div>
+    <div class="otis-dashboard__notifications">
+      <va-alert v-model="importStarted" color="success" border="top" icon="info" closeable>
+        OTIS Importer Started.
+      </va-alert>
     </div>
   </div>
 </template>
@@ -208,9 +214,6 @@
       };
       const notifyImportStarted = () => {
         importStarted.value = true;
-        setTimeout(() => {
-          importStarted.value = false;
-        }, 1000);
       };
       const triggerAction = async (action, data = {}) => {
         const payload = makePayload({
