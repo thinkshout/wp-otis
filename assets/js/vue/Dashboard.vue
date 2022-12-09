@@ -31,20 +31,18 @@
         <va-card>
           <va-card-title>Importer Status</va-card-title>
           <va-card-content>
-            <OtisLoader v-if="importStarting" />
-            <p v-else>{{ importerStatus }}</p>
+            {{ importerStatus }}
           </va-card-content>
         </va-card>
       </div>
     </div>
     <div class="otis-dashboard__settings">
       <div v-if="!displayInitialImport" class="otis-dashboard__setting">
-        <div :class="['postbox', { success: importStarted }]">
-          <OtisLoader v-if="importStarting" />
-          <h2>Modified POI Import & Update</h2>
-          <p>Start an import of POIs that have been modified since a given date. POIs that already exist on the site will be updated if they fall in the date range.</p>
-          <p><em>Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme or a different plugin.</em></p>
-          <div class="otis-dashboard__action">
+        <va-card>
+          <va-card-title>Modified POI Import & Update</va-card-title>
+          <va-card-content>
+            <p>Start an import of POIs that have been modified since a given date. POIs that already exist on the site will be updated if they fall in the date range.</p>
+            <p><em>Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme or a different plugin.</em></p>
             <label for="modified-date">Date To Import From</label>
             <Datepicker
               v-model="modifiedDate"
@@ -52,7 +50,8 @@
               :max-date="maxDate"
               format="yyyy-MM-dd"
             />
-            <p v-if="importStarting">POI import starting, please wait this usually takes a few minutes...</p>
+          </va-card-content>
+          <va-card-actions>
             <button class="button button-primary" :disabled="!dateIsValid || importStarting || bulkImportActive || bulkImportScheduled" @click="triggerModifiedImport">
               <span v-if="importStarting">
                 Import Starting Please Wait...
@@ -61,8 +60,8 @@
               <span v-else-if="bulkImportScheduled">Import Scheduled Please Wait...</span>
               <span v-else>Start Importing Modified POIs</span>
             </button>
-          </div>
-        </div>
+          </va-card-actions>
+        </va-card>
       </div>
       <div v-if="!displayInitialImport" class="otis-dashboard__setting">
         <div class="postbox">
