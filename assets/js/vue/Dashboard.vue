@@ -187,18 +187,15 @@
       const dateIsValid = computed(() => {
         return modifiedDate.value ? true : false;
       });
-      const otisDashObject = computed(() => {
-        return otisDash;
-      });
       const importLogUrl = computed(() => {
-        return `${otisDashObject.admin_url}edit.php?post_type=poi&page=tror_poi_otis_log`;
+        return `${otisDash.admin_url}edit.php?post_type=poi&page=tror_poi_otis_log`;
       });
 
       // Methods
       const poiPostsUrl = (status = null) => {
         if (!status)
-          return `${otisDashObject.admin_url}edit.php?post_type=poi`;
-        return `${otisDashObject.admin_url}edit.php?post_status=${status}&post_type=poi`;
+          return `${otisDash.admin_url}edit.php?post_type=poi`;
+        return `${otisDash.admin_url}edit.php?post_status=${status}&post_type=poi`;
       };
       const makePayload = (payloadData = {}) => {
         const payload = new FormData();
@@ -219,7 +216,7 @@
           ...data,
         });
         return await axios.post(
-          otisDashObject.ajax_url,
+          otisDash.ajax_url,
           payload,
           { timeout: 0 }
         );
@@ -289,7 +286,6 @@
         maxDate,
         displayInitialImport,
         dateIsValid,
-        otisDashObject,
         importLogUrl,
         poiPostsUrl,
         triggerAction,
