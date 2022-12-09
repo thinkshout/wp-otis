@@ -28,11 +28,13 @@
         </va-card>
       </div>
       <div class="otis-dashboard__status">
-        <div :class="['postbox', { success: importStarted }]">
-          <OtisLoader v-if="importStarting" />
-          <h2>Bulk Importer Status</h2>
-          <p>{{ importerStatus }}</p>
-        </div>
+        <va-card>
+          <va-card-title>Importer Status</va-card-title>
+          <va-card-content>
+            <OtisLoader v-if="importStarting" />
+            <p v-else>{{ importerStatus }}</p>
+          </va-card-content>
+        </va-card>
       </div>
     </div>
     <div class="otis-dashboard__settings">
