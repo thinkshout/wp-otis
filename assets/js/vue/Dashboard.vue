@@ -35,6 +35,29 @@
           </va-card-content>
         </va-card>
       </div>
+      <div v-if="!displayInitialImport" class="otis-dashboard__status">
+        <va-card>
+          <va-card-title>POI Counts</va-card-title>
+          <va-card-content>
+            <div class="va-table-responsive">
+              <table class="va-table va-table--striped">
+                <thead>
+                  <tr>
+                    <th>Status</th>
+                    <th>Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(count, status) of poiCount" :key="status">
+                    <td>{{ status }}</td>
+                    <td><a :href="poiPostsUrl(status)">{{ count }}</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </va-card-content>
+        </va-card>
+      </div>
     </div>
     <div class="otis-dashboard__settings">
       <div v-if="!displayInitialImport" class="otis-dashboard__setting">
@@ -64,73 +87,60 @@
         </va-card>
       </div>
       <div v-if="!displayInitialImport" class="otis-dashboard__setting">
-        <div class="postbox">
-          <h2>Stop Bulk Importers</h2>
-          <p>Manually deactivates the bulk importer. If a large import is interrupted for some reason, the "bulk" flag can stay active on the server (see above). Use this button to turn the "bulk" flag off, and re-start hourly imports.</p>
-          <div class="otis-dashboard__action">
+        <va-card>
+          <va-card-title>Stop Bulk Importer</va-card-title>
+          <va-card-content>
+            <p>Manually deactivates the bulk importer. If a large import is interrupted for some reason, the "bulk" flag can stay active on the server (see above). Use this button to turn the "bulk" flag off, and re-start hourly imports.</p>
+          </va-card-content>
+          <va-card-actions>
             <button class="button button-primary" :disabled="!bulkImportActive" @click="stopBulkImporter">
               Stop Bulk Importer
             </button>
-          </div>
-        </div>
+          </va-card-actions>
+        </va-card>
       </div>
       <div v-if="!displayInitialImport" class="otis-dashboard__setting otis-dashboard__setting--full-width">
-        <div class="postbox">
-          <h2>Sync Deleted POIs</h2>
-          <p>This will sync all deleted POIs from the OTIS to the local database. This is useful if you find there are POIs that are stale/should have been deleted.</p>
-          <div class="otis-dashboard__action">
-            <div class="otis-dashboard__action-button">
-              <label>This will fetch the list of deleted POIs, check them against the POIs still active in WordPress, and delete the POI post if relevant. <strong>This will delete POIs if they've been removed from OTIS.</strong></label>
-              <button class="button button-primary" :disabled="importStarting || bulkImportActive != '' || bulkImportScheduled" @click="triggerSyncDeletes">
-                <span v-if="bulkImportActive || bulkImportScheduled">Sync Running Please Wait...</span>
-                <span v-else>Sync Deleted POIs</span>
-              </button>
-              <button v-if="bulkImportActive" class="button button-primary" @click="stopBulkImporter">
-                Stop Importer and Syncing
-              </button>
+        <va-card>
+          <va-card-title>Sync Deleted POIs</va-card-title>
+          <va-card-content>
+            <p>This will sync all deleted POIs from the OTIS to the local database. This is useful if you find there are POIs that are stale/should have been deleted.</p>
+          </va-card-content>
+          <va-card-actions>
+            <label>This will fetch the list of deleted POIs, check them against the POIs still active in WordPress, and delete the POI post if relevant. <strong>This will delete POIs if they've been removed from OTIS.</strong></label>
+            <button class="button button-primary" :disabled="importStarting || bulkImportActive != '' || bulkImportScheduled" @click="triggerSyncDeletes">
+              <span v-if="bulkImportActive || bulkImportScheduled">Sync Running Please Wait...</span>
+              <span v-else>Sync Deleted POIs</span>
+            </button>
+            <button v-if="bulkImportActive" class="button button-primary" @click="stopBulkImporter">
+              Stop Importer and Syncing
+            </button>
+          </va-card-actions>
+        </va-card>
+      </div>
+      <div v-if="!displayInitialImport" class="otis-dashboard__setting otis-dashboard__setting--full-width">
+        <va-card>
+          <va-card-title>Import Log Preview</va-card-title>
+          <va-card-content>
+            <p>The last 15 entries in the import log. The full import log is available under <a :href="importLogUrl">POI > Import Log</a>.</p>
+            <div class="va-table-responsive">
+              <table class="va-table va-table--striped">
+                <thead>
+                  <tr>
+                    <th>Log Entry</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="({ post_content }, index) of importLog" :key="index">
+                    <td>{{ post_content }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-          </div>
-        </div>
-      </div>
-      <div v-if="!displayInitialImport" class="otis-dashboard__setting">
-        <div class="postbox">
-          <div v-if="logLoading" class="otis-ellipsis"><div /><div /><div /><div /></div>
-          <h2>Import Log Preview</h2>
-          <p>The last 15 entries in the import log. The full import log is available under <a :href="importLogUrl">POI > Import Log</a>.</p>
-          <table class="otis-dashboard__import-log">
-            <thead>
-              <tr>
-                <th>Log Entry</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="({ post_content }, index) of importLog" :key="index">
-                <td>{{ post_content }}</td>
-              </tr>
-            </tbody>
-          </table>
-          <a :href="importLogUrl" role="button" class="button">View Full Import Log</a>
-        </div>
-      </div>
-      <div v-if="!displayInitialImport" class="otis-dashboard__setting">
-        <div class="postbox">
-          <div v-if="countsLoading" class="otis-ellipsis"><div /><div /><div /><div /></div>
-          <h2>POI Counts</h2>
-          <table class="otis-dashboard__poi-counts">
-            <thead>
-              <tr>
-                <th>Status</th>
-                <th>Count</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(count, status) of poiCount" :key="status">
-                <td>{{ status }}</td>
-                <td><a :href="poiPostsUrl(status)">{{ count }}</a></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+          </va-card-content>
+          <va-card-actions>
+            <a :href="importLogUrl" role="button" class="button">View Full Import Log</a>
+          </va-card-actions>
+        </va-card>
       </div>
     </div>
   </div>
