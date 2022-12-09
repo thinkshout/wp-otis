@@ -225,7 +225,22 @@
         countsLoading.value = true;
         const { data } = await triggerAction("otis_status");
         Object.keys(data).forEach((key) => {
-          this[key] = data[key];
+          switch (key) {
+            case "lastImportDate":
+              lastImportDate.value = data[key];
+              break;
+            case "bulkImportActive":
+              bulkImportActive.value = data[key];
+              break;
+            case "bulkImportScheduled":
+              bulkImportScheduled.value = data[key];
+              break;
+            case "poiCount":
+              poiCount.value = data[key];
+              break;
+            default:
+              break;
+          }
         });
         countsLoading.value = false;
         await otisLogPreview();
