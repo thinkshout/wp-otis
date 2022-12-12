@@ -101,7 +101,8 @@ class Otis_Importer {
 			$this->start_bulk();
 		}
 
-		$assoc_args = apply_filters( 'wp_otis_listings', $assoc_args );
+		// Apply otis_listings filter to $assoc_args.
+		// $assoc_args = apply_filters( 'wp_otis_listings', $assoc_args );
 
 		switch ( $args[0] ) {
 			case 'terms':
