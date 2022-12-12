@@ -37,12 +37,9 @@
               />
             </va-card-content>
             <va-card-actions>
-              <button class="button button-primary" :disabled="!dateIsValid || importStarting || importActive || countsLoading" @click="triggerModifiedImport">
+              <button class="button button-primary" :disabled="!dateIsValid || importStarting || importActive" @click="triggerModifiedImport">
                 <span v-if="importStarting">
                   Import Starting Please Wait...
-                </span>
-                <span v-else-if="countsLoading">
-                  Loading POI Counts Please Wait...
                 </span>
                 <span v-else-if="importActive">Import Running Please Wait...</span>
                 <span v-else>Start Importing Modified POIs</span>
@@ -57,14 +54,26 @@
           <div class="otis-dashboard__status">
             <va-card>
               <va-card-title>Last Import</va-card-title>
-              <va-card-content>{{ lastImport }}</va-card-content>
+              <va-card-content>
+                <div v-if="countsLoading">
+                  <OtisLoader />
+                </div>
+                <div v-else>
+                  {{ lastImport }}
+                </div>
+              </va-card-content>
             </va-card>
           </div>
           <div class="otis-dashboard__status">
             <va-card>
               <va-card-title>Importer Status</va-card-title>
               <va-card-content>
-                {{ importerStatus }}
+                <div v-if="countsLoading">
+                  <OtisLoader />
+                </div>
+                <div v-else>
+                  {{ importerStatus }}
+                </div>
               </va-card-content>
             </va-card>
           </div>
@@ -78,9 +87,8 @@
             <label>This will fetch the list of deleted POIs, check them against the POIs still active in WordPress, and delete the POI post if relevant. <strong>This will delete POIs if they've been removed from OTIS.</strong></label>
           </va-card-content>
           <va-card-actions>
-            <button class="button button-primary" :disabled="importStarting || importActive || countsLoading" @click="triggerSyncDeletes">
+            <button class="button button-primary" :disabled="importStarting || importActive" @click="triggerSyncDeletes">
               <span v-if="importStarting || importActive">Sync Running Please Wait...</span>
-              <span v-else-if="countsLoading">Loading POI Counts Please Wait...</span>
               <span v-else>Sync Deleted POIs</span>
             </button>
           </va-card-actions>
