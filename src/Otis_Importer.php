@@ -175,6 +175,16 @@ class Otis_Importer {
 				$log[] = 'POI import complete.';
 
 				return $log;
+			
+			case 'all-listings':
+				if ( empty( $assoc_args['sync_page'] ) ) {
+					$assoc_args['sync_page'] = 1;
+				}
+				$this->_fetch_all_active_listings( $assoc_args );
+
+				$log[] = 'All listings importing.';
+
+				return $log;
 
 		} // End switch().
 
@@ -379,6 +389,7 @@ class Otis_Importer {
 		$this->unschedule_action( 'wp_otis_fetch_listings' );
 		$this->unschedule_action( 'wp_otis_process_listings' );
 		$this->unschedule_action( 'wp_otis_delete_removed_listings' );
+		$this->unschedule_action( 'wp_otis_sync_all_listings' );
 		$this->logger->log( 'Import canceled.' );
 		update_option( WP_OTIS_CANCEL_IMPORT, false );
 		update_option( WP_OTIS_IMPORT_ACTIVE, false );
@@ -541,7 +552,6 @@ class Otis_Importer {
 		// Fetch removed listings from OTIS.
 		$this->logger->log( 'Fetching removed listings' );
 		$removed_listings_results = $this->otis->call( 'listings/deleted', $api_params, $this->logger );
-		// It looks like the API is returning redundant results.
 		$removed_listings = $removed_listings_results ? $removed_listings_results['results'] : [];
 		// If we don't have any removed listings, log that and return.
 		if ( ! count( $removed_listings ) ) {
@@ -576,6 +586,59 @@ class Otis_Importer {
 		// Reset WP_OTIS_IMPORT_ACTIVE option to false.
 		update_option( WP_OTIS_IMPORT_ACTIVE, false );
 	}
+
+	/** Sync with all active POIs in OTIS */
+	private function _fetch_all_active_listings( $assoc_args = [] ) {
+		// Check if the WP_OTIS_CANCEL_IMPORT option is set to true and if so, cancel the import.
+		if ( get_option( WP_OTIS_CANCEL_IMPORT, false ) ) {
+			$this->cancel_import();
+			return;
+		}
+		// Run actions for before syncing all listings.
+		do_action( 'wp_otis_before_sync_all_listings', $assoc_args );
+		$assoc_args = apply_filters( 'wp_otis_before_sync_all_listings_args', $assoc_args );
+
+		// Check that there's a page in args and set it to the first one if it's not present.
+		$sync_page = $assoc_args['sync_page'] ? intval( $assoc_args['sync_page'] ) : 1;
+
+		// Construct API params.
+		$api_params = [];
+		// Add page to API params if it is greater than 1.
+		if ( 1 < $sync_page ) {
+			$api_params['page'] = $sync_page;
+		}
+		// Merge API params with args.
+		$api_params = array_merge( $assoc_args, $api_params );
+
+		// Call the API to get all active listing UUIDs.
+		$this->logger->log( 'Fetching all active listings' );
+		$active_listings_results = $this->otis->call( 'listings/activeids', $api_params, $this->logger );
+
+		// Merge retrieved IDs with the activeIds transient.
+		$active_listing_ids = $active_listings_results['results'] ? $active_listings_results['results'] : [];
+		$active_listing_ids = array_merge( $this->get_listings_transient( 'activeIds' ), $active_listing_ids );
+
+		// Set the activeIds transient.
+		$this->set_listings_transient( $active_listing_ids, 'activeIds' );
+
+		// Check if there are more pages.
+		$sync_next = is_null( $active_listings_results['next'] ) ? $active_listings_results['next'] : trim( $active_listings_results['next'] );
+		$has_next_page = empty( $sync_next ) || 'null' === $sync_next ? false : true;
+
+		// If there are more pages, schedule another action to fetch them.
+		if ( $has_next_page ) {
+			$assoc_args['sync_page'] = $sync_page + 1;
+			$this->schedule_action( 'wp_otis_sync_all_listings_fetch', [ 'params' => $assoc_args ] );
+			$this->logger->log( 'Scheduling fetch of next page of active listings' );
+			return;
+		}
+
+		// Run actions for after syncing all listings.
+		do_action( 'wp_otis_after_sync_all_listings', $assoc_args );
+
+		// Schedule the action to sync the listings.
+		$this->schedule_action( 'wp_otis_sync_all_listings_process' );
+	} 
 
 
 	/**

@@ -110,8 +110,13 @@ class Otis_Dashboard
   }
 
 
-  public function otis_init_deleted_pois_sync() {
-    as_enqueue_async_action( 'wp_otis_delete_removed_listings' );
+  public function otis_init_pois_sync() {
+    // Set up the sync params
+    $sync_params = [
+      'bulk' => true,
+    ];
+    // Schedule the sync
+    as_enqueue_async_action( 'wp_otis_sync_all_listings_fetch', [ 'params' => $sync_params ] );
   }
   
   function __construct( $importer ) {
@@ -123,7 +128,7 @@ class Otis_Dashboard
     add_action( 'wp_ajax_otis_import', [ $this, 'otis_init_import' ] );
     add_action( 'wp_ajax_otis_preview_log', [ $this, 'otis_log_preview' ] );
     add_action( 'wp_ajax_otis_cancel_importer', [ $this, 'otis_cancel_import' ] );
-    add_action( 'wp_ajax_otis_sync_deleted_pois', [ $this, 'otis_init_deleted_pois_sync' ] );
+    add_action( 'wp_ajax_otis_sync_all_pois', [ $this, 'otis_init_pois_sync' ] );
 
     $this->importer = $importer;
   }

@@ -24,7 +24,7 @@
       <div class="otis-dashboard__setting-group">
         <div v-if="!displayInitialImport" class="otis-dashboard__setting">
           <va-card>
-            <va-card-title>Modified POI Import & Update</va-card-title>
+            <va-card-title>POI Import & Update</va-card-title>
             <va-card-content>
               <p>Start an import of POIs that have been modified since a given date. POIs that already exist on the site will be updated if they fall in the date range.</p>
               <p><em>Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme or a different plugin.</em></p>
@@ -81,15 +81,16 @@
       </div>
       <div v-if="!displayInitialImport" class="otis-dashboard__setting otis-dashboard__setting--full-width">
         <va-card>
-          <va-card-title>Sync Deleted POIs</va-card-title>
+          <va-card-title>Sync POIs</va-card-title>
           <va-card-content>
-            <p>This will sync all deleted POIs from the OTIS to the local database. This is useful if you find there are POIs that are stale/should have been deleted.</p>
-            <label>This will fetch the list of deleted POIs, check them against the POIs still active in WordPress, and delete the POI post if relevant. <strong>This will delete POIs if they've been removed from OTIS.</strong></label>
+            <p>This will sync all relevant POIs that are active in OTIS with WordPress using the Otis filters you have set. This is useful if you find there are POIs that are stale/should have been imported/deleted.</p>
+            <p>This will fetch the list of active POIs, check them against the POIs still active in WordPress, and delete the POI post or add one if relevant.</p>
+            <p><strong>This will delete POIs if they've been removed from OTIS.</strong></p>
           </va-card-content>
           <va-card-actions>
-            <button class="button button-primary" :disabled="importStarting || importActive" @click="triggerSyncDeletes">
+            <button class="button button-primary" :disabled="importStarting || importActive" @click="triggerSyncPois">
               <span v-if="importStarting || importActive">Sync Running Please Wait...</span>
-              <span v-else>Sync Deleted POIs</span>
+              <span v-else>Sync POIs</span>
             </button>
           </va-card-actions>
         </va-card>
@@ -308,12 +309,12 @@
         notifyImportStarted();
         importStarting.value = false;
       };
-      const triggerSyncDeletes = async () => {
+      const triggerSyncPois = async () => {
         importStarting.value = true;
-        if ( !confirm('Are you sure you want to delete all POIs that have been deleted from OTIS?') ) {
+        if ( !confirm('Are you sure you want to sync all relevant POIs from OTIS?') ) {
           return;
         }
-        await triggerAction("otis_sync_deleted_pois");
+        await triggerAction("otis_sync_all_pois");
         await otisStatus();
         importStarting.value = false;
       };
@@ -351,7 +352,7 @@
         cancelImporter,
         triggerInitialImport,
         triggerModifiedImport,
-        triggerSyncDeletes,
+        triggerSyncPois,
       }
     },
   }
