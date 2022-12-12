@@ -19,26 +19,29 @@
 .otis-dashboard .otis-dashboard__statuses,
 .otis-dashboard .otis-dashboard__settings {
 	display: flex;
-	flex-direction: row;
 	flex-wrap: wrap;
 }
 .otis-dashboard .otis-dashboard__statuses {
-	justify-content: flex-end;
+	flex-direction: column;
 }
 .otis-dashboard .otis-dashboard__stettings {
+	flex-direction: row;
 	margin-bottom: 10px;
 }
 .otis-dashboard .otis-dashboard__status {
 	display: inline-block;
 	box-sizing: border-box;
-	margin-right: 10px;
-	width: 16.6666666667%;
+	padding: 10px 10px 0 0;
+}
+.otis-dashboard .otis-dashboard__setting-group {
+	display: flex;
+	flex-direction: row;
 }
 .otis-dashboard .otis-dashboard__setting {
 	display: inline-block;
 	box-sizing: border-box;
-	width: 50%;
 	padding: 10px 10px 10px 0;
+	flex-grow: 1;
 }
 .otis-dashboard .otis-dashboard__setting.otis-dashboard__setting--full-width {
 	width: 100%;

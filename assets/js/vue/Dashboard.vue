@@ -65,7 +65,7 @@
           </div>
         </div>
       </div>
-      <div v-if="!displayInitialImport" class="otis-dashboard__setting">
+      <div v-if="!displayInitialImport" class="otis-dashboard__setting otis-dashboard__setting--full-width">
         <va-card>
           <va-card-title>Sync Deleted POIs</va-card-title>
           <va-card-content>
