@@ -289,7 +289,7 @@
         importLog.value = data;
       };
       const cancelImporter = async () => {
-        await triggerAction('wp_ajax_otis_cancel_importer');
+        await triggerAction('otis_cancel_importer');
         await otisStatus();
       };
       const triggerInitialImport = async () => {
