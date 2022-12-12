@@ -97,11 +97,12 @@ class Otis_Dashboard
 
   public function otis_status() {
     echo json_encode([
-      'bulkImportScheduled' => 
-        as_next_scheduled_action( 'wp_otis_dashboard_start_import' ) ||
-        as_next_scheduled_action('wp_otis_dashboard_start_async_import') ||
-        as_next_scheduled_action( 'wp_otis_dashboard_start_async_delete_pois' ),
-      'bulkImportActive' => get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false ),
+      'importSchedule' => [
+        'fetch' => as_next_scheduled_action( 'wp_otis_fetch_listings' ),
+        'process' => as_next_scheduled_action('wp_otis_process_listings'),
+        'delete' => as_next_scheduled_action( 'wp_otis_delete_removed_listings' ),
+      ],
+      'importActive' => get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false ),
       'lastImportDate' => get_option( WP_OTIS_LAST_IMPORT_DATE ),
       'poiCount' => $this->otis_poi_counts(),
       'activeFilters' => apply_filters( 'wp_otis_listings', [] ),
