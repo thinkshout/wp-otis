@@ -26,7 +26,7 @@
           <va-card>
             <va-card-title>POI Import & Update</va-card-title>
             <va-card-content>
-              <p>Start an import of POIs that have been modified since a given date. POIs that already exist on the site will be updated if they fall in the date range.</p>
+              <p>Start an import of POIs that have been modified since a given date. POIs that already exist on the site will be updated or trashed if the have been updated or deleted on or after that date.</p>
               <p><em>Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme or a different plugin.</em></p>
               <label for="modified-date">Date To Import From</label>
               <Datepicker
@@ -79,9 +79,9 @@
           </div>
         </div>
       </div>
-      <div v-if="!displayInitialImport" class="otis-dashboard__setting otis-dashboard__setting--full-width">
+      <!-- <div v-if="!displayInitialImport" class="otis-dashboard__setting otis-dashboard__setting--full-width">
         <va-card>
-          <va-card-title>Sync POIs</va-card-title>
+          <va-card-title>Sync All POIs</va-card-title>
           <va-card-content>
             <p>This will sync all relevant POIs that are active in OTIS with WordPress using the Otis filters you have set. This is useful if you find there are POIs that are stale/should have been imported/deleted.</p>
             <p>This will fetch the list of active POIs, check them against the POIs still active in WordPress, and delete the POI post or add one if relevant.</p>
@@ -94,7 +94,7 @@
             </button>
           </va-card-actions>
         </va-card>
-      </div>
+      </div> -->
       <div v-if="!displayInitialImport" class="otis-dashboard__setting">
         <va-card>
           <va-card-title>Import Log Preview</va-card-title>
