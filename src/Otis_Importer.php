@@ -86,6 +86,8 @@ class Otis_Importer {
 
     $bulk = isset( $assoc_args['bulk'] ) ? $assoc_args['bulk'] : get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
 
+		$assoc_args = apply_filters( 'wp_otis_listings', $assoc_args );
+
 		switch ( $args[0] ) {
 			case 'terms':
 				$this->_import_terms( $assoc_args );

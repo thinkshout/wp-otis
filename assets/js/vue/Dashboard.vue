@@ -166,6 +166,7 @@
       const importStarted = ref(false);
       const logLoading = ref(false);
       const countsLoading = ref(false);
+      const activeFilters = ref([]);
 
       // Computed
       const lastImport = computed(() => {
@@ -248,6 +249,9 @@
             case "poiCount":
               poiCount.value = data[key];
               break;
+            case "activeFilters":
+              activeFilters.value = data[key];
+              break;
             default:
               break;
           }
@@ -313,6 +317,7 @@
         displayInitialImport,
         dateIsValid,
         importLogUrl,
+        activeFilters,
         poiPostsUrl,
         triggerAction,
         otisStatus,

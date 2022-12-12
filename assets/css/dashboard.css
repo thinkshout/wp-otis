@@ -36,6 +36,7 @@
 .otis-dashboard .otis-dashboard__setting-group {
 	display: flex;
 	flex-direction: row;
+	flex-grow: 1;
 }
 .otis-dashboard .otis-dashboard__setting {
 	display: inline-block;

@@ -104,6 +104,7 @@ class Otis_Dashboard
       'bulkImportActive' => get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false ),
       'lastImportDate' => get_option( WP_OTIS_LAST_IMPORT_DATE ),
       'poiCount' => $this->otis_poi_counts(),
+      'activeFilters' => apply_filters( 'wp_otis_listings', [] ),
     ]);
     wp_die();
   }
