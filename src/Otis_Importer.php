@@ -95,7 +95,11 @@ class Otis_Importer {
 			$args = [ $args ];
 		}
 
-    $bulk = isset( $assoc_args['bulk'] ) ? $assoc_args['bulk'] : get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
+    $import_active = isset( $assoc_args['bulk'] ) ? $assoc_args['bulk'] : get_option( WP_OTIS_IMPORT_ACTIVE, false );
+		if ( $import_active ) {
+			$this->logger->log( 'Import active, pausing cron events for the duration.' );
+			$this->start_bulk();
+		}
 
 		$assoc_args = apply_filters( 'wp_otis_listings', $assoc_args );
 
@@ -195,8 +199,8 @@ class Otis_Importer {
      * @return array
      */
     function nobulk() {
-        update_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
-        $log[] = 'OTIS bulk import flag set to false';
+        update_option( WP_OTIS_IMPORT_ACTIVE, false );
+        $log[] = 'OTIS import active flag set to false';
         return $log;
     }
 
@@ -206,8 +210,8 @@ class Otis_Importer {
 		 * @return array
 		 */
 		function start_bulk() {
-			update_option( WP_OTIS_BULK_IMPORT_ACTIVE, true );
-			$log[] = 'OTIS bulk import flag set to true';
+			update_option( WP_OTIS_IMPORT_ACTIVE, true );
+			$log[] = 'OTIS import active flag set to true';
 			return $log;
 		}
 
@@ -377,6 +381,7 @@ class Otis_Importer {
 		$this->unschedule_action( 'wp_otis_delete_removed_listings' );
 		$this->logger->log( 'Import canceled.' );
 		update_option( WP_OTIS_CANCEL_IMPORT, false );
+		update_option( WP_OTIS_IMPORT_ACTIVE, false );
 	}
 
 	/** Fetch listings from OTIS with passed args and store them in a transient for later use */
@@ -567,7 +572,9 @@ class Otis_Importer {
 		// Run actions for after deleting listings.
 		do_action( 'wp_otis_after_delete_removed_listings', $assoc_args );
 		// Log that we're done.
-		$this->logger->log( 'Finished deleting removed listings' );
+		$this->logger->log( 'Finished deleting removed listings. Wrapping up OTIS import.' );
+		// Reset WP_OTIS_IMPORT_ACTIVE option to false.
+		update_option( WP_OTIS_IMPORT_ACTIVE, false );
 	}
 
 

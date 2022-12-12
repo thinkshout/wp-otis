@@ -49,7 +49,9 @@ class Otis_Dashboard
   public function otis_init_import() {
     $modified_start = isset($_POST['from_date']) ? _sanitize_text_fields($_POST['from_date']) : false;
     $initial = isset($_POST['initial_import']);
-    $assoc_args = array();
+    $assoc_args = array(
+      'bulk' => true,
+    );
     if ($initial) {
       $assoc_args['type'] = 'pois';
     } else {
