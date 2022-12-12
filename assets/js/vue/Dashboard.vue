@@ -21,7 +21,7 @@
       </div>
     </div>
     <div class="otis-dashboard__settings">
-      <div class="otis-dashboard__setting-group otis-dashboard__setting--full-width">
+      <div class="otis-dashboard__setting-group">
         <div v-if="!displayInitialImport" class="otis-dashboard__setting">
           <va-card>
             <va-card-title>POI Import & Update</va-card-title>
