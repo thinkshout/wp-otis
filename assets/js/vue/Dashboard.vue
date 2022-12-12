@@ -37,13 +37,18 @@
               />
             </va-card-content>
             <va-card-actions>
-              <button class="button button-primary" :disabled="!dateIsValid || importStarting || bulkImportActive || bulkImportScheduled" @click="triggerModifiedImport">
+              <button class="button button-primary" :disabled="!dateIsValid || importStarting || importActive || countsLoading" @click="triggerModifiedImport">
                 <span v-if="importStarting">
                   Import Starting Please Wait...
                 </span>
-                <span v-else-if="bulkImportActive">Import Running Please Wait...</span>
-                <span v-else-if="bulkImportScheduled">Import Scheduled Please Wait...</span>
+                <span v-else-if="countsLoading">
+                  Loading POI Counts Please Wait...
+                </span>
+                <span v-else-if="importActive">Import Running Please Wait...</span>
                 <span v-else>Start Importing Modified POIs</span>
+              </button>
+              <button v-if="importActive" class="button button-primary" @click="cancelImporter">
+                Cancel Import
               </button>
             </va-card-actions>
           </va-card>
@@ -73,12 +78,10 @@
             <label>This will fetch the list of deleted POIs, check them against the POIs still active in WordPress, and delete the POI post if relevant. <strong>This will delete POIs if they've been removed from OTIS.</strong></label>
           </va-card-content>
           <va-card-actions>
-            <button class="button button-primary" :disabled="importStarting || bulkImportActive != '' || bulkImportScheduled" @click="triggerSyncDeletes">
-              <span v-if="bulkImportActive || bulkImportScheduled">Sync Running Please Wait...</span>
+            <button class="button button-primary" :disabled="importStarting || importActive || countsLoading" @click="triggerSyncDeletes">
+              <span v-if="importStarting || importActive">Sync Running Please Wait...</span>
+              <span v-else-if="countsLoading">Loading POI Counts Please Wait...</span>
               <span v-else>Sync Deleted POIs</span>
-            </button>
-            <button v-if="bulkImportActive" class="button button-primary" @click="stopBulkImporter">
-              Stop Importer and Syncing
             </button>
           </va-card-actions>
         </va-card>
@@ -87,20 +90,25 @@
         <va-card>
           <va-card-title>Import Log Preview</va-card-title>
           <va-card-content>
-            <p>The last 15 entries in the import log. The full import log is available under <a :href="importLogUrl">POI > Import Log</a>.</p>
-            <div class="va-table-responsive">
-              <table class="va-table va-table--striped">
-                <thead>
-                  <tr>
-                    <th>Log Entry</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="({ post_content }, index) of importLog" :key="index">
-                    <td>{{ post_content }}</td>
-                  </tr>
-                </tbody>
-              </table>
+            <div v-if="countsLoading">
+              <OtisLoader />
+            </div>
+            <div v-else>
+              <p>The last 15 entries in the import log. The full import log is available under <a :href="importLogUrl">POI > Import Log</a>.</p>
+              <div class="va-table-responsive">
+                <table class="va-table va-table--striped">
+                  <thead>
+                    <tr>
+                      <th>Log Entry</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="({ post_content }, index) of importLog" :key="index">
+                      <td>{{ post_content }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </va-card-content>
           <va-card-actions>
@@ -112,21 +120,26 @@
         <va-card>
           <va-card-title>POI Counts</va-card-title>
           <va-card-content>
-            <div class="va-table-responsive">
-              <table class="va-table va-table--striped">
-                <thead>
-                  <tr>
-                    <th>Status</th>
-                    <th>Count</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(count, status) of poiCount" :key="status">
-                    <td>{{ status }}</td>
-                    <td><a :href="poiPostsUrl(status)">{{ count }}</a></td>
-                  </tr>
-                </tbody>
-              </table>
+            <div v-if="countsLoading">
+              <OtisLoader />
+            </div>
+            <div v-else>
+              <div class="va-table-responsive">
+                <table class="va-table va-table--striped">
+                  <thead>
+                    <tr>
+                      <th>Status</th>
+                      <th>Count</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(count, status) of poiCount" :key="status">
+                      <td>{{ status }}</td>
+                      <td><a :href="poiPostsUrl(status)">{{ count }}</a></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </va-card-content>
         </va-card>
@@ -158,8 +171,7 @@
       // Refs
       const modifiedDate = ref(new Date());
       const lastImportDate = ref("");
-      const bulkImportActive = ref("");
-      const bulkImportScheduled = ref(false);
+      const importSchedule = ref({});
       const poiCount = ref({});
       const importLog = ref([]);
       const importStarting = ref(false);
@@ -180,8 +192,10 @@
         return `${month}/${day}/${year} @ ${hours}:${minutes}`;
       });
       const importerStatus = computed(() => {
-        if (bulkImportActive.value) return "Active";
-        if (bulkImportScheduled.value) return "Scheduled";
+        const { fetchListings, processListings, deleteListings } = importSchedule.value;
+        if ( fetchListings ) return "Fetching Listings";
+        if ( processListings ) return "Processing Listings";
+        if ( deleteListings ) return "Deleting Listings";
         return "Inactive";
       });
       const maxDate = computed(() => {
@@ -203,6 +217,10 @@
       });
       const importLogUrl = computed(() => {
         return `${otisDash.admin_url}edit.php?post_type=poi&page=tror_poi_otis_log`;
+      });
+      const importActive = computed(() => {
+        const { fetchListings, processListings, deleteListings } = importSchedule.value;
+        return fetchListings || processListings || deleteListings;
       });
 
       // Methods
@@ -240,11 +258,8 @@
             case "lastImportDate":
               lastImportDate.value = data[key];
               break;
-            case "bulkImportActive":
-              bulkImportActive.value = data[key];
-              break;
-            case "bulkImportScheduled":
-              bulkImportScheduled.value = data[key];
+            case "importSchedule":
+              importSchedule.value = data[key];
               break;
             case "poiCount":
               poiCount.value = data[key];
@@ -265,8 +280,8 @@
         logLoading.value = false;
         importLog.value = data;
       };
-      const stopBulkImporter = async () => {
-        await triggerAction('otis_stop_bulk');
+      const cancelImporter = async () => {
+        await triggerAction('wp_ajax_otis_cancel_importer');
         await otisStatus();
       };
       const triggerInitialImport = async () => {
@@ -298,13 +313,15 @@
       // On Mount
       onMounted(async () => {
         await otisStatus();
+        // Setup interval to check for import status
+        const interval = setInterval(async () => {
+          await otisStatus();
+        }, 30000);
       });
 
       return {
         modifiedDate,
         lastImportDate,
-        bulkImportActive,
-        bulkImportScheduled,
         poiCount,
         importLog,
         importStarting,
@@ -318,11 +335,12 @@
         dateIsValid,
         importLogUrl,
         activeFilters,
+        importActive,
         poiPostsUrl,
         triggerAction,
         otisStatus,
         otisLogPreview,
-        stopBulkImporter,
+        cancelImporter,
         triggerInitialImport,
         triggerModifiedImport,
         triggerSyncDeletes,

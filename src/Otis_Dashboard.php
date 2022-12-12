@@ -68,12 +68,9 @@ class Otis_Dashboard
     }
   }
 
-  public function otis_stop_bulk_importer() {
+  public function otis_cancel_import() {
     try {
-      $log = $this->importer->nobulk();
-      as_unschedule_all_actions( 'wp_otis_dashboard_start_async_import' );
-      as_unschedule_all_actions( 'wp_otis_async_bulk_import' );
-      echo json_encode($log);
+      update_option( WP_OTIS_CANCEL_IMPORT, true );
     } catch ( Exception $e ) {
       echo json_encode($e->getMessage());
     } finally {
@@ -98,11 +95,11 @@ class Otis_Dashboard
   public function otis_status() {
     echo json_encode([
       'importSchedule' => [
-        'fetch' => as_next_scheduled_action( 'wp_otis_fetch_listings' ),
-        'process' => as_next_scheduled_action('wp_otis_process_listings'),
-        'delete' => as_next_scheduled_action( 'wp_otis_delete_removed_listings' ),
+        'fetchListings' => as_next_scheduled_action( 'wp_otis_fetch_listings' ),
+        'processListings' => as_next_scheduled_action('wp_otis_process_listings'),
+        'deleteListings' => as_next_scheduled_action( 'wp_otis_delete_removed_listings' ),
+        'cancelling' => get_option( WP_OTIS_CANCEL_IMPORT, false ),
       ],
-      'importActive' => get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false ),
       'lastImportDate' => get_option( WP_OTIS_LAST_IMPORT_DATE ),
       'poiCount' => $this->otis_poi_counts(),
       'activeFilters' => apply_filters( 'wp_otis_listings', [] ),
@@ -123,7 +120,7 @@ class Otis_Dashboard
     add_action( 'wp_ajax_otis_status', [ $this, 'otis_status' ] );
     add_action( 'wp_ajax_otis_import', [ $this, 'otis_init_import' ] );
     add_action( 'wp_ajax_otis_preview_log', [ $this, 'otis_log_preview' ] );
-    add_action( 'wp_ajax_otis_stop_bulk', [ $this, 'otis_stop_bulk_importer' ] );
+    add_action( 'wp_ajax_otis_cancel_importer', [ $this, 'otis_cancel_import' ] );
     add_action( 'wp_ajax_otis_sync_deleted_pois', [ $this, 'otis_init_deleted_pois_sync' ] );
 
     $this->importer = $importer;

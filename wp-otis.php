@@ -22,6 +22,7 @@ define( 'WP_OTIS_BULK_IMPORT_TRANSIENT', 'wp_otis_bulk_import_transient' );
 define( 'WP_OTIS_BULK_DELETE_TRANSIENT', 'wp_otis_bulk_delete_transient' );
 define( 'WP_OTIS_BULK_HISTORY_ACTIVE', 'wp_otis_bulk_history_active' );
 define( 'WP_OTIS_BULK_DISABLE_CACHE', 0 );
+define( 'WP_OTIS_CANCEL_IMPORT', 'wp_otis_cancel_current_import' );
 
 require_once 'wp-otis-poi.php';
 require_once  plugin_dir_path( __FILE__ ) . '/libraries/action-scheduler/action-scheduler.php';

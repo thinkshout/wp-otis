@@ -69,6 +69,12 @@ class Otis_Importer {
 		$this->logger = $logger;
 	}
 
+	/** Cancel current Import and Process */
+	public function cancel_import( ) {
+		$this->logger->log( 'Cancelling import...' );
+		$this->_cancel_import();
+	}
+
 	/**
 	 * Import from OTIS.
 	 *
@@ -78,6 +84,11 @@ class Otis_Importer {
 	 * @throws \Otis_Exception
 	 */
 	function import( $args, $assoc_args ) {
+		// Check if the cancel flag is set.
+		if ( get_option( WP_OTIS_CANCEL_IMPORT, false ) ) {
+			$this->cancel_import();
+			return;
+		}
 		if ( ! $args ) {
 			$args = [ 'pois' ];
 		} elseif ( ! is_array( $args ) ) {
@@ -357,8 +368,24 @@ class Otis_Importer {
 		}
 	}
 
+	/**
+	 * Removes all scheduled actions for the OTIS import.
+	 */
+	private function _cancel_import() {
+		$this->unschedule_action( 'wp_otis_fetch_listings' );
+		$this->unschedule_action( 'wp_otis_process_listings' );
+		$this->unschedule_action( 'wp_otis_delete_removed_listings' );
+		$this->logger->log( 'Import canceled.' );
+		update_option( WP_OTIS_CANCEL_IMPORT, false );
+	}
+
 	/** Fetch listings from OTIS with passed args and store them in a transient for later use */
 	private function _fetch_otis_listings( $assoc_args = [] ) {
+		// Check if the WP_OTIS_CANCEL_IMPORT option is set to true and if so, cancel the import.
+		if ( get_option( WP_OTIS_CANCEL_IMPORT, false ) ) {
+			$this->cancel_import();
+			return;
+		}
 		// Run actions and filters to allow other plugins to modify the API params.
 		do_action( 'wp_otis_before_fetch_listings', $assoc_args );
 		$api_params = apply_filters( 'wp_otis_listings_api_params', $assoc_args );
@@ -435,6 +462,11 @@ class Otis_Importer {
 
 	/** Process listings stored in transient */
 	private function _process_listings( $assoc_args = [] ) {
+		// Check if the WP_OTIS_CANCEL_IMPORT option is set to true and if so, cancel the import.
+		if ( get_option( WP_OTIS_CANCEL_IMPORT, false ) ) {
+			$this->cancel_import();
+			return;
+		}
 		// Run actions for before processing listings.
 		do_action( 'wp_otis_before_process_listings', $assoc_args );
 		$assoc_args = apply_filters( 'wp_otis_before_process_listings_args', $assoc_args );
@@ -470,6 +502,11 @@ class Otis_Importer {
 
 	/** Delete listings that have been removed from OTIS */
 	private function _delete_removed_listings( $assoc_args = [] ) {
+		// Check if the WP_OTIS_CANCEL_IMPORT option is set to true and if so, cancel the import.
+		if ( get_option( WP_OTIS_CANCEL_IMPORT, false ) ) {
+			$this->cancel_import();
+			return;
+		}
 		// Run actions for before deleting listings.
 		do_action( 'wp_otis_before_delete_removed_listings', $assoc_args );
 		$assoc_args = apply_filters( 'wp_otis_before_delete_removed_listings_args', $assoc_args );
