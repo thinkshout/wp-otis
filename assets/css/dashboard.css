@@ -21,13 +21,18 @@
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
+}
+.otis-dashboard .otis-dashboard__statuses {
+	justify-content: flex-end;
+}
+.otis-dashboard .otis-dashboard__stettings {
 	margin-bottom: 10px;
 }
 .otis-dashboard .otis-dashboard__status {
 	display: inline-block;
 	box-sizing: border-box;
-	width: 33.333%;
-	padding: 10px 10px 10px 0;
+	margin-right: 10px;
+	width: 16.6666666667%;
 }
 .otis-dashboard .otis-dashboard__setting {
 	display: inline-block;
@@ -127,9 +132,9 @@
 }
 .otis-dashboard .otis-dashboard__notifications {
 	position: fixed;
-	bottom: 0;
+	top: 0;
 	width: 85%;
-	padding-bottom: 30px;
+	padding-top: 50px;
 	z-index: 9999;
 	animation: fade-up 0.25s ease;
 }
