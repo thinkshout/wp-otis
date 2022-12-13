@@ -663,23 +663,34 @@ class Otis_Importer {
 		// Run actions for before processing all listings.
 		do_action( 'wp_otis_before_process_active_listings' );
 		// Get the activeIds transient.
-		$active_listing_ids = $this->get_listings_transient( 'activeIds' );
+		$active_listing_uuids = $this->get_listings_transient( 'activeIds' );
 		
 		// Get all active POI Posts with UUIDs not in the activeIds transient.
-		$active_poi_posts = get_posts( [
-			'post_type'      => 'poi',
-			'post_status'    => 'publish',
-			'posts_per_page' => -1
-		] );
+		$active_poi_posts = [];
+		$active_poi_posts_query = new WP_Query(
+			[
+				'post_type'      => 'poi',
+				'post_status'    => 'publish',
+				'posts_per_page' => -1,
+			]
+		);
+		if ( $active_poi_posts_query->have_posts() ) {
+			while ( $active_poi_posts_query->have_posts() ) {
+				$active_poi_posts_query->the_post();
+				$active_poi_posts[] = [
+					'uuid' => get_post_meta( get_the_ID(), 'otis_uuid', true ),
+					'id'   => get_the_ID(),
+				];
+			}
+		}
 
 		// Loop through the active POI Posts and trash them if they are not in the activeIds transient.
 		foreach ( $active_poi_posts as $active_poi_post ) {
-			$active_poi_post_uuid = get_post_meta( $active_poi_post->ID, 'uuid', true );
-			if ( in_array( $active_poi_post_uuid, $active_listing_ids ) ) {
+			if ( in_array( $active_poi_post['uuid'], $active_listing_uuids ) ) {
 				continue;
 			}
-			$this->logger->log( 'Trashing POI Post with UUID: ' . $active_poi_post_uuid, $active_poi_post->ID );
-			wp_trash_post( $active_poi_post->ID );
+			$this->logger->log( 'Trashing POI Post with UUID: ' . $active_poi_post['uuid'], $active_poi_post['id'] );
+			wp_trash_post( $active_poi_post['id'] );
 		}
 
 		// Run actions for after processing all listings.
@@ -702,17 +713,22 @@ class Otis_Importer {
 		do_action( 'wp_otis_before_import_active_listings' );
 
 		// Get the activeIds transient.
-		$active_listing_ids = $this->get_listings_transient( 'activeIds' );
+		$active_listing_uuids = $this->get_listings_transient( 'activeIds' );
 
-		// Get all active POI Posts with UUIDs in the activeIds transient.
-		$active_poi_posts = get_posts( [
+		// Run query to get all active POI Posts.
+		$active_poi_post_uuids = [];
+		$active_pois_query = new WP_Query( [
 			'post_type'      => 'poi',
 			'post_status'    => 'publish',
 			'posts_per_page' => -1
 		] );
+		while ( $active_pois_query->have_posts() ) {
+			$active_pois_query->the_post();
+			$active_poi_post_uuids[] = get_post_meta( get_the_ID(), 'uuid', true );
+		}
 		
 		// Compare the activeIds transient to the active POI Posts and get the UUIDs that are missing.
-		$missing_listing_ids = array_diff( $active_listing_ids, wp_list_pluck( $active_poi_posts, 'uuid' ) );
+		$missing_listing_ids = array_diff( $active_listing_uuids, $active_poi_post_uuids );
 
 		// Loop through the missing UUIDs and import them.
 		foreach ( $missing_listing_ids as $missing_listing_id ) {
