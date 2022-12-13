@@ -674,14 +674,12 @@ class Otis_Importer {
 				'posts_per_page' => -1,
 			]
 		);
-		if ( $active_poi_posts_query->have_posts() ) {
-			while ( $active_poi_posts_query->have_posts() ) {
-				$active_poi_posts_query->the_post();
-				$active_poi_posts[] = [
-					'uuid' => get_post_meta( get_the_ID(), 'otis_uuid', true ),
-					'id'   => get_the_ID(),
-				];
-			}
+		while ( $active_poi_posts_query->have_posts() ) {
+			$active_poi_posts_query->the_post();
+			$active_poi_posts[] = [
+				'uuid' => get_post_meta( get_the_ID(), 'otis_uuid', true ),
+				'id'   => get_the_ID(),
+			];
 		}
 
 		// Loop through the active POI Posts and trash them if they are not in the activeIds transient.
