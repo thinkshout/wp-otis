@@ -96,8 +96,8 @@ class Otis_Importer {
 		}
 
     $import_active = isset( $assoc_args['bulk'] ) ? $assoc_args['bulk'] : get_option( WP_OTIS_IMPORT_ACTIVE, false );
-		if ( $import_active ) {
-			$this->logger->log( 'Import active, pausing cron events for the duration.' );
+		if ( $import_active && ! get_option( WP_OTIS_IMPORT_ACTIVE, false ) ) {
+			$this->logger->log( 'Import in progress, pausing cron based imports.' );
 			$this->start_bulk();
 		}
 
@@ -206,13 +206,13 @@ class Otis_Importer {
 
 	/** Process Sync All Listings Transient Data */
 	public function remove_sync_all_inactive_listings() {
-		$this->logger->log( 'Removing sync all listings in transient...' );
+		$this->logger->log( 'Removing all inactive POIs from WordPress...' );
 		$this->_remove_all_inactive_listings();
 	}
 
 	/** Process Sync All Listings Transient Data */
 	public function import_sync_all_active_listings() {
-		$this->logger->log( 'Importing sync all listings in transient...' );
+		$this->logger->log( 'Importing all missing POIs...' );
 		$this->_import_all_active_listings();
 	}
 
@@ -669,18 +669,16 @@ class Otis_Importer {
 		$active_poi_posts = get_posts( [
 			'post_type'      => 'poi',
 			'post_status'    => 'publish',
-			'posts_per_page' => -1,
-			'meta_query'     => [
-				[
-					'key'     => 'uuid',
-					'value'   => $active_listing_ids,
-					'compare' => 'NOT IN',
-				],
-			],
+			'posts_per_page' => -1
 		] );
 
-		// Loop through the active POI Posts and trash them.
+		// Loop through the active POI Posts and trash them if they are not in the activeIds transient.
 		foreach ( $active_poi_posts as $active_poi_post ) {
+			$active_poi_post_uuid = get_post_meta( $active_poi_post->ID, 'uuid', true );
+			if ( in_array( $active_poi_post_uuid, $active_listing_ids ) ) {
+				continue;
+			}
+			$this->logger->log( 'Trashing POI Post with UUID: ' . $active_poi_post_uuid, $active_poi_post->ID );
 			wp_trash_post( $active_poi_post->ID );
 		}
 
@@ -688,6 +686,7 @@ class Otis_Importer {
 		do_action( 'wp_otis_after_process_active_listings' );
 
 		// Schedule the action to import missing listings.
+		$this->logger->log( 'Scheduling import of missing listings' );
 		$this->schedule_action( 'wp_otis_sync_all_listings_import' );
 	}
 
