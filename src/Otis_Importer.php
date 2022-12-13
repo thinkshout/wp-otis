@@ -673,7 +673,7 @@ class Otis_Importer {
 		foreach ( $posts as $post ) {
 			$active_poi_posts[] = [
 				'id'   => $post->ID,
-				'uuid' => get_post_meta( $post->ID, 'uuid', true ),
+				'uuid' => get_field( 'uuid' ),
 			];
 		}
 		return $active_poi_posts;
@@ -697,7 +697,7 @@ class Otis_Importer {
 
 		// Loop through the active POI Posts and trash them if they are not in the activeIds transient.
 		foreach ( $active_poi_posts as $active_poi_post ) {
-			if ( in_array( $active_poi_post['uuid'], $active_listing_uuids ) ) {
+			if ( in_array( $active_poi_post['uuid'], $active_listing_uuids, true ) ) {
 				continue;
 			}
 			$this->logger->log( 'Trashing POI Post with UUID: ' . $active_poi_post['uuid'], $active_poi_post['id'] );
