@@ -671,10 +671,10 @@ class Otis_Importer {
 		$posts = $active_poi_post_query->get_posts();
 	
 		// Loop through the posts and add the ID and UUID to the array.
-		foreach ( $posts as $post ) {
+		foreach ( $posts as $post_id ) {
 			$active_poi_posts[] = [
-				'id'   => $post->ID,
-				'uuid' => get_field( 'uuid' ),
+				'id'   => $post_id,
+				'uuid' => get_field( 'uuid', $post_id ),
 			];
 		}
 		return $active_poi_posts;
