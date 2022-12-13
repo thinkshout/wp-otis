@@ -628,8 +628,9 @@ class Otis_Importer {
 		$active_listings_results = $this->otis->call( 'listings/activeids', $api_params, $this->logger );
 
 		// Merge retrieved IDs with the activeIds transient.
+		$active_listings_transient = $this->get_listings_transient( 'activeIds' ) ? $this->get_listings_transient( 'activeIds' ) : [];
 		$active_listing_ids = $active_listings_results['results'] ? $active_listings_results['results'] : [];
-		$active_listing_ids = array_merge( $this->get_listings_transient( 'activeIds' ), $active_listing_ids );
+		$active_listing_ids = array_merge( $active_listings_transient , $active_listing_ids );
 
 		// Set the activeIds transient.
 		$this->set_listings_transient( $active_listing_ids, 'activeIds' );
