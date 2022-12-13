@@ -654,26 +654,31 @@ class Otis_Importer {
 	}
 
 	/** Get all published POI Posts */
-	private function _get_all_poi_posts( $page = 1 ) {
-		$active_poi_posts_query = new WP_Query(
+	private function _get_all_poi_posts() {
+		$active_poi_posts = [];
+		// Get all published POI Posts.
+		$active_poi_post_query = new WP_Query(
 			[
 				'post_type'      => 'poi',
 				'post_status'    => 'publish',
 				'posts_per_page' => 100,
-				'paged'          => $page,
 			]
 		);
-		while ( $active_poi_posts_query->have_posts() ) {
-			$active_poi_posts_query->the_post();
-			$active_poi_posts[] = [
-				'uuid' => get_post_meta( get_the_ID(), 'otis_uuid', true ),
-				'id'   => get_the_ID(),
-			];
-		}
-		wp_reset_postdata();
-		// Check if there's a next page and if so, get the posts from that page.
-		if ( $active_poi_posts_query->max_num_pages > $page ) {
-			$active_poi_posts = array_merge( $active_poi_posts, $this->_get_all_poi_posts( $page + 1 ) );
+		// Loop through the pages of the query and add the posts to the array.
+		for ( $i = 1; $i < $active_poi_post_query->max_num_pages; $i++ ) { 
+			// Set the page number.
+			$active_poi_post_query->set( 'paged', $i );
+			// Get the posts for the page.
+			$active_poi_post_query->get_posts();
+
+			// Loop through the posts and add the ID and UUID to the array.
+			while ( $active_poi_post_query->have_posts() ) {
+				$active_poi_post_query->the_post();
+				$active_poi_posts[] = [
+					'id'   => get_the_ID(),
+					'uuid' => get_post_meta( get_the_ID(), 'uuid', true ),
+				];
+			}
 		}
 		return $active_poi_posts;
 	}
