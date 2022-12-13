@@ -204,6 +204,18 @@ class Otis_Importer {
 		$this->_delete_removed_listings( $assoc_args );
 	}
 
+	/** Process Sync All Listings Transient Data */
+	public function remove_sync_all_inactive_listings() {
+		$this->logger->log( 'Removing sync all listings in transient...' );
+		$this->_remove_all_inactive_listings();
+	}
+
+	/** Process Sync All Listings Transient Data */
+	public function import_sync_all_active_listings() {
+		$this->logger->log( 'Importing sync all listings in transient...' );
+		$this->_import_all_active_listings();
+	}
+
     /**
      * Sets bulk importer flag to false
      *
@@ -639,7 +651,79 @@ class Otis_Importer {
 
 		// Schedule the action to sync the listings.
 		$this->schedule_action( 'wp_otis_sync_all_listings_process' );
-	} 
+	}
+
+	/** Process activeIds Transient */
+	private function _remove_all_inactive_listings() {
+		// Check if the WP_OTIS_CANCEL_IMPORT option is set to true and if so, cancel the import.
+		if ( get_option( WP_OTIS_CANCEL_IMPORT, false ) ) {
+			$this->cancel_import();
+			return;
+		}
+		// Run actions for before processing all listings.
+		do_action( 'wp_otis_before_process_active_listings' );
+		// Get the activeIds transient.
+		$active_listing_ids = $this->get_listings_transient( 'activeIds' );
+		
+		// Get all active POI Posts with UUIDs not in the activeIds transient.
+		$active_poi_posts = get_posts( [
+			'post_type'      => 'poi',
+			'post_status'    => 'publish',
+			'posts_per_page' => -1,
+			'meta_query'     => [
+				[
+					'key'     => 'uuid',
+					'value'   => $active_listing_ids,
+					'compare' => 'NOT IN',
+				],
+			],
+		] );
+
+		// Loop through the active POI Posts and trash them.
+		foreach ( $active_poi_posts as $active_poi_post ) {
+			wp_trash_post( $active_poi_post->ID );
+		}
+
+		// Run actions for after processing all listings.
+		do_action( 'wp_otis_after_process_active_listings' );
+
+		// Schedule the action to import missing listings.
+		$this->schedule_action( 'wp_otis_sync_all_listings_import' );
+	}
+
+	/** Import missing listings */
+	private function _import_all_active_listings() {
+		// Check if the WP_OTIS_CANCEL_IMPORT option is set to true and if so, cancel the import.
+		if ( get_option( WP_OTIS_CANCEL_IMPORT, false ) ) {
+			$this->cancel_import();
+			return;
+		}
+
+		// Run actions for before importing all listings.
+		do_action( 'wp_otis_before_import_active_listings' );
+
+		// Get the activeIds transient.
+		$active_listing_ids = $this->get_listings_transient( 'activeIds' );
+
+		// Get all active POI Posts with UUIDs in the activeIds transient.
+		$active_poi_posts = get_posts( [
+			'post_type'      => 'poi',
+			'post_status'    => 'publish',
+			'posts_per_page' => -1
+		] );
+		
+		// Compare the activeIds transient to the active POI Posts and get the UUIDs that are missing.
+		$missing_listing_ids = array_diff( $active_listing_ids, wp_list_pluck( $active_poi_posts, 'uuid' ) );
+
+		// Loop through the missing UUIDs and import them.
+		foreach ( $missing_listing_ids as $missing_listing_id ) {
+			$this->import( 'poi', [ 'uuid' => $missing_listing_id ] );
+		}
+
+		// Run actions for after importing all listings.
+		do_action( 'wp_otis_after_import_active_listings' );
+		$this->logger->log( 'Finished importing syncing active listings.' );
+	}
 
 
 	/**

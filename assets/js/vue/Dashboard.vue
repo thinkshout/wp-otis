@@ -79,7 +79,7 @@
           </div>
         </div>
       </div>
-      <!-- <div v-if="!displayInitialImport" class="otis-dashboard__setting otis-dashboard__setting--full-width">
+      <div v-if="!displayInitialImport" class="otis-dashboard__setting otis-dashboard__setting--full-width">
         <va-card>
           <va-card-title>Sync All POIs</va-card-title>
           <va-card-content>
@@ -94,7 +94,7 @@
             </button>
           </va-card-actions>
         </va-card>
-      </div> -->
+      </div>
       <div v-if="!displayInitialImport" class="otis-dashboard__setting">
         <va-card>
           <va-card-title>Import Log Preview</va-card-title>
