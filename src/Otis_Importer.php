@@ -661,27 +661,24 @@ class Otis_Importer {
 			[
 				'post_type'      => 'poi',
 				'post_status'    => 'publish',
-				'posts_per_page' => 100,
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+				'no_found_rows'  => true,
 			]
 		);
-		// Loop through the pages of the query and add the posts to the array.
-		for ( $i = 1; $i < $active_poi_post_query->max_num_pages; $i++ ) { 
-			// Set the page number.
-			$active_poi_post_query->set( 'paged', $i );
-			// Get the posts for the page.
-			$active_poi_post_query->get_posts();
-
-			// Loop through the posts and add the ID and UUID to the array.
-			while ( $active_poi_post_query->have_posts() ) {
-				$active_poi_post_query->the_post();
-				$active_poi_posts[] = [
-					'id'   => get_the_ID(),
-					'uuid' => get_post_meta( get_the_ID(), 'uuid', true ),
-				];
-			}
+		// Get the posts for the query.
+		$posts = $active_poi_post_query->get_posts();
+	
+		// Loop through the posts and add the ID and UUID to the array.
+		foreach ( $posts as $post ) {
+			$active_poi_posts[] = [
+				'id'   => $post->ID,
+				'uuid' => get_post_meta( $post->ID, 'uuid', true ),
+			];
 		}
 		return $active_poi_posts;
 	}
+	
 
 	/** Process activeIds Transient */
 	private function _remove_all_inactive_listings() {
