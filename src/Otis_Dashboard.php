@@ -97,13 +97,14 @@ class Otis_Dashboard
   public function otis_status() {
     echo json_encode([
       'importSchedule' => [
-        'fetchListings'      => as_next_scheduled_action( 'wp_otis_fetch_listings' ),
-        'processListings'    => as_next_scheduled_action('wp_otis_process_listings'),
-        'deleteListings'     => as_next_scheduled_action( 'wp_otis_delete_removed_listings' ),
-        'syncAllPoisFetch'   => as_next_scheduled_action( 'wp_otis_sync_all_listings_fetch' ),
-        'syncAllPoisProcess' => as_next_scheduled_action( 'wp_otis_sync_all_listings_process' ),
-        'syncAllPoisImport'  => as_next_scheduled_action( 'wp_otis_sync_all_listings_import' ),
-        'cancelling'         => get_option( WP_OTIS_CANCEL_IMPORT, false ),
+        'fetchListings'        => as_next_scheduled_action( 'wp_otis_fetch_listings' ),
+        'processListings'      => as_next_scheduled_action('wp_otis_process_listings'),
+        'deleteListings'       => as_next_scheduled_action( 'wp_otis_delete_removed_listings' ),
+        'syncAllPoisFetch'     => as_next_scheduled_action( 'wp_otis_sync_all_listings_fetch' ),
+        'syncAllPoisProcess'   => as_next_scheduled_action( 'wp_otis_sync_all_listings_process' ),
+        'syncAllPoisImport'    => as_next_scheduled_action( 'wp_otis_sync_all_listings_import' ),
+        'syncAllPoisTransient' => as_next_scheduled_action( 'wp_otis_sync_all_listings_posts_transient' ),
+        'cancelling'           => get_option( WP_OTIS_CANCEL_IMPORT, false ),
       ],
       'lastImportDate' => get_option( WP_OTIS_LAST_IMPORT_DATE ),
       'poiCount' => $this->otis_poi_counts(),

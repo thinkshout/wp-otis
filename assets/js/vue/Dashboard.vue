@@ -37,11 +37,12 @@
               />
             </va-card-content>
             <va-card-actions>
-              <button class="button button-primary" :disabled="!dateIsValid || importStarting || importActive" @click="triggerModifiedImport">
+              <button class="button button-primary" :disabled="!dateIsValid || importStarting || importActive || syncAllActive" @click="triggerModifiedImport">
                 <span v-if="importStarting">
                   Import Starting Please Wait...
                 </span>
                 <span v-else-if="importActive">Import Running Please Wait...</span>
+                <span v-else-if="syncAllActive">Sync Running Please Wait...</span>
                 <span v-else>Start Importing Modified POIs</span>
               </button>
               <button v-if="importActive" class="button button-primary" @click="cancelImporter">
@@ -89,9 +90,12 @@
             <p><strong>This will delete POIs if they've been removed from OTIS.</strong></p>
           </va-card-content>
           <va-card-actions>
-            <button class="button button-primary" :disabled="importStarting || importActive" @click="triggerSyncPois">
-              <span v-if="importStarting || importActive">Sync Running Please Wait...</span>
+            <button class="button button-primary" :disabled="importStarting || importActive || syncAllActive" @click="triggerSyncPois">
+              <span v-if="importStarting || importActive || syncAllActive">Sync Running Please Wait...</span>
               <span v-else>Sync POIs</span>
+            </button>
+            <button v-if="syncAllActive" class="button button-primary" @click="cancelImporter">
+              Cancel Sync All
             </button>
           </va-card-actions>
         </va-card>
@@ -202,10 +206,14 @@
         return `${month}/${day}/${year} @ ${hours}:${minutes}`;
       });
       const importerStatus = computed(() => {
-        const { fetchListings, processListings, deleteListings } = importSchedule.value;
+        const { fetchListings, processListings, deleteListings, syncAllPoisFetch, syncAllPoisProcess, syncAllPoisImport, syncAllPoisTransient } = importSchedule.value;
         if ( fetchListings ) return "Fetching Listings";
         if ( processListings ) return "Processing Listings";
         if ( deleteListings ) return "Deleting Listings";
+        if ( syncAllPoisFetch ) return "Fetching POIs for Sync All";
+        if ( syncAllPoisProcess ) return "Processing POIs for Sync All";
+        if ( syncAllPoisImport ) return "Importing POIs for Sync All";
+        if ( syncAllPoisTransient ) return "Creating Transient for Sync All";
         return "Inactive";
       });
       const maxDate = computed(() => {
@@ -231,6 +239,10 @@
       const importActive = computed(() => {
         const { fetchListings, processListings, deleteListings } = importSchedule.value;
         return fetchListings || processListings || deleteListings;
+      });
+      const syncAllActive = computed(() => {
+        const { syncAllPoisFetch, syncAllPoisProcess, syncAllPoisImport, syncAllPoisTransient } = importSchedule.value;
+        return syncAllPoisFetch || syncAllPoisProcess || syncAllPoisImport || syncAllPoisTransient;
       });
 
       // Methods
@@ -346,6 +358,7 @@
         importLogUrl,
         activeFilters,
         importActive,
+        syncAllActive,
         poiPostsUrl,
         triggerAction,
         otisStatus,
