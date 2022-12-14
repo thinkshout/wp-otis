@@ -367,9 +367,9 @@ add_action( 'manage_type_custom_column', function ( $value, $column_name, $tax_i
 
 	if ( 'otis_library' === $column_name ) {
 		$libraries = get_term_meta( $tax_id, 'otis_listing_type_library', true );
-		$libraries = array_map( function ( $library ) {
-			return ucwords( str_replace( '-', ' ', $library ) );
-		}, $libraries );
+		// $libraries = array_map( function ( $library ) {
+		// 	return ucwords( str_replace( '-', ' ', $library ) );
+		// }, $libraries );
 		return implode( ', ', $libraries );
 	}
 
