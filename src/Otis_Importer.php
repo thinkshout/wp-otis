@@ -720,9 +720,11 @@ class Otis_Importer {
 		$has_next_page = $process_page < count( $active_poi_post_chunks ) ? true : false;
 		// If there are more pages, schedule another action to fetch them.
 		if ( $has_next_page ) {
-			$assoc_args['process_page'] = $process_page + 1;
+			$next_page = $process_page + 1;
+			$total_pages = count( $active_poi_post_chunks );
+			$assoc_args['process_page'] = $next_page;
 			$this->schedule_action( 'wp_otis_sync_all_listings_process', [ 'params' => $assoc_args ] );
-			$this->logger->log( 'Scheduling process of next page of process active listings' );
+			$this->logger->log( "Scheduling process of page $next_page of $total_pages of process active listings" );
 			return;
 		}
 
@@ -771,9 +773,11 @@ class Otis_Importer {
 		$has_next_page = $import_page < count( $active_listing_uuid_chunks ) ? true : false;
 		// If there are more pages, schedule another action to fetch them.
 		if ( $has_next_page ) {
-			$assoc_args['import_page'] = $import_page + 1;
+			$next_page = $import_page + 1;
+			$total_pages = count( $active_listing_uuid_chunks );
+			$assoc_args['import_page'] = $next_page;
 			$this->schedule_action( 'wp_otis_sync_all_listings_import', [ 'params' => $assoc_args ] );
-			$this->logger->log( 'Scheduling import of next page of active listings import' );
+			$this->logger->log( "Scheduling import page $next_page of $total_pages of active listings import" );
 			return;
 		}
 
