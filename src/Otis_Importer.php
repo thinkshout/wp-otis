@@ -1188,7 +1188,7 @@ class Otis_Importer {
 	 * Calculate Listing Type Library meta value for Types taxonomy terms.
 	 */
 	private function _add_listing_type_library_meta( $type_term ) {
-		$otis_path_meta = get_term_meta( $type_term->term_id, 'otis_path', true );
+		$otis_path_meta = get_term_meta( $type_term->term_id, 'otis_path' );
 		$otis_listing_type_libraries = array_map( function ( $path ) {
 			$library = explode( '/', $path )[1];
 			$library = str_replace( 'listings-', '', $library );
@@ -1197,7 +1197,7 @@ class Otis_Importer {
 
 		$otis_listing_type_libraries = array_unique( $otis_listing_type_libraries );
 
-		$libraries_term_meta = add_term_meta( $type_term->term_id, 'otis_listing_type_library', $otis_listing_type_libraries, false);
+		$libraries_term_meta = add_term_meta( $type_term->term_id, 'otis_listing_type_library', $otis_listing_type_libraries );
 		if ( is_wp_error( $libraries_term_meta ) ) {
 			throw new Otis_Exception( 'Error: taxonomy type, term id: ' . $type_term->term_id . ', ' . $libraries_term_meta->get_error_message() );
 		}
