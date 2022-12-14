@@ -222,6 +222,11 @@ class Otis_Importer {
 		$this->_import_all_active_listings( $assoc_args );
 	}
 
+	public function sync_listing_type_libraries() {
+		$this->logger->log( 'Syncing listing type libraries...' );
+		$this->_sync_listing_type_libraries();
+	}
+
     /**
      * Sets bulk importer flag to false
      *
@@ -816,6 +821,20 @@ class Otis_Importer {
 		$this->logger->log( 'Finished importing syncing active listings.' );
 	}
 
+	/** Sync Listing Type Libraries */
+	private function _sync_listing_type_libraries() {
+		// Get all listing type terms.
+		$listing_type_terms = get_terms( [
+			'taxonomy'   => 'type',
+			'hide_empty' => false,
+		] );
+
+		// Loop through the listing type terms and pass the term to the _add_listing_type_library_meta function.
+		foreach ( $listing_type_terms as $listing_type_term ) {
+			$this->_add_listing_type_library_meta( $listing_type_term );
+		}
+	}
+
 
 	/**
 	 * Create/update a WordPress POI based on OTIS result data. If post_id is
@@ -1163,6 +1182,25 @@ class Otis_Importer {
 		}
 
 		return 'draft';
+	}
+
+	/**
+	 * Calculate Listing Type Library meta value for Types taxonomy terms.
+	 */
+	private function _add_listing_type_library_meta( $type_term ) {
+		$otis_path_meta = get_term_meta( $type_term->term_id, 'otis_path', true );
+		$otis_listing_type_libraries = array_map( function ( $path ) {
+			$library = explode( '/', $path )[1];
+			$library = str_replace( 'listings-', '', $library );
+			return $library;
+		}, $otis_path_meta );
+
+		$otis_listing_type_libraries = array_unique( $otis_listing_type_libraries );
+
+		$libraries_term_meta = add_term_meta( $type_term->term_id, 'otis_listing_type_library', $otis_listing_type_libraries, false);
+		if ( is_wp_error( $libraries_term_meta ) ) {
+			throw new Otis_Exception( 'Error: taxonomy type, term id: ' . $type_term->term_id . ', ' . $libraries_term_meta->get_error_message() );
+		}
 	}
 
 	/**

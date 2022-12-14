@@ -333,6 +333,22 @@ add_action( 'wp_otis_expire_events', function () {
   wp_reset_postdata();
 } );
 
+if ( ! wp_next_scheduled( 'wp_otis_sync_listing_type_libraries' ) ) {
+	wp_schedule_event( time(), 'daily', 'wp_otis_sync_listing_type_libraries' );
+}
+
+add_action( 'wp_otis_sync_listing_type_libraries', function () {
+	$otis     = new Otis();
+	$logger   = new Otis_Logger_Simple();
+	$importer = new Otis_Importer( $otis, $logger );
+
+	try {
+		$importer->sync_listing_type_libraries();
+	} catch ( Exception $e ) {
+		$logger->log( $e->getMessage(), 0, 'error' );
+	}
+} );
+
 add_filter( 'manage_edit-type_columns', function ( $columns ) {
 	$columns['otis_library'] = 'Listing Type Library';
 	$columns['otis_path'] = 'Listing Type OTIS Path';
@@ -350,16 +366,11 @@ add_action( 'manage_type_custom_column', function ( $value, $column_name, $tax_i
 	}
 
 	if ( 'otis_library' === $column_name ) {
-		$libraries_path = get_term_meta( $tax_id, 'otis_path' );
-		// Split the path and get the library name.
-		$libraries = array_map( function ( $path ) {
-			$library = explode( '/', $path )[1];
-			$library = str_replace( 'listings-', '', $library );
-			return $library;
-		}, $libraries_path );
-		// Get unique libraries.
-		$libraries = array_unique( $libraries );
-		return ucwords( implode( ', ', $libraries ) );
+		$libraries = get_term_meta( $tax_id, 'otis_listing_type_library', true );
+		$libraries = array_map( function ( $library ) {
+			return ucwords( str_replace( '-', ' ', $library ) );
+		}, $libraries );
+		return implode( ', ', $libraries );
 	}
 
 	return '';
