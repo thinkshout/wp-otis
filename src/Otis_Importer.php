@@ -217,9 +217,9 @@ class Otis_Importer {
 	}
 
 	/** Process Sync All Listings Transient Data */
-	public function import_sync_all_active_listings() {
+	public function import_sync_all_active_listings( $assoc_args ) {
 		$this->logger->log( 'Checking for missing POIs...' );
-		$this->_import_all_active_listings();
+		$this->_import_all_active_listings( $assoc_args );
 	}
 
     /**
@@ -735,7 +735,7 @@ class Otis_Importer {
 	}
 
 	/** Import missing listings */
-	private function _import_all_active_listings( $assoc_args ) {
+	private function _import_all_active_listings( $assoc_args = [] ) {
 		// Check if the WP_OTIS_CANCEL_IMPORT option is set to true and if so, cancel the import.
 		if ( get_option( WP_OTIS_CANCEL_IMPORT, false ) ) {
 			$this->cancel_import();
