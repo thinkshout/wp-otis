@@ -211,9 +211,9 @@ class Otis_Importer {
 	}
 
 	/** Process Sync All Listings Transient Data */
-	public function remove_sync_all_inactive_listings() {
+	public function remove_sync_all_inactive_listings( $assoc_args ) {
 		$this->logger->log( 'Checking active POIs against OTIS...' );
-		$this->_remove_all_inactive_listings();
+		$this->_remove_all_inactive_listings( $assoc_args );
 	}
 
 	/** Process Sync All Listings Transient Data */
@@ -409,6 +409,10 @@ class Otis_Importer {
 		$this->unschedule_action( 'wp_otis_process_listings' );
 		$this->unschedule_action( 'wp_otis_delete_removed_listings' );
 		$this->unschedule_action( 'wp_otis_sync_all_listings' );
+		$this->unschedule_action( 'wp_otis_sync_all_listings_fetch' );
+		$this->unschedule_action( 'wp_otis_sync_all_listings_process' );
+		$this->unschedule_action( 'wp_otis_sync_all_listings_import' );
+		$this->unschedule_action( 'wp_otis_sync_all_listings_posts_transient' );
 		$this->logger->log( 'Import canceled.' );
 		update_option( WP_OTIS_CANCEL_IMPORT, false );
 		update_option( WP_OTIS_IMPORT_ACTIVE, false );
@@ -680,7 +684,7 @@ class Otis_Importer {
 	
 
 	/** Process activeIds Transient */
-	private function _remove_all_inactive_listings() {
+	private function _remove_all_inactive_listings( $assoc_args = [] ) {
 		// Check if the WP_OTIS_CANCEL_IMPORT option is set to true and if so, cancel the import.
 		if ( get_option( WP_OTIS_CANCEL_IMPORT, false ) ) {
 			$this->cancel_import();
@@ -688,18 +692,38 @@ class Otis_Importer {
 		}
 		// Run actions for before processing all listings.
 		do_action( 'wp_otis_before_process_active_listings' );
+		// Check if theres a process_page in args and set it to the first one if it's not present.
+		$process_page = $assoc_args['process_page'] ? intval( $assoc_args['process_page'] ) : 1;
 		// Get the activeIds transient.
 		$active_listing_uuids = $this->get_listings_transient( 'activeIds' );
 		// Get the allPois transient.
 		$active_poi_post_ids = $this->get_listings_transient( 'allPoiPosts' );
 
-		// Loop through the active POI Posts and trash them if they are not in the activeIds transient.
-		foreach ( $active_poi_post_ids as $active_poi_post_id ) {
+		// Split the allPoiPosts transient into chunks of 100.
+		$active_poi_post_chunks = array_chunk( $active_poi_post_ids, 100 );
+
+		// Loop through the poi chunk based on the process_page.
+		foreach ( $active_poi_post_chunks[ $process_page - 1 ] as $active_poi_post_id ) {
+			// Check if the WP_OTIS_CANCEL_IMPORT option is set to true and if so, cancel the import.
+			if ( get_option( WP_OTIS_CANCEL_IMPORT, false ) ) {
+				$this->cancel_import();
+				return;
+			}
 			$active_poi_post_uuid = get_post_meta( $active_poi_post_id, 'uuid', true );
 			if ( ! in_array( $active_poi_post_uuid, $active_listing_uuids, true ) ) {
 				$this->logger->log( 'Trashing POI Post with UUID: ' . $active_poi_post_uuid, $active_poi_post_id );
 				wp_trash_post( $active_poi_post_id );
 			}
+		}
+
+		// Check if there are more pages.
+		$has_next_page = $process_page < count( $active_poi_post_chunks ) ? true : false;
+		// If there are more pages, schedule another action to fetch them.
+		if ( $has_next_page ) {
+			$assoc_args['process_page'] = $process_page + 1;
+			$this->schedule_action( 'wp_otis_sync_all_listings_process', [ 'params' => $assoc_args ] );
+			$this->logger->log( 'Scheduling process of next page of process active listings' );
+			return;
 		}
 
 		// Run actions for after processing all listings.
