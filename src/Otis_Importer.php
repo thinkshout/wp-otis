@@ -617,6 +617,10 @@ class Otis_Importer {
 			$this->cancel_import();
 			return;
 		}
+		// Check if the WP_OTIS_IMPORT_ACTIVE option is set to true and set it if it's not.
+		if ( ! get_option( WP_OTIS_IMPORT_ACTIVE, false ) ) {
+			update_option( WP_OTIS_IMPORT_ACTIVE, true );
+		}
 		// Run actions for before syncing all listings.
 		do_action( 'wp_otis_before_sync_all_listings', $assoc_args );
 		$assoc_args = apply_filters( 'wp_otis_before_sync_all_listings_args', $assoc_args );
@@ -665,6 +669,15 @@ class Otis_Importer {
 
 	/** Get all published POI Posts and set a transient */
 	private function _set_all_pois_transient() {
+		// Check if the WP_OTIS_CANCEL_IMPORT option is set to true and if so, cancel the import.
+		if ( get_option( WP_OTIS_CANCEL_IMPORT, false ) ) {
+			$this->cancel_import();
+			return;
+		}
+		// Check if the WP_OTIS_IMPORT_ACTIVE option is set to true and set it if it's not.
+		if ( ! get_option( WP_OTIS_IMPORT_ACTIVE, false ) ) {
+			update_option( WP_OTIS_IMPORT_ACTIVE, true );
+		}
 		// Get all published POI Post IDs.
 		$active_poi_post_query = new WP_Query(
 			[
@@ -689,6 +702,10 @@ class Otis_Importer {
 		if ( get_option( WP_OTIS_CANCEL_IMPORT, false ) ) {
 			$this->cancel_import();
 			return;
+		}
+		// Check if the WP_OTIS_IMPORT_ACTIVE option is set to true and set it if it's not.
+		if ( ! get_option( WP_OTIS_IMPORT_ACTIVE, false ) ) {
+			update_option( WP_OTIS_IMPORT_ACTIVE, true );
 		}
 		// Run actions for before processing all listings.
 		do_action( 'wp_otis_before_process_active_listings' );
@@ -743,6 +760,10 @@ class Otis_Importer {
 			$this->cancel_import();
 			return;
 		}
+		// Check if the WP_OTIS_IMPORT_ACTIVE option is set to true and set it if it's not.
+		if ( ! get_option( WP_OTIS_IMPORT_ACTIVE, false ) ) {
+			update_option( WP_OTIS_IMPORT_ACTIVE, true );
+		}
 
 		// Run actions for before importing all listings.
 		do_action( 'wp_otis_before_import_active_listings' );
@@ -783,6 +804,15 @@ class Otis_Importer {
 
 		// Run actions for after importing all listings.
 		do_action( 'wp_otis_after_import_active_listings' );
+
+		// Update the WP_OTIS_IMPORT_ACTIVE option to false.
+		update_option( WP_OTIS_IMPORT_ACTIVE, false );
+
+		// Clean Up Transients.
+		$this->delete_listings_transient( 'activeIds' );
+		$this->delete_listings_transient( 'allPoiPosts' );
+
+		// Log that the import is finished.
 		$this->logger->log( 'Finished importing syncing active listings.' );
 	}
 
