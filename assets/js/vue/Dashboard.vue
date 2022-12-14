@@ -83,6 +83,7 @@
         <va-card>
           <va-card-title>Sync All POIs</va-card-title>
           <va-card-content>
+            <p><i><strong>Note:</strong> This is a lengthy and resource intensive process</i></p>
             <p>This will sync all relevant POIs that are active in OTIS with WordPress using the Otis filters you have set. This is useful if you find there are POIs that are stale/should have been imported/deleted.</p>
             <p>This will fetch the list of active POIs, check them against the POIs still active in WordPress, and delete the POI post or add one if relevant.</p>
             <p><strong>This will delete POIs if they've been removed from OTIS.</strong></p>
