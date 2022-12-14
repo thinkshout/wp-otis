@@ -329,6 +329,7 @@
         }
         await triggerAction("otis_sync_all_pois");
         await otisStatus();
+        notifyImportStarted();
         importStarting.value = false;
       };
 
