@@ -204,15 +204,21 @@ class Otis_Importer {
 		$this->_delete_removed_listings( $assoc_args );
 	}
 
+	/** Set All POIs Transient for Sync All Actions */
+	public function set_all_pois_transient() {
+		$this->logger->log( 'Setting all POIs transient...' );
+		$this->_set_all_pois_transient();
+	}
+
 	/** Process Sync All Listings Transient Data */
 	public function remove_sync_all_inactive_listings() {
-		$this->logger->log( 'Removing all inactive POIs from WordPress...' );
+		$this->logger->log( 'Checking active POIs against OTIS...' );
 		$this->_remove_all_inactive_listings();
 	}
 
 	/** Process Sync All Listings Transient Data */
 	public function import_sync_all_active_listings() {
-		$this->logger->log( 'Importing all missing POIs...' );
+		$this->logger->log( 'Checking for missing POIs...' );
 		$this->_import_all_active_listings();
 	}
 
@@ -624,7 +630,6 @@ class Otis_Importer {
 		$api_params = array_merge( $assoc_args, $api_params );
 
 		// Call the API to get all active listing UUIDs.
-		$this->logger->log( 'Fetching all active listings' );
 		$active_listings_results = $this->otis->call( 'listings/activeids', $api_params, $this->logger );
 
 		// Merge retrieved IDs with the activeIds transient.
@@ -650,12 +655,15 @@ class Otis_Importer {
 		// Run actions for after syncing all listings.
 		do_action( 'wp_otis_after_sync_all_listings', $assoc_args );
 
+		// Set the allPois transient.
+		$this->set_all_pois_transient();
+
 		// Schedule the action to sync the listings.
 		$this->schedule_action( 'wp_otis_sync_all_listings_process' );
 	}
 
-	/** Get all published POI Posts */
-	private function _get_all_poi_posts() {
+	/** Get all published POI Posts and set a transient */
+	private function _set_all_pois_transient() {
 		$active_poi_posts = [];
 		// Get all published POI Posts.
 		$active_poi_post_query = new WP_Query(
@@ -677,7 +685,8 @@ class Otis_Importer {
 				'uuid' => get_field( 'uuid', $post_id ),
 			];
 		}
-		return $active_poi_posts;
+		// Set the transient.
+		$this->set_listings_transient( $active_poi_posts, 'allPois' );
 	}
 	
 
@@ -692,9 +701,8 @@ class Otis_Importer {
 		do_action( 'wp_otis_before_process_active_listings' );
 		// Get the activeIds transient.
 		$active_listing_uuids = $this->get_listings_transient( 'activeIds' );
-		
-		// Get all active POI Posts with UUIDs not in the activeIds transient.
-		$active_poi_posts = $this->_get_all_poi_posts();
+		// Get the allPois transient.
+		$active_poi_posts = $this->get_listings_transient( 'allPois' );
 
 		// Loop through the active POI Posts and trash them if they are not in the activeIds transient.
 		foreach ( $active_poi_posts as $active_poi_post ) {
@@ -709,7 +717,7 @@ class Otis_Importer {
 		do_action( 'wp_otis_after_process_active_listings' );
 
 		// Schedule the action to import missing listings.
-		$this->logger->log( 'Scheduling import of missing listings' );
+		$this->logger->log( 'Scheduling import of missing POIs' );
 		$this->schedule_action( 'wp_otis_sync_all_listings_import' );
 	}
 
@@ -726,9 +734,8 @@ class Otis_Importer {
 
 		// Get the activeIds transient.
 		$active_listing_uuids = $this->get_listings_transient( 'activeIds' );
-
-		// Run query to get all active POI Posts.
-		$active_poi_post_uuids = $this->_get_all_poi_posts();
+		// Get the allPois transient.
+		$active_poi_post_uuids = $this->get_listings_transient( 'allPois' );
 		
 		// Compare the activeIds transient to the active POI Posts and get the UUIDs that are missing.
 		$missing_listing_uuids = array_diff( $active_listing_uuids, wp_list_pluck( $active_poi_post_uuids, 'uuid' ) );
