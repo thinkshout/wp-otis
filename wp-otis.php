@@ -334,8 +334,8 @@ add_action( 'wp_otis_expire_events', function () {
 } );
 
 add_filter( 'manage_edit-type_columns', function ( $columns ) {
-	$columns['otis_library'] = 'Library';
-	$columns['otis_path'] = 'Library OTIS Path';
+	$columns['otis_library'] = 'Listing Type Library';
+	$columns['otis_path'] = 'Listing Type OTIS Path';
 
 	return $columns;
 } );
@@ -351,11 +351,15 @@ add_action( 'manage_type_custom_column', function ( $value, $column_name, $tax_i
 
 	if ( 'otis_library' === $column_name ) {
 		$libraries_path = get_term_meta( $tax_id, 'otis_path' );
-		return implode( ', ', array_map( function ( $path ) {
+		// Split the path and get the library name.
+		$libraries = array_map( function ( $path ) {
 			$library = explode( '/', $path )[1];
 			$library = str_replace( 'listings-', '', $library );
 			return $library;
-		}, $libraries_path ) );
+		}, $libraries_path );
+		// Get unique libraries.
+		$libraries = array_unique( $libraries );
+		return ucwords( implode( ', ', $libraries ) );
 	}
 
 	return '';
