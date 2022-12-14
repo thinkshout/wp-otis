@@ -673,19 +673,19 @@ class Otis_Importer {
 		);
 		// Get the post ids from the query.
 		$poi_post_ids = $active_poi_post_query->get_posts();
-		$active_poi_posts = [];
+		// $active_poi_posts = [];
 		// Loop through the post ids and get the UUIDs.
-		foreach ( $poi_post_ids as $poi_post_id ) {
-			$active_poi_posts[] = [
-				'uuid' => get_post_meta( $poi_post_id, 'uuid', true ),
-				'id'   => $poi_post_id,
-			];
-		}
+		// foreach ( $poi_post_ids as $poi_post_id ) {
+		// 	$active_poi_posts[] = [
+		// 		'uuid' => get_post_meta( $poi_post_id, 'uuid', true ),
+		// 		'id'   => $poi_post_id,
+		// 	];
+		// }
 		// Set the transient.
-		$this->set_listings_transient( $active_poi_posts, 'allPoiPosts' );
+		$this->set_listings_transient( $poi_post_ids, 'allPoiPosts' );
 
 		// Schedule the action to sync the listings.
-		$this->schedule_action( 'wp_otis_sync_all_listings_process' );
+		// $this->schedule_action( 'wp_otis_sync_all_listings_process' );
 	}
 	
 
