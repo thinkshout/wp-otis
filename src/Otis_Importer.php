@@ -679,7 +679,7 @@ class Otis_Importer {
 		$this->set_listings_transient( $active_poi_post_query->get_posts(), 'allPoiPosts' );
 
 		// Schedule the action to sync the listings.
-		$this->schedule_action( 'wp_otis_sync_all_listings_process' );
+		$this->schedule_action( 'wp_otis_sync_all_listings_process', [ 'params' => [ 'process_page' => 1 ] ] );
 	}
 	
 
