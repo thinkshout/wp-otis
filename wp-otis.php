@@ -253,7 +253,7 @@ add_action( 'wp_otis_sync_all_listings_process', function( $params ) {
 	}
 }, 10, 1 );
 
-add_action( 'wp_otis_sync_all_listings_import', function() {
+add_action( 'wp_otis_sync_all_listings_import', function( $params ) {
 	
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
@@ -264,7 +264,7 @@ add_action( 'wp_otis_sync_all_listings_import', function() {
 	$importer = new Otis_Importer( $otis, $logger );
 
 	try {
-		$importer->import_sync_all_active_listings();
+		$importer->import_sync_all_active_listings( $params );
 	} catch ( Exception $e ) {
 		$logger->log( $e->getMessage(), 0, 'error' );
 	}

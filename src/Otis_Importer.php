@@ -731,11 +731,11 @@ class Otis_Importer {
 
 		// Schedule the action to import missing listings.
 		$this->logger->log( 'Scheduling import of missing POIs' );
-		$this->schedule_action( 'wp_otis_sync_all_listings_import' );
+		$this->schedule_action( 'wp_otis_sync_all_listings_import', [ 'params' => [ 'import_page' => 1 ] ] );
 	}
 
 	/** Import missing listings */
-	private function _import_all_active_listings() {
+	private function _import_all_active_listings( $assoc_args ) {
 		// Check if the WP_OTIS_CANCEL_IMPORT option is set to true and if so, cancel the import.
 		if ( get_option( WP_OTIS_CANCEL_IMPORT, false ) ) {
 			$this->cancel_import();
@@ -745,16 +745,36 @@ class Otis_Importer {
 		// Run actions for before importing all listings.
 		do_action( 'wp_otis_before_import_active_listings' );
 
+		// Check if theres a import_page in args and set it to the first one if it's not present.
+		$import_page = $assoc_args['import_page'] ? intval( $assoc_args['import_page'] ) : 1;
+
 		// Get the activeIds transient.
 		$active_listing_uuids = $this->get_listings_transient( 'activeIds' );
+		// Split the activeIds transient into chunks of 100.
+		$active_listing_uuid_chunks = array_chunk( $active_listing_uuids, 100 );
 
-		// Loop through the missing UUIDs and import them.
-		foreach ( $active_listing_uuids as $listing_uuid ) {
+		// Loop through the uuid chunks.
+		foreach ( $active_listing_uuid_chunks[ $import_page - 1 ] as $listing_uuid ) {
+			// Check if the WP_OTIS_CANCEL_IMPORT option is set to true and if so, cancel the import.
+			if ( get_option( WP_OTIS_CANCEL_IMPORT, false ) ) {
+				$this->cancel_import();
+				return;
+			}
 			$existing_post_id = wp_otis_get_post_id_for_uuid( $listing_uuid );
 			if ( $existing_post_id ) {
 				continue;
 			}
 			$this->import( 'poi', [ 'uuid' => $listing_uuid ] );
+		}
+
+		// Check if there are more pages.
+		$has_next_page = $import_page < count( $active_listing_uuid_chunks ) ? true : false;
+		// If there are more pages, schedule another action to fetch them.
+		if ( $has_next_page ) {
+			$assoc_args['import_page'] = $import_page + 1;
+			$this->schedule_action( 'wp_otis_sync_all_listings_import', [ 'params' => $assoc_args ] );
+			$this->logger->log( 'Scheduling import of next page of active listings import' );
+			return;
 		}
 
 		// Run actions for after importing all listings.
