@@ -1201,10 +1201,12 @@ class Otis_Importer {
 
 		$otis_listing_type_libraries = array_unique( $otis_listing_type_libraries );
 
-		// Add the listing_type_library meta.
-		$libraries_term_meta = add_term_meta( $type_term->term_id, 'otis_listing_type_library', $otis_listing_type_libraries );
-		if ( is_wp_error( $libraries_term_meta ) ) {
-			throw new Otis_Exception( 'Error: taxonomy type, term id: ' . $type_term->term_id . ', ' . $libraries_term_meta->get_error_message() );
+		// Loop through libraries and add the listing_type_library meta.
+		foreach ( $otis_listing_type_libraries as $library ) {
+			$libraries_term_meta = add_term_meta( $type_term->term_id, 'otis_listing_type_library', $library );
+			if ( is_wp_error( $libraries_term_meta ) ) {
+				throw new Otis_Exception( 'Error: taxonomy type, term id: ' . $type_term->term_id . ', ' . $libraries_term_meta->get_error_message() );
+			}
 		}
 	}
 
