@@ -350,7 +350,7 @@ add_action( 'wp_otis_sync_listing_type_libraries', function () {
 } );
 
 add_filter( 'manage_edit-type_columns', function ( $columns ) {
-	$columns['otis_library'] = 'Listing Type Library';
+	$columns['otis_library'] = 'Listing Type Libraries';
 	$columns['otis_path'] = 'Listing Type OTIS Path';
 
 	return $columns;
