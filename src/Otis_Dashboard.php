@@ -98,7 +98,7 @@ class Otis_Dashboard
     echo json_encode([
       'importSchedule' => [
         'fetchListings'        => as_next_scheduled_action( 'wp_otis_fetch_listings' ),
-        'processListings'      => as_next_scheduled_action('wp_otis_process_listings'),
+        'processListings'      => as_next_scheduled_action( 'wp_otis_process_listings' ),
         'deleteListings'       => as_next_scheduled_action( 'wp_otis_delete_removed_listings' ),
         'syncAllPoisFetch'     => as_next_scheduled_action( 'wp_otis_sync_all_listings_fetch' ),
         'syncAllPoisProcess'   => as_next_scheduled_action( 'wp_otis_sync_all_listings_process' ),
