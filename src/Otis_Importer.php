@@ -515,6 +515,9 @@ class Otis_Importer {
 		do_action( 'wp_otis_before_process_listings', $assoc_args );
 		$assoc_args = apply_filters( 'wp_otis_before_process_listings_args', $assoc_args );
 
+		// Get listings page from args.
+		$listings_page = $assoc_args['modified_process_page'] ? intval( $assoc_args['modified_process_page'] ) : 1;
+
 		// Get listings type from args.
 		$listings_type = $assoc_args['type'] ?? 'pois';
 		// Get listings from transient.
@@ -524,14 +527,28 @@ class Otis_Importer {
 			$this->logger->log( "No $listings_type listings transient to process" );
 			return;
 		}
-		// Apply filters to listings.
-		$listings_transient = apply_filters( 'wp_otis_listings_to_process', $listings_transient, $listings_type );
-		// Loop through listings and process them.
-		foreach ( $listings_transient as $listing ) {
+		// Split listings into chunks.
+		$listings_chunks = array_chunk( $listings_transient, 100 );
+
+		// Apply filters to relevant chunk.
+		$listings_chunks[ $listings_page - 1 ] = apply_filters( 'wp_otis_listings_to_process', $listings_chunks[ $listings_page - 1 ], $listings_type );
+		// Loop over relevant chunk and process listings.
+		foreach ( $listings_chunks[ $listings_page - 1 ] as $listing ) {
 			// Get the existing listing ID from Wordpress if it exists.
 			$found_poi_post_id = wp_otis_get_post_id_for_uuid( $listing['uuid'] );
 			$this->_upsert_poi( $found_poi_post_id, $listing );
 		}
+
+		// If we have more pages, schedule another action to process them.
+		if ( count( $listings_chunks ) > $listings_page ) {
+			$next_page = $listings_page + 1;
+			$total_pages = count( $listings_chunks );
+			$assoc_args['modified_process_page'] = $next_page;
+			$this->schedule_action( 'wp_otis_process_listings', [ 'params' => $assoc_args ] );
+			$this->logger->log( 'Scheduling process page ' . $next_page . ' of ' . $total_pages . ' of ' . $listings_type );
+			return;
+		}
+
 		// Delete transient.
 		$this->delete_listings_transient( $listings_type );
 		// Schedule action to delete removed OTIS listings.
