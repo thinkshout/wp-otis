@@ -165,10 +165,9 @@
         OTIS Importer Started.
       </va-alert>
     </div>
-    <va-modal v-model="showSyncModal" title="Confirm Sync All POIs" @ok="triggerSyncPois">
+    <va-modal v-model="showSyncModal" title="Confirm Sync All POIs" cancel-text="No, do not start the sync." ok-text="Yes, start the sync process." @ok="triggerSyncPois">
       <p><strong>Are you sure you want to sync all POIs?</strong></p>
       <p>This action could take several hours to complete. You may close this browser window while the sync is running.</p>
-      <p><strong>Click ok below to start the sync.</strong></p>
     </va-modal>
     <va-modal v-model="showCancelModal" title="Confirm Cancellation" cancel-text="No, continue the process." ok-text="Yes, cancel the process." @ok="cancelImporter">
       <p>Are you sure you want to cancel?</p>
