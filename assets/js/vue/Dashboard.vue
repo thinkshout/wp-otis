@@ -248,8 +248,7 @@
         return syncAllPoisFetch || syncAllPoisProcess || syncAllPoisImport || syncAllPoisTransient;
       });
       const syncAllConfirmationText = computed(() => {
-        if (syncAllActive.value) return "Sync All is currently running. Are you sure you want to cancel it?";
-        return "Are you sure you want to sync all POIs? Click ok below to start the sync.";
+        return "<p>Are you sure you want to sync all POIs? This action could take several hours to complete. You may close this browser window while the sync is running.</p><p><strong>Click ok below to start the sync.</strong></p>";
       });
 
       // Methods
@@ -331,9 +330,6 @@
       };
       const triggerSyncPois = async () => {
         importStarting.value = true;
-        if ( !confirm('Are you sure you want to sync all relevant POIs from OTIS?') ) {
-          return;
-        }
         await triggerAction("otis_sync_all_pois");
         await otisStatus();
         notifyImportStarted();

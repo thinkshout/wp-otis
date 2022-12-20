@@ -131,7 +131,8 @@ add_action( 'wp_otis_fetch_listings', function( $params ) {
     $otis     = new Otis();
     $logger   = new Otis_Logger_Simple();
     $importer = new Otis_Importer( $otis, $logger );
-    $logger->log( "OTIS " . $params['type'] . " import continuing on page ".$params['page'].". (Modified since ".$params['modified'].")");
+		$importer_page = $params['page'] ?: 1;
+    $logger->log( "OTIS " . $params['type'] . " import continuing on page ".$importer_page.". (Modified since ".$params['modified'].")");
 
     try {
 			// Switch on the type of import.
