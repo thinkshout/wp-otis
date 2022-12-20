@@ -37,7 +37,7 @@
               />
             </va-card-content>
             <va-card-actions>
-              <button class="button button-primary" :disabled="!dateIsValid || importStarting || importActive || syncAllActive" @click="triggerModifiedImport">
+              <button class="button button-primary" :disabled="!dateIsValid || importStarting || importActive || syncAllActive" @click="toggleImportConfirm">
                 <span v-if="importStarting">
                   Import Starting Please Wait...
                 </span>
@@ -172,6 +172,9 @@
     <va-modal v-model="showCancelModal" title="Confirm Cancellation" cancel-text="No, continue the process." ok-text="Yes, cancel the process." @ok="cancelImporter">
       <p>Are you sure you want to cancel?</p>
     </va-modal>
+    <va-modal v-model="showImportModal" title="Confirm POI Import" cancel-text="No, do not start the import." ok-text="Yes, start the import process." @ok="triggerModifiedImport">
+      <p>Are you sure you want to start the importer using the date: {{modifiedDate.toLocaleString}}?</p>
+    </va-modal>
   </div>
 </template>
 
@@ -203,6 +206,7 @@
       const activeFilters = ref([]);
       const showSyncModal = ref(false);
       const showCancelModal = ref(false);
+      const showImportModal = ref(false);
 
       // Computed
       const lastImport = computed(() => {
@@ -345,6 +349,9 @@
       const toggleCancelConfirm = () => {
         showCancelModal.value = !showCancelModal.value;
       };
+      const toggleImportConfirm = () => {
+        showImportModal.value = !showImportModal.value;
+      };
 
       // On Mount
       onMounted(async () => {
@@ -375,6 +382,7 @@
         syncAllActive,
         showSyncModal,
         showCancelModal,
+        showImportModal,
         poiPostsUrl,
         triggerAction,
         otisStatus,
@@ -385,6 +393,7 @@
         triggerSyncPois,
         toggleSyncConfirm,
         toggleCancelConfirm,
+        toggleImportConfirm,
       }
     },
   }
