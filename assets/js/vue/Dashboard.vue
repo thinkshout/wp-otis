@@ -90,7 +90,7 @@
             <p><strong>This process will trash POI posts if they've been removed from OTIS.</strong></p>
           </va-card-content>
           <va-card-actions>
-            <button class="button button-primary" :disabled="importStarting || importActive || syncAllActive" @click="triggerSyncPois">
+            <button class="button button-primary" :disabled="importStarting || importActive || syncAllActive" @click="toggleSyncConfirm">
               <span v-if="importStarting || importActive || syncAllActive">Sync Running Please Wait...</span>
               <span v-else>Sync POIs</span>
             </button>
@@ -165,6 +165,7 @@
         OTIS Importer Started.
       </va-alert>
     </div>
+    <va-modal v-model="showSyncModal" :message="syncAllConfirmationText" title="Confirm Sync All POIs" @ok="triggerSyncPois" />
   </div>
 </template>
 
@@ -172,6 +173,7 @@
 </style>
 
 <script>
+  // Dashboard uses https://vuestic.dev/ UI Framework
   import { ref, computed, onMounted } from "vue";
   import axios from "axios";
   import OtisLoader from "./components/OtisLoader.vue";
@@ -193,6 +195,7 @@
       const logLoading = ref(false);
       const countsLoading = ref(false);
       const activeFilters = ref([]);
+      const showSyncModal = ref(false);
 
       // Computed
       const lastImport = computed(() => {
@@ -243,6 +246,10 @@
       const syncAllActive = computed(() => {
         const { syncAllPoisFetch, syncAllPoisProcess, syncAllPoisImport, syncAllPoisTransient } = importSchedule.value;
         return syncAllPoisFetch || syncAllPoisProcess || syncAllPoisImport || syncAllPoisTransient;
+      });
+      const syncAllConfirmationText = computed(() => {
+        if (syncAllActive.value) return "Sync All is currently running. Are you sure you want to cancel it?";
+        return "Are you sure you want to sync all POIs? Click ok below to start the sync.";
       });
 
       // Methods
@@ -332,6 +339,9 @@
         notifyImportStarted();
         importStarting.value = false;
       };
+      const toggleSyncConfirm = () => {
+        showSyncModal.value = !showSyncModal.value;
+      };
 
       // On Mount
       onMounted(async () => {
@@ -360,6 +370,8 @@
         activeFilters,
         importActive,
         syncAllActive,
+        showSyncModal,
+        syncAllConfirmationText,
         poiPostsUrl,
         triggerAction,
         otisStatus,
@@ -368,6 +380,7 @@
         triggerInitialImport,
         triggerModifiedImport,
         triggerSyncPois,
+        toggleSyncConfirm,
       }
     },
   }
