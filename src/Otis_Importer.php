@@ -407,9 +407,10 @@ class Otis_Importer {
 	}
 
 	/**
-	 * Removes all scheduled actions for the OTIS import.
+	 * Removes all scheduled actions, deletes transients, and resets flags for the OTIS import.
 	 */
 	private function _cancel_import() {
+		// Unschedule all actions.
 		$this->unschedule_action( 'wp_otis_fetch_listings' );
 		$this->unschedule_action( 'wp_otis_process_listings' );
 		$this->unschedule_action( 'wp_otis_delete_removed_listings' );
@@ -418,9 +419,17 @@ class Otis_Importer {
 		$this->unschedule_action( 'wp_otis_sync_all_listings_process' );
 		$this->unschedule_action( 'wp_otis_sync_all_listings_import' );
 		$this->unschedule_action( 'wp_otis_sync_all_listings_posts_transient' );
-		$this->logger->log( 'Import canceled.' );
+		// Delete all transients.
+		$this->delete_listings_transient( 'pois' );
+		$this->delete_listings_transient( 'regions' );
+		$this->delete_listings_transient( 'cities' );
+		$this->delete_listings_transient( 'activeIds' );
+		$this->delete_listings_transient( 'allPoiPosts' );
+		// Set OTIS import options to false.
 		update_option( WP_OTIS_CANCEL_IMPORT, false );
 		update_option( WP_OTIS_IMPORT_ACTIVE, false );
+		// Log the cancel.
+		$this->logger->log( 'Import canceled.' );
 	}
 
 	/** Fetch listings from OTIS with passed args and store them in a transient for later use */
@@ -534,6 +543,11 @@ class Otis_Importer {
 		$listings_chunks[ $listings_page - 1 ] = apply_filters( 'wp_otis_listings_to_process', $listings_chunks[ $listings_page - 1 ], $listings_type );
 		// Loop over relevant chunk and process listings.
 		foreach ( $listings_chunks[ $listings_page - 1 ] as $listing ) {
+			// Check if the WP_OTIS_CANCEL_IMPORT option is set to true and if so, cancel the import.
+			if ( get_option( WP_OTIS_CANCEL_IMPORT, false ) ) {
+				$this->cancel_import();
+				return;
+			}
 			// Get the existing listing ID from Wordpress if it exists.
 			$found_poi_post_id = wp_otis_get_post_id_for_uuid( $listing['uuid'] );
 			$this->_upsert_poi( $found_poi_post_id, $listing );
