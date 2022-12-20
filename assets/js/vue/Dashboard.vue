@@ -173,7 +173,7 @@
       <p>Are you sure you want to cancel?</p>
     </va-modal>
     <va-modal v-model="showImportModal" title="Confirm POI Import" cancel-text="No, do not start the import." ok-text="Yes, start the import process." @ok="triggerModifiedImport">
-      <p>Are you sure you want to start the importer using the date: {{modifiedDate.toLocaleString}}?</p>
+      <p>Are you sure you want to start the importer using the date: {{modifiedDateString}}?</p>
     </va-modal>
   </div>
 </template>
@@ -257,6 +257,14 @@
       const syncAllActive = computed(() => {
         const { syncAllPoisFetch, syncAllPoisProcess, syncAllPoisImport, syncAllPoisTransient } = importSchedule.value;
         return syncAllPoisFetch || syncAllPoisProcess || syncAllPoisImport || syncAllPoisTransient;
+      });
+      const modifiedDateString = computed(() => {
+        if (!modifiedDate.value) return "N/A";
+        // Return the date in the format of MM/DD/YYYY
+        const month = modifiedDate.value.getMonth() + 1; // months are zero indexed
+        const day = modifiedDate.value.getDate();
+        const year = modifiedDate.value.getFullYear();
+        return `${month}/${day}/${year}`;
       });
 
       // Methods
@@ -383,6 +391,7 @@
         showSyncModal,
         showCancelModal,
         showImportModal,
+        modifiedDateString,
         poiPostsUrl,
         triggerAction,
         otisStatus,
