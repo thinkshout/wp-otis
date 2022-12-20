@@ -45,7 +45,7 @@
                 <span v-else-if="syncAllActive">Sync Running Please Wait...</span>
                 <span v-else>Start Importing Modified POIs</span>
               </button>
-              <button v-if="importActive" class="button button-primary" @click="cancelImporter">
+              <button v-if="importActive" class="button button-primary" @click="toggleCancelConfirm">
                 Cancel Import
               </button>
             </va-card-actions>
@@ -94,7 +94,7 @@
               <span v-if="importStarting || importActive || syncAllActive">Sync Running Please Wait...</span>
               <span v-else>Sync POIs</span>
             </button>
-            <button v-if="syncAllActive" class="button button-primary" @click="cancelImporter">
+            <button v-if="syncAllActive" class="button button-primary" @click="toggleCancelConfirm">
               Cancel Sync All
             </button>
           </va-card-actions>
@@ -166,8 +166,12 @@
       </va-alert>
     </div>
     <va-modal v-model="showSyncModal" title="Confirm Sync All POIs" @ok="triggerSyncPois">
-      <p>Are you sure you want to sync all POIs? This action could take several hours to complete. You may close this browser window while the sync is running.</p>
+      <p><strong>Are you sure you want to sync all POIs?</strong></p>
+      <p>This action could take several hours to complete. You may close this browser window while the sync is running.</p>
       <p><strong>Click ok below to start the sync.</strong></p>
+    </va-modal>
+    <va-modal v-model="showSyncModal" title="Confirm Cancellation" cancel-text="No, continue the process." ok-text="Yes, cancel the process." @ok="cancelImporter">
+      <p>Are you sure you want to cancel?</p>
     </va-modal>
   </div>
 </template>
@@ -199,6 +203,7 @@
       const countsLoading = ref(false);
       const activeFilters = ref([]);
       const showSyncModal = ref(false);
+      const showCancelModal = ref(false);
 
       // Computed
       const lastImport = computed(() => {
@@ -338,6 +343,9 @@
       const toggleSyncConfirm = () => {
         showSyncModal.value = !showSyncModal.value;
       };
+      const toggleCancelConfirm = () => {
+        showCancelModal.value = !showCancelModal.value;
+      };
 
       // On Mount
       onMounted(async () => {
@@ -367,6 +375,7 @@
         importActive,
         syncAllActive,
         showSyncModal,
+        showCancelModal,
         poiPostsUrl,
         triggerAction,
         otisStatus,
@@ -376,6 +385,7 @@
         triggerModifiedImport,
         triggerSyncPois,
         toggleSyncConfirm,
+        toggleCancelConfirm,
       }
     },
   }
