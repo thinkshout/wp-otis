@@ -170,7 +170,7 @@
       <p>This action could take several hours to complete. You may close this browser window while the sync is running.</p>
       <p><strong>Click ok below to start the sync.</strong></p>
     </va-modal>
-    <va-modal v-model="showSyncModal" title="Confirm Cancellation" cancel-text="No, continue the process." ok-text="Yes, cancel the process." @ok="cancelImporter">
+    <va-modal v-model="showCancelModal" title="Confirm Cancellation" cancel-text="No, continue the process." ok-text="Yes, cancel the process." @ok="cancelImporter">
       <p>Are you sure you want to cancel?</p>
     </va-modal>
   </div>
