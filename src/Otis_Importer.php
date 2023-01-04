@@ -72,6 +72,7 @@ class Otis_Importer {
 	/** Cancel current Import and Process */
 	public function cancel_import( ) {
 		$this->logger->log( 'Cancelling import...' );
+		do_action( 'wp_otis_cancel_import' );
 		$this->_cancel_import();
 	}
 
@@ -744,7 +745,7 @@ class Otis_Importer {
 			update_option( WP_OTIS_IMPORT_ACTIVE, true );
 		}
 		// Run actions for before processing all listings.
-		do_action( 'wp_otis_before_process_active_listings' );
+		do_action( 'wp_otis_before_process_active_listings', $assoc_args );
 		// Check if theres a process_page in args and set it to the first one if it's not present.
 		$process_page = $assoc_args['process_page'] ? intval( $assoc_args['process_page'] ) : 1;
 		// Get the activeIds transient.
@@ -782,7 +783,7 @@ class Otis_Importer {
 		}
 
 		// Run actions for after processing all listings.
-		do_action( 'wp_otis_after_process_active_listings' );
+		do_action( 'wp_otis_after_process_active_listings', $assoc_args );
 
 		// Schedule the action to import missing listings.
 		$this->logger->log( 'Scheduling import of missing POIs' );
@@ -802,7 +803,7 @@ class Otis_Importer {
 		}
 
 		// Run actions for before importing all listings.
-		do_action( 'wp_otis_before_import_active_listings' );
+		do_action( 'wp_otis_before_import_active_listings', $assoc_args );
 
 		// Check if theres a import_page in args and set it to the first one if it's not present.
 		$import_page = $assoc_args['import_page'] ? intval( $assoc_args['import_page'] ) : 1;
@@ -839,7 +840,7 @@ class Otis_Importer {
 		}
 
 		// Run actions for after importing all listings.
-		do_action( 'wp_otis_after_import_active_listings' );
+		do_action( 'wp_otis_after_import_active_listings', $assoc_args );
 
 		// Update the WP_OTIS_IMPORT_ACTIVE option to false.
 		update_option( WP_OTIS_IMPORT_ACTIVE, false );
