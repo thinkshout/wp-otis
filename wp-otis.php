@@ -81,8 +81,8 @@ add_filter( 'acf/settings/load_json', 'wp_otis_acf_json_load_point' );
 
 // On initial plugin installation or restart after a bulk import, begin hourly update schedule one minute later
 if ( ! wp_next_scheduled( 'wp_otis_cron' ) ) {
-	$import_active = get_option( WP_OTIS_IMPORT_ACTIVE, '' );
-	if ( ! $bulk )  {
+	$import_active = get_option( WP_OTIS_IMPORT_ACTIVE, false );
+	if ( ! $import_active )  {
 		wp_schedule_event(time() + 60 * 1, 'hourly', 'wp_otis_cron');
 	}
 }
