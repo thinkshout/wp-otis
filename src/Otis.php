@@ -6,8 +6,8 @@ require_once 'Otis_Exception.php';
  * Otis API Wrapper.
  */
 class Otis {
-	const API_ROOT = 'https://otis.traveloregon.com/api/v5';
-	const AUTH_ROOT = 'https://otis.traveloregon.com/rest-auth';
+	const API_ROOT = 'http://otistest.traveloregon.com/api/v5';
+	const AUTH_ROOT = 'http://otistest.traveloregon.com/rest-auth';
 
 	private $ch;
 
