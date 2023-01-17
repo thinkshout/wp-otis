@@ -538,7 +538,7 @@ class Otis_Importer {
 			return;
 		}
 		// Split listings into chunks.
-		$listings_chunks = array_chunk( $listings_transient, 100 );
+		$listings_chunks = array_chunk( $listings_transient, 50 );
 
 		// Apply filters to relevant chunk.
 		$listings_chunks[ $listings_page - 1 ] = apply_filters( 'wp_otis_listings_to_process', $listings_chunks[ $listings_page - 1 ], $listings_type );
