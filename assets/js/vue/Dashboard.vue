@@ -196,7 +196,6 @@
       // Refs
       const modifiedDate = ref(new Date());
       const lastImportDate = ref("");
-      const nextImportDate = ref("");
       const importSchedule = ref({});
       const poiCount = ref({});
       const importLog = ref([]);
@@ -221,8 +220,10 @@
         return `${month}/${day}/${year} @ ${hours}:${minutes}`;
       });
       const nextImport = computed(() => {
-        if (!nextImportDate.value) return "N/A";
-        const nextImportDateObject = new Date(nextImportDate.value);
+        if (!importSchedule.value) return "N/A";
+        const { nextScheduledImport } = importSchedule.value;
+        if (!nextScheduledImport) return "N/A";
+        const nextImportDateObject = new Date(nextScheduledImport);
         const month = nextImportDateObject.getMonth() + 1; // months are zero indexed
         const day = nextImportDateObject.getDate();
         const year = nextImportDateObject.getFullYear();
@@ -312,9 +313,6 @@
           switch (key) {
             case "lastImportDate":
               lastImportDate.value = data[key];
-              break;
-            case "nextScheduledImport":
-              nextImportDate.value = data[key];
               break;
             case "importSchedule":
               importSchedule.value = data[key];
