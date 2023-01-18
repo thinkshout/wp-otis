@@ -67,6 +67,19 @@
           </div>
           <div class="otis-dashboard__status">
             <va-card>
+              <va-card-title>Next Import</va-card-title>
+              <va-card-content>
+                <div v-if="countsLoading">
+                  <OtisLoader />
+                </div>
+                <div v-else>
+                  {{ nextImport }}
+                </div>
+              </va-card-content>
+            </va-card>
+          </div>
+          <div class="otis-dashboard__status">
+            <va-card>
               <va-card-title>Importer Status</va-card-title>
               <va-card-content>
                 <div v-if="countsLoading">
@@ -223,7 +236,8 @@
         if (!importSchedule.value) return "N/A";
         const { nextScheduledImport } = importSchedule.value;
         if (!nextScheduledImport) return "N/A";
-        const nextImportDateObject = new Date(nextScheduledImport);
+        const nextScheduledImportTimestamp = parseInt(nextScheduledImport) * 1000;
+        const nextImportDateObject = new Date(nextScheduledImportTimestamp);
         const month = nextImportDateObject.getMonth() + 1; // months are zero indexed
         const day = nextImportDateObject.getDate();
         const year = nextImportDateObject.getFullYear();

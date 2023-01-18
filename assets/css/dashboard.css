@@ -22,7 +22,7 @@
 	flex-wrap: wrap;
 }
 .otis-dashboard .otis-dashboard__statuses {
-	flex-direction: column;
+	flex-direction: row;
 }
 .otis-dashboard .otis-dashboard__stettings {
 	flex-direction: row;
