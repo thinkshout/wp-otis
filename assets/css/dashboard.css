@@ -32,6 +32,7 @@
 	display: inline-block;
 	box-sizing: border-box;
 	padding: 10px 10px 0 0;
+	flex-grow: 1;
 }
 .otis-dashboard .otis-dashboard__setting-group {
 	display: flex;

@@ -91,7 +91,7 @@
               </va-card-content>
             </va-card>
           </div>
-          <div class="">
+          <div class="otis-dashboard__status">
             <va-card>
               <va-card-title>Stop All Importer Processes</va-card-title>
               <va-card-content>
