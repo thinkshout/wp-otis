@@ -91,6 +91,24 @@
               </va-card-content>
             </va-card>
           </div>
+          <div class="">
+            <va-card>
+              <va-card-title>Stop All Importer Processes</va-card-title>
+              <va-card-content>
+                <div v-if="countsLoading">
+                  <OtisLoader />
+                </div>
+                <div v-else>
+                  <p>Use this to stop all Importer processes and restart standard automatic imports.</p>
+                </div>
+              </va-card-content>
+              <va-card-actions>
+                <button class="button button-primary" @click="toggleStopAllConfirm">
+                  Stop All Importer Processes
+                </button>
+              </va-card-actions>
+            </va-card>
+          </div>
         </div>
       </div>
       <div v-if="!displayInitialImport" class="otis-dashboard__setting otis-dashboard__setting--full-width">
@@ -188,6 +206,9 @@
     <va-modal v-model="showImportModal" title="Confirm POI Import" cancel-text="No, do not start the import." ok-text="Yes, start the import process." @ok="triggerModifiedImport">
       <p>Are you sure you want to start the importer using the date: {{modifiedDateString}}?</p>
     </va-modal>
+    <va-modal v-model="showStopAllModal" title="Confirm Stop All" cancel-text="No, do not stop all processes." ok-text="Yes, stop all import processes." @ok="triggerStopAll">
+      <p>Are you sure you want to stop all importer processes and restart automatic imports?</p>
+    </va-modal>
   </div>
 </template>
 
@@ -214,12 +235,14 @@
       const importLog = ref([]);
       const importStarting = ref(false);
       const importStarted = ref(false);
+      const importerActive = ref(false);
       const logLoading = ref(false);
       const countsLoading = ref(false);
       const activeFilters = ref([]);
       const showSyncModal = ref(false);
       const showCancelModal = ref(false);
       const showImportModal = ref(false);
+      const showStopAllModal = ref(false);
 
       // Computed
       const lastImport = computed(() => {
@@ -254,6 +277,7 @@
         if ( syncAllPoisProcess ) return "Processing POIs for Sync All";
         if ( syncAllPoisImport ) return "Importing POIs for Sync All";
         if ( syncAllPoisTransient ) return "Creating Transient for Sync All";
+        if ( importerActive ) return "Active";
         return "Inactive";
       });
       const maxDate = computed(() => {
@@ -278,7 +302,7 @@
       });
       const importActive = computed(() => {
         const { fetchListings, processListings, deleteListings } = importSchedule.value;
-        return fetchListings || processListings || deleteListings;
+        return fetchListings || processListings || deleteListings || importerActive.value;
       });
       const syncAllActive = computed(() => {
         const { syncAllPoisFetch, syncAllPoisProcess, syncAllPoisImport, syncAllPoisTransient } = importSchedule.value;
@@ -331,6 +355,9 @@
             case "importSchedule":
               importSchedule.value = data[key];
               break;
+            case "importerActive":
+              importerActive.value = data[key];
+              break;
             case "poiCount":
               poiCount.value = data[key];
               break;
@@ -377,6 +404,10 @@
         notifyImportStarted();
         importStarting.value = false;
       };
+      const triggerStopAll = async () => {
+        await triggerAction("otis_stop_all");
+        await otisStatus();
+      };
       const toggleSyncConfirm = () => {
         showSyncModal.value = !showSyncModal.value;
       };
@@ -385,6 +416,9 @@
       };
       const toggleImportConfirm = () => {
         showImportModal.value = !showImportModal.value;
+      };
+      const toggleStopAllConfirm = () => {
+        showStopAllModal.value = !showStopAllModal.value;
       };
 
       // On Mount
@@ -417,9 +451,11 @@
         showSyncModal,
         showCancelModal,
         showImportModal,
+        showStopAllModal,
         modifiedDateString,
         importSchedule,
         nextImport,
+        importerActive,
         poiPostsUrl,
         triggerAction,
         otisStatus,
@@ -428,9 +464,11 @@
         triggerInitialImport,
         triggerModifiedImport,
         triggerSyncPois,
+        triggerStopAll,
         toggleSyncConfirm,
         toggleCancelConfirm,
         toggleImportConfirm,
+        toggleStopAllConfirm,
       }
     },
   }
