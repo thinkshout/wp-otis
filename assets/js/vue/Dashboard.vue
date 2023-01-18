@@ -196,6 +196,7 @@
       // Refs
       const modifiedDate = ref(new Date());
       const lastImportDate = ref("");
+      const nextImportDate = ref("");
       const importSchedule = ref({});
       const poiCount = ref({});
       const importLog = ref([]);
@@ -217,6 +218,16 @@
         const year = lastImportDateObject.getFullYear();
         const hours = lastImportDateObject.getHours();
         const minutes = lastImportDateObject.getMinutes() > 9 ? lastImportDateObject.getMinutes() : "0" + lastImportDateObject.getMinutes();
+        return `${month}/${day}/${year} @ ${hours}:${minutes}`;
+      });
+      const nextImport = computed(() => {
+        if (!nextImportDate.value) return "N/A";
+        const nextImportDateObject = new Date(nextImportDate.value);
+        const month = nextImportDateObject.getMonth() + 1; // months are zero indexed
+        const day = nextImportDateObject.getDate();
+        const year = nextImportDateObject.getFullYear();
+        const hours = nextImportDateObject.getHours();
+        const minutes = nextImportDateObject.getMinutes() > 9 ? nextImportDateObject.getMinutes() : "0" + nextImportDateObject.getMinutes();
         return `${month}/${day}/${year} @ ${hours}:${minutes}`;
       });
       const importerStatus = computed(() => {
@@ -301,6 +312,9 @@
           switch (key) {
             case "lastImportDate":
               lastImportDate.value = data[key];
+              break;
+            case "nextScheduledImport":
+              nextImportDate.value = data[key];
               break;
             case "importSchedule":
               importSchedule.value = data[key];
@@ -393,6 +407,7 @@
         showImportModal,
         modifiedDateString,
         importSchedule,
+        nextImport,
         poiPostsUrl,
         triggerAction,
         otisStatus,
