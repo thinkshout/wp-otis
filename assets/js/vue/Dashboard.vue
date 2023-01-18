@@ -392,6 +392,7 @@
         showCancelModal,
         showImportModal,
         modifiedDateString,
+        importSchedule,
         poiPostsUrl,
         triggerAction,
         otisStatus,
