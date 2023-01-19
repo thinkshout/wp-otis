@@ -433,6 +433,14 @@ class Otis_Importer {
 		$this->logger->log( 'Import canceled.' );
 	}
 
+	/**
+	 * Reset Importer Active Flag
+	 */
+	private function _reset_importer_active_flag() {
+		// Reset WP_OTIS_IMPORT_ACTIVE option to false.
+		update_option( WP_OTIS_IMPORT_ACTIVE, false );
+	}
+
 	/** Fetch listings from OTIS with passed args and store them in a transient for later use */
 	private function _fetch_otis_listings( $assoc_args = [] ) {
 		// Check if the WP_OTIS_CANCEL_IMPORT option is set to true and if so, cancel the import.
@@ -616,6 +624,8 @@ class Otis_Importer {
 		// If we don't have any removed listings, log that and return.
 		if ( ! count( $removed_listings_results ) ) {
 			$this->logger->log( 'No removed listings to delete' );
+			$this->_reset_importer_active_flag();
+			$this->delete_listings_transient();
 			return;
 		}
 		// Loop through removed listings and delete them.
@@ -643,8 +653,10 @@ class Otis_Importer {
 		do_action( 'wp_otis_after_delete_removed_listings', $assoc_args );
 		// Log that we're done.
 		$this->logger->log( 'Finished deleting removed listings. Wrapping up OTIS import.' );
-		// Reset WP_OTIS_IMPORT_ACTIVE option to false.
-		update_option( WP_OTIS_IMPORT_ACTIVE, false );
+		// Reset the WP_OTIS_IMPORT_ACTIVE option.
+		$this->_reset_importer_active_flag();
+		// Clean up transients.
+		$this->delete_listings_transient();
 	}
 
 	/** Sync with all active POIs in OTIS */
