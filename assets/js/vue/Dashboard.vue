@@ -356,7 +356,7 @@
               importSchedule.value = data[key];
               break;
             case "importerActive":
-              importerActive.value = data[key];
+              importerActive.value = data[key] === '1';
               break;
             case "poiCount":
               poiCount.value = data[key];
