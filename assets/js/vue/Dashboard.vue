@@ -99,11 +99,11 @@
                   <OtisLoader />
                 </div>
                 <div v-else>
-                  <p>Use this to stop all Importer processes and restart standard automatic imports, useful if automatic imports seem stuck.</p>
+                  <p>Use this to restart standard automatic imports, useful if automatic imports seem stuck.</p>
                 </div>
               </va-card-content>
               <va-card-actions>
-                <button class="button button-primary" :disabled="(importActive || syncAllActive) && !importerActive" @click="toggleStopAllConfirm">
+                <button class="button button-primary" :disabled="(importActive || syncAllActive) && importerActive" @click="toggleStopAllConfirm">
                   Reset Importer Processes
                 </button>
               </va-card-actions>
@@ -206,8 +206,8 @@
     <va-modal v-model="showImportModal" title="Confirm POI Import" cancel-text="No, do not start the import." ok-text="Yes, start the import process." @ok="triggerModifiedImport">
       <p>Are you sure you want to start the importer using the date: {{modifiedDateString}}?</p>
     </va-modal>
-    <va-modal v-model="showStopAllModal" title="Confirm Reset" cancel-text="No, do not reset importer." ok-text="Yes, stop reset importer." @ok="triggerStopAll">
-      <p>Are you sure you want to stop all importer processes and restart automatic imports?</p>
+    <va-modal v-model="showStopAllModal" title="Confirm Reset" cancel-text="No, do not reset importer." ok-text="Yes, reset importer." @ok="triggerStopAll">
+      <p>Are you sure you want to restart automatic imports?</p>
     </va-modal>
   </div>
 </template>
