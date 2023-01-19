@@ -103,7 +103,7 @@
                 </div>
               </va-card-content>
               <va-card-actions>
-                <button class="button button-primary" :disabled="!importActive && !syncAllActive" @click="toggleStopAllConfirm">
+                <button class="button button-primary" :disabled="(importActive || syncAllActive) && !importerActive" @click="toggleStopAllConfirm">
                   Reset Importer Processes
                 </button>
               </va-card-actions>
@@ -302,7 +302,7 @@
       });
       const importActive = computed(() => {
         const { fetchListings, processListings, deleteListings } = importSchedule.value;
-        return fetchListings || processListings || deleteListings || importerActive.value;
+        return fetchListings || processListings || deleteListings;
       });
       const syncAllActive = computed(() => {
         const { syncAllPoisFetch, syncAllPoisProcess, syncAllPoisImport, syncAllPoisTransient } = importSchedule.value;
