@@ -103,7 +103,7 @@
                 </div>
               </va-card-content>
               <va-card-actions>
-                <button class="button button-primary" :disabled="(importActive || syncAllActive) && importerActive" @click="toggleStopAllConfirm">
+                <button class="button button-primary" :disabled="importActive || syncAllActive" @click="toggleStopAllConfirm">
                   Reset Importer Processes
                 </button>
               </va-card-actions>
