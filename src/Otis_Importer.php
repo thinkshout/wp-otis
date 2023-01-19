@@ -70,10 +70,10 @@ class Otis_Importer {
 	}
 
 	/** Cancel current Import and Process */
-	public function cancel_import( ) {
-		$this->logger->log( 'Cancelling import...' );
+	public function cancel_import( $starting_log_message = 'Cancelling import...', $log_message = 'Import cancelled.' ) {
+		$this->logger->log( $starting_log_message );
 		do_action( 'wp_otis_cancel_import' );
-		$this->_cancel_import();
+		$this->_cancel_import( $log_message );
 	}
 
 	/**
@@ -410,7 +410,7 @@ class Otis_Importer {
 	/**
 	 * Removes all scheduled actions, deletes transients, and resets flags for the OTIS import.
 	 */
-	private function _cancel_import() {
+	private function _cancel_import( $log_message = 'Import canceled' ) {
 		// Unschedule all actions.
 		$this->unschedule_action( 'wp_otis_fetch_listings' );
 		$this->unschedule_action( 'wp_otis_process_listings' );
@@ -430,7 +430,7 @@ class Otis_Importer {
 		update_option( WP_OTIS_CANCEL_IMPORT, false );
 		update_option( WP_OTIS_IMPORT_ACTIVE, false );
 		// Log the cancel.
-		$this->logger->log( 'Import canceled.' );
+		$this->logger->log( $log_message );
 	}
 
 	/**

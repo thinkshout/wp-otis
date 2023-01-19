@@ -81,7 +81,7 @@ class Otis_Dashboard
   }
 
   public function otis_stop_all() {
-    $this->importer->cancel_import();
+    $this->importer->cancel_import( 'Resetting importer...', 'Importer reset.' );
   }
 
   public function otis_log_preview() {
