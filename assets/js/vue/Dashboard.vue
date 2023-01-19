@@ -91,7 +91,7 @@
               </va-card-content>
             </va-card>
           </div>
-          <div class="otis-dashboard__status">
+          <div class="otis-dashboard__status otis-dashboard__status--full-width">
             <va-card>
               <va-card-title>Reset Importer Processes</va-card-title>
               <va-card-content>

@@ -34,6 +34,9 @@
 	padding: 10px 10px 0 0;
 	flex-grow: 1;
 }
+.otis-dashboard .otis-dashboard__status.otis-dashboard__status--full-width {
+	width: 100%;
+}
 .otis-dashboard .otis-dashboard__setting-group {
 	display: flex;
 	flex-direction: row;
