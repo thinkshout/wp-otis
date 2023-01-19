@@ -103,7 +103,7 @@
                 </div>
               </va-card-content>
               <va-card-actions>
-                <button class="button button-primary" @click="toggleStopAllConfirm">
+                <button class="button button-primary" :disabled="!importActive && !syncAllActive" @click="toggleStopAllConfirm">
                   Stop All Importer Processes
                 </button>
               </va-card-actions>
@@ -277,7 +277,7 @@
         if ( syncAllPoisProcess ) return "Processing POIs for Sync All";
         if ( syncAllPoisImport ) return "Importing POIs for Sync All";
         if ( syncAllPoisTransient ) return "Creating Transient for Sync All";
-        if ( importerActive ) return "Active";
+        if ( importerActive.value ) return "Active";
         return "Inactive";
       });
       const maxDate = computed(() => {

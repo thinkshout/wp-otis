@@ -6,7 +6,7 @@ class Otis_Dashboard
   /**
 	 * @var Otis_Importer
 	 */
-	private $importer;
+	protected $importer;
 
   public function otis_dashboard_scripts() {
     wp_enqueue_media();
@@ -80,6 +80,11 @@ class Otis_Dashboard
     }
   }
 
+  public function otis_stop_all() {
+    $this->importer->cancel_import();
+    $this->otis_cancel_import();
+  }
+
   public function otis_log_preview() {
     $args = [
 			'numberposts' => 15,
@@ -95,7 +100,23 @@ class Otis_Dashboard
   }
 
   public function otis_status() {
-    echo json_encode([
+    $otis_schedule = $this->otis_schedule();
+    echo json_encode( $otis_schedule );
+    wp_die();
+  }
+
+
+  public function otis_init_pois_sync() {
+    // Set up the sync params
+    $sync_params = [
+      'bulk' => true,
+    ];
+    // Schedule the sync
+    as_enqueue_async_action( 'wp_otis_sync_all_listings_fetch', [ 'params' => $sync_params ] );
+  }
+
+  protected function otis_schedule() {
+    return [
       'importSchedule' => [
         'fetchListings'        => as_next_scheduled_action( 'wp_otis_fetch_listings' ),
         'processListings'      => as_next_scheduled_action( 'wp_otis_process_listings' ),
@@ -111,18 +132,7 @@ class Otis_Dashboard
       'lastImportDate' => get_option( WP_OTIS_LAST_IMPORT_DATE ),
       'poiCount' => $this->otis_poi_counts(),
       'activeFilters' => apply_filters( 'wp_otis_listings', [] ),
-    ]);
-    wp_die();
-  }
-
-
-  public function otis_init_pois_sync() {
-    // Set up the sync params
-    $sync_params = [
-      'bulk' => true,
     ];
-    // Schedule the sync
-    as_enqueue_async_action( 'wp_otis_sync_all_listings_fetch', [ 'params' => $sync_params ] );
   }
   
   function __construct( $importer ) {
@@ -135,6 +145,7 @@ class Otis_Dashboard
     add_action( 'wp_ajax_otis_preview_log', [ $this, 'otis_log_preview' ] );
     add_action( 'wp_ajax_otis_cancel_importer', [ $this, 'otis_cancel_import' ] );
     add_action( 'wp_ajax_otis_sync_all_pois', [ $this, 'otis_init_pois_sync' ] );
+    add_action( 'wp_ajax_otis_stop_all', [ $this, 'otis_stop_all' ] );
 
     $this->importer = $importer;
   }
