@@ -62,7 +62,7 @@ class Otis_Importer {
 	 * Determines array_chunk size of listings to process.
 	 * @var int
 	 */
-	protected $processing_chunk_size = 10;
+	protected $processing_chunk_size;
 
 	/**
 	 * Otis_Importer constructor.
@@ -73,6 +73,8 @@ class Otis_Importer {
 	public function __construct( $otis, $logger ) {
 		$this->otis   = $otis;
 		$this->logger = $logger;
+		$this->processing_chunk_size = apply_filters( 'wp_otis_processing_chunk_size', 10 );
+		$this->processing_chunk_size = intval( $this->processing_chunk_size, 10 ) > 0 ? intval( $this->processing_chunk_size, 10 ) : 10;
 	}
 
 	/** Cancel current Import and Process */
@@ -558,6 +560,7 @@ class Otis_Importer {
 			$this->logger->log( "No $listings_type listings transient to process" );
 			return;
 		}
+
 		$listings_chunks = array_chunk( $listings_transient, $this->processing_chunk_size );
 
 		// Apply filters to relevant chunk.
