@@ -552,7 +552,7 @@ class Otis_Importer {
 			$this->logger->log( "No $listings_type listings transient to process" );
 			return;
 		}
-		$listings_chunks = array_chunk( $listings_transient, 25 );
+		$listings_chunks = array_chunk( $listings_transient, 20 );
 
 		// Apply filters to relevant chunk.
 		$listings_chunks[ $listings_page - 1 ] = apply_filters( 'wp_otis_listings_to_process', $listings_chunks[ $listings_page - 1 ], $listings_type );
@@ -774,8 +774,8 @@ class Otis_Importer {
 		// Get the allPois transient.
 		$active_poi_post_ids = $this->get_listings_transient( 'allPoiPosts' );
 
-		// Split the allPoiPosts transient into chunks of 25.
-		$active_poi_post_chunks = array_chunk( $active_poi_post_ids, 25 );
+		// Split the allPoiPosts transient into chunks of 20.
+		$active_poi_post_chunks = array_chunk( $active_poi_post_ids, 20 );
 
 		// Loop through the poi chunk based on the process_page.
 		foreach ( $active_poi_post_chunks[ $process_page - 1 ] as $active_poi_post_id ) {
@@ -832,8 +832,8 @@ class Otis_Importer {
 
 		// Get the activeIds transient.
 		$active_listing_uuids = $this->get_listings_transient( 'activeIds' );
-		// Split the activeIds transient into chunks of 25.
-		$active_listing_uuid_chunks = array_chunk( $active_listing_uuids, 25 );
+		// Split the activeIds transient into chunks of 20.
+		$active_listing_uuid_chunks = array_chunk( $active_listing_uuids, 20 );
 
 		// Loop through the uuid chunks.
 		foreach ( $active_listing_uuid_chunks[ $import_page - 1 ] as $listing_uuid ) {
