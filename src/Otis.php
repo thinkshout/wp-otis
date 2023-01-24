@@ -6,7 +6,7 @@ require_once 'Otis_Exception.php';
  * Otis API Wrapper.
  */
 class Otis {
-	const API_ROOT = 'https://otis.traveloregon.com/api/v4';
+	const API_ROOT = 'https://otis.traveloregon.com/api/v5';
 	const AUTH_ROOT = 'https://otis.traveloregon.com/rest-auth';
 
 	private $ch;
@@ -17,7 +17,7 @@ class Otis {
 	public function __construct() {
 		$this->ch = curl_init();
 
-		curl_setopt( $this->ch, CURLOPT_USERAGENT, 'Otis-PHP/1.1.15' );
+		curl_setopt( $this->ch, CURLOPT_USERAGENT, 'Otis-PHP/1.2.0beta' );
 		curl_setopt( $this->ch, CURLOPT_HEADER, false );
 		curl_setopt( $this->ch, CURLOPT_RETURNTRANSFER, true );
 		curl_setopt( $this->ch, CURLOPT_CONNECTTIMEOUT, 30 );

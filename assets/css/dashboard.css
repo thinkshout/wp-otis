@@ -1,4 +1,13 @@
-@import url("https://cdn.jsdelivr.net/npm/vue2-daterange-picker@0.6.7/dist/vue2-daterange-picker.min.css");
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+#adminmenu *,
+#otis-dashboard-mount .otis-dashboard > h1 {
+	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+	font-size: 13px;
+	line-height: 1.4;
+}
+
 .otis-dashboard {
 	padding-right: 10px;
 }
@@ -10,21 +19,35 @@
 .otis-dashboard .otis-dashboard__statuses,
 .otis-dashboard .otis-dashboard__settings {
 	display: flex;
-	flex-direction: row;
 	flex-wrap: wrap;
+}
+.otis-dashboard .otis-dashboard__statuses {
+	flex-direction: row;
+}
+.otis-dashboard .otis-dashboard__stettings {
+	flex-direction: row;
 	margin-bottom: 10px;
 }
 .otis-dashboard .otis-dashboard__status {
 	display: inline-block;
 	box-sizing: border-box;
-	width: 33.333%;
-	padding: 10px 10px 10px 0;
+	padding: 10px 10px 0 0;
+	flex-grow: 1;
+}
+.otis-dashboard .otis-dashboard__status.otis-dashboard__status--full-width {
+	width: 100%;
+}
+.otis-dashboard .otis-dashboard__setting-group {
+	display: flex;
+	flex-direction: row;
+	flex-grow: 1;
+	width: 100%;
 }
 .otis-dashboard .otis-dashboard__setting {
 	display: inline-block;
 	box-sizing: border-box;
-	width: 50%;
 	padding: 10px 10px 10px 0;
+	flex-grow: 1;
 }
 .otis-dashboard .otis-dashboard__setting.otis-dashboard__setting--full-width {
 	width: 100%;
@@ -104,6 +127,28 @@
 .otis-dashboard .otis-dashboard__import-log td:last-child,
 .otis-dashboard .otis-dashboard__import-log th:last-child {
 	text-align: left;
+}
+
+@keyframes fade-up {
+	0% {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+.otis-dashboard .otis-dashboard__notifications {
+	position: fixed;
+	top: 0;
+	width: 85%;
+	padding-top: 50px;
+	z-index: 9999;
+	animation: fade-up 0.25s ease;
+}
+.otis-dashboard .otis-dashboard__notifications .va-alert {
+	--va-alert-margin-y: 0;
 }
 
 .otis-dashboard .otis-ellipsis {

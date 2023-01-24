@@ -17,11 +17,11 @@ define( 'WP_OTIS_FIELDS_PATH', plugin_dir_path( __FILE__ ) . 'acf-json/group_582
 
 define( 'WP_OTIS_TOKEN', 'wp_otis_token' );
 define( 'WP_OTIS_LAST_IMPORT_DATE', 'wp_otis_last_import_date' );
-define( 'WP_OTIS_BULK_IMPORT_ACTIVE', 'wp_otis_bulk_import_active' );
+define( 'WP_OTIS_IMPORT_ACTIVE', 'wp_otis_import_active' );
 define( 'WP_OTIS_BULK_IMPORT_TRANSIENT', 'wp_otis_bulk_import_transient' );
 define( 'WP_OTIS_BULK_DELETE_TRANSIENT', 'wp_otis_bulk_delete_transient' );
-define( 'WP_OTIS_BULK_HISTORY_ACTIVE', 'wp_otis_bulk_history_active' );
 define( 'WP_OTIS_BULK_DISABLE_CACHE', 0 );
+define( 'WP_OTIS_CANCEL_IMPORT', 'wp_otis_cancel_current_import' );
 
 require_once 'wp-otis-poi.php';
 require_once  plugin_dir_path( __FILE__ ) . '/libraries/action-scheduler/action-scheduler.php';
@@ -81,9 +81,8 @@ add_filter( 'acf/settings/load_json', 'wp_otis_acf_json_load_point' );
 
 // On initial plugin installation or restart after a bulk import, begin hourly update schedule one minute later
 if ( ! wp_next_scheduled( 'wp_otis_cron' ) ) {
-	$bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, '' );
-	$bulk_history = get_option( WP_OTIS_BULK_HISTORY_ACTIVE, '' );
-	if ( ! wp_next_scheduled( 'wp_otis_bulk_importer' ) && !($bulk) & ! wp_next_scheduled( 'wp_otis_bulk_history_importer' ) && !($bulk_history))  {
+	$import_active = get_option( WP_OTIS_IMPORT_ACTIVE, false );
+	if ( ! $import_active )  {
 		wp_schedule_event(time() + 60 * 1, 'hourly', 'wp_otis_cron');
 	}
 }
@@ -94,110 +93,36 @@ add_action( 'wp_otis_cron', function () {
 		wp_cache_add_non_persistent_groups( ['acf'] );
 	}
 
-    $bulk = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
+	$import_active = get_option( WP_OTIS_IMPORT_ACTIVE, false );
 
-    if ($bulk == false) {
-        $current_date     = date( 'c' );
-        $last_import_date = get_option( WP_OTIS_LAST_IMPORT_DATE, '' );
+	if ($import_active == false) {
+		$current_date     = date( 'c' );
+		$last_import_date = get_option( WP_OTIS_LAST_IMPORT_DATE, '' );
 
-        if ( ! $last_import_date ) {
-            // Start pulling in updates from the point after the plugin was installed.
-            update_option( WP_OTIS_LAST_IMPORT_DATE, $current_date );
-            return;
-        }
-
-        $otis     = new Otis();
-        $logger   = new Otis_Logger_Simple();
-        $importer = new Otis_Importer( $otis, $logger );
-
-				update_option( WP_OTIS_LAST_IMPORT_DATE, $current_date );
-        try {
-					$importer->import( 'pois', [
-						'modified' => $last_import_date,
-					] );
-        } catch ( Exception $e ) {
-					$logger->log( $e->getMessage(), 0, 'error' );
-					update_option( WP_OTIS_LAST_IMPORT_DATE, $last_import_date );
-        }
-    }
-
-} );
-
-add_action( 'wp_otis_bulk_delete_pois', function( $params ) {
-	$otis     = new Otis();
-	$logger   = new Otis_Logger_Simple();
-	$importer = new Otis_Importer( $otis, $logger );
-
-	try {
-		$logger->log( 'Starting bulk delete page with params: ' . print_r( $params, true ) );
-		$importer->import('deleted-pois', $params);
-	} catch ( Exception $e ) {
-		$logger->log( $e->getMessage(), 0, 'error' );
-	}
-}, 10, 1 );
-
-add_action( 'wp_otis_async_bulk_history_import', function ( $params ) {
-
-		if ( WP_OTIS_BULK_DISABLE_CACHE ) {
-			wp_cache_add_non_persistent_groups( ['acf'] );
+		if ( ! $last_import_date ) {
+			// Start pulling in updates from the point after the plugin was installed.
+			update_option( WP_OTIS_LAST_IMPORT_DATE, $current_date );
+			return;
 		}
-
-		update_option( WP_OTIS_BULK_HISTORY_ACTIVE, true );
 
 		$otis     = new Otis();
 		$logger   = new Otis_Logger_Simple();
 		$importer = new Otis_Importer( $otis, $logger );
-		if ($params['history-page'] > 1) {
-			$logger->log( "Bulk OTIS history import continuing on page ".$params['history-page'].". (".wp_otis_get_logger_modified_date_string($params).")");
-		}
 
+		update_option( WP_OTIS_LAST_IMPORT_DATE, $current_date );
 		try {
-			$importer_params = [
-				'bulk-history-page' => $params['bulk-history-page'],
-				'history-page' => $params['history-page'],
-				'all' => $params['all'],
-			];
-			if ( isset( $params['related_only'] ) && $params['related_only'] == 'true' || $params['related_only'] == true ) {
-				$importer_params['related_only'] = true;
-			}
-			$importer_params = wp_otis_make_modified_date_param($params, $importer_params);
-			$importer->import( 'history-only', $importer_params );
+			$importer->import( 'pois', [
+				'modified' => $last_import_date,
+			] );
 		} catch ( Exception $e ) {
 			$logger->log( $e->getMessage(), 0, 'error' );
+			update_option( WP_OTIS_LAST_IMPORT_DATE, $last_import_date );
 		}
-},10, 1 );
-
-add_action( 'wp_otis_async_bulk_import', function( $params ) {
-	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
-		wp_cache_add_non_persistent_groups( ['acf'] );
 	}
 
-	$all = $params['all'];
-	$page = $params['page'];
-	$page_size = $params['page_size'];
+} );
 
-	$otis     = new Otis();
-	$logger   = new Otis_Logger_Simple();
-	$importer = new Otis_Importer( $otis, $logger );
-	$logger->log( "Bulk OTIS import continuing on page ".$page.". (".wp_otis_get_logger_modified_date_string($params).")");
-
-	try {
-		$importer_params = [
-			'page' => $page,
-			'page_size' => $page_size,
-			'all' => $all,
-		];
-		if ( isset( $params['related_only'] ) && $params['related_only'] == 'true' || $params['related_only'] == true ) {
-			$importer_params['related_only'] = true;
-		}
-		$importer_params = wp_otis_make_modified_date_param($params, $importer_params);
-		$importer->import( 'pois-only', $importer_params );
-	} catch ( Exception $e ) {
-		$logger->log( $e->getMessage(), 0, 'error' );
-	}
-}, 10, 1 );
-
-add_action( 'wp_otis_bulk_importer', function($modified, $all, $page, $page_size = 50, $related_only = false) {
+add_action( 'wp_otis_fetch_listings', function( $params ) {
 
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
@@ -206,23 +131,44 @@ add_action( 'wp_otis_bulk_importer', function($modified, $all, $page, $page_size
     $otis     = new Otis();
     $logger   = new Otis_Logger_Simple();
     $importer = new Otis_Importer( $otis, $logger );
-    $logger->log( "Bulk OTIS import continuing on page ".$page.". (".$modified.")");
+		$importer_page = $params['page'] ?: 1;
+    $logger->log( "OTIS " . $params['type'] . " import continuing on page ".$importer_page.". (Modified since ".$params['modified'].")");
 
     try {
-        $importer->import( 'pois-only', [
-            'modified' => $modified,
-            'page' => $page,
-						'page_size' => $page_size,
-            'related_only' => $related_only,
-            'all' => $all
-        ] );
+			// Switch on the type of import.
+			switch ($params['type']) {
+				case 'Cities':
+					$importer->import( 'cities', $params );
+					break;
+				case 'Terms':
+					$importer->import( 'terms', $params );
+					break;
+				case 'Regions':
+					$importer->import( 'regions', $params );
+					break;
+				case 'pois-only':
+					$importer->import( 'pois-only', $params );
+					break;
+				case 'related-pois-only':
+					$importer->import( 'related-pois-only', $params );
+					break;
+				case 'poi':
+					$importer->import( 'poi', $params );
+					break;
+				case 'pois':
+					$importer->import( 'pois', $params );
+					break;
+				default:
+					$importer->import( 'pois-only', $params );
+					break;
+			}
     } catch ( Exception $e ) {
-        $logger->log( $e->getMessage(), 0, 'error' );
+      $logger->log( $e->getMessage(), 0, 'error' );
     }
 
-}, 10, 3 );
+}, 10, 1 );
 
-add_action( 'wp_otis_bulk_history_importer', function($modified, $all, $page, $related_only = false) {
+add_action( 'wp_otis_process_listings', function( $params ) {
 
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
@@ -231,20 +177,99 @@ add_action( 'wp_otis_bulk_history_importer', function($modified, $all, $page, $r
 	$otis     = new Otis();
 	$logger   = new Otis_Logger_Simple();
 	$importer = new Otis_Importer( $otis, $logger );
-	$logger->log( "Bulk OTIS history import continuing on page ".$page.". (".$modified.")");
 
 	try {
-		$importer->import( 'history-only', [
-			'modified' => $modified,
-			'bulk-history-page' => $page,
-			'related_only' => $related_only,
-			'all' => $all
-		] );
+		$importer->process_listings( $params );
 	} catch ( Exception $e ) {
 		$logger->log( $e->getMessage(), 0, 'error' );
 	}
 
-}, 10, 3 );
+}, 10, 1 );
+
+add_action( 'wp_otis_delete_removed_listings', function( $params ) {
+
+	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
+		wp_cache_add_non_persistent_groups( ['acf'] );
+	}
+
+	$otis     = new Otis();
+	$logger   = new Otis_Logger_Simple();
+	$importer = new Otis_Importer( $otis, $logger );
+
+	try {
+		$importer->delete_removed_listings( $params );
+	} catch ( Exception $e ) {
+		$logger->log( $e->getMessage(), 0, 'error' );
+	}
+
+}, 10, 1 );
+
+add_action( 'wp_otis_sync_all_listings_fetch', function( $params ) {
+	
+	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
+		wp_cache_add_non_persistent_groups( ['acf'] );
+	}
+
+	$otis     = new Otis();
+	$logger   = new Otis_Logger_Simple();
+	$importer = new Otis_Importer( $otis, $logger );
+
+	try {
+		$importer->import( 'all-listings', $params );
+	} catch ( Exception $e ) {
+		$logger->log( $e->getMessage(), 0, 'error' );
+	}
+}, 10, 1 );
+
+add_action( 'wp_otis_sync_all_listings_posts_transient', function() {
+	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
+		wp_cache_add_non_persistent_groups( ['acf'] );
+	}
+
+	$otis     = new Otis();
+	$logger   = new Otis_Logger_Simple();
+	$importer = new Otis_Importer( $otis, $logger );
+
+	try {
+		$importer->set_all_pois_transient();
+	} catch ( Exception $e ) {
+		$logger->log( $e->getMessage(), 0, 'error' );
+	}
+}, 10, 1 );
+
+add_action( 'wp_otis_sync_all_listings_process', function( $params ) {
+	
+	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
+		wp_cache_add_non_persistent_groups( ['acf'] );
+	}
+
+	$otis     = new Otis();
+	$logger   = new Otis_Logger_Simple();
+	$importer = new Otis_Importer( $otis, $logger );
+
+	try {
+		$importer->remove_sync_all_inactive_listings( $params );
+	} catch ( Exception $e ) {
+		$logger->log( $e->getMessage(), 0, 'error' );
+	}
+}, 10, 1 );
+
+add_action( 'wp_otis_sync_all_listings_import', function( $params ) {
+	
+	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
+		wp_cache_add_non_persistent_groups( ['acf'] );
+	}
+
+	$otis     = new Otis();
+	$logger   = new Otis_Logger_Simple();
+	$importer = new Otis_Importer( $otis, $logger );
+
+	try {
+		$importer->import_sync_all_active_listings( $params );
+	} catch ( Exception $e ) {
+		$logger->log( $e->getMessage(), 0, 'error' );
+	}
+}, 10, 1 );
 
 if ( ! wp_next_scheduled( 'wp_otis_expire_events' ) ) {
   wp_schedule_event( time(), 'daily', 'wp_otis_expire_events' );
@@ -309,8 +334,25 @@ add_action( 'wp_otis_expire_events', function () {
   wp_reset_postdata();
 } );
 
+if ( ! wp_next_scheduled( 'wp_otis_sync_listing_type_libraries' ) ) {
+	wp_schedule_event( time(), 'daily', 'wp_otis_sync_listing_type_libraries' );
+}
+
+add_action( 'wp_otis_sync_listing_type_libraries', function () {
+	$otis     = new Otis();
+	$logger   = new Otis_Logger_Simple();
+	$importer = new Otis_Importer( $otis, $logger );
+
+	try {
+		$importer->sync_listing_type_libraries();
+	} catch ( Exception $e ) {
+		$logger->log( $e->getMessage(), 0, 'error' );
+	}
+} );
+
 add_filter( 'manage_edit-type_columns', function ( $columns ) {
-	$columns['otis_path'] = 'OTIS Path';
+	$columns['otis_library'] = 'Listing Type Libraries';
+	$columns['otis_path'] = 'Listing Type OTIS Path';
 
 	return $columns;
 } );
@@ -322,6 +364,14 @@ add_action( 'manage_type_custom_column', function ( $value, $column_name, $tax_i
 		return implode( '<br>', array_map( function ( $path ) {
 			return '<a href="' . Otis::API_ROOT . $path . '" target="_blank">' . $path . '</a>';
 		}, $paths ) );
+	}
+
+	if ( 'otis_library' === $column_name ) {
+		$libraries = get_term_meta( $tax_id, 'otis_listing_type_library' );
+		$libraries = array_map( function ( $library ) {
+			return ucwords( str_replace( '-', ' ', $library ) );
+		}, $libraries );
+		return implode( ', ', $libraries );
 	}
 
 	return '';
@@ -631,8 +681,7 @@ function tror_poi_otis_log() {
 	$last_import_date = tror_poi_get_otis_date( get_option( WP_OTIS_LAST_IMPORT_DATE ) );
 	$next_import_date = tror_poi_get_otis_date( date( 'c', wp_next_scheduled( 'wp_otis_cron' ) ) );
 	$next_expire_date = tror_poi_get_otis_date( date( 'c', wp_next_scheduled( 'wp_otis_expire_events' ) ) );
-	$bulk_import_running = get_option( WP_OTIS_BULK_IMPORT_ACTIVE, false );
-	$bulk_history_running = get_option( WP_OTIS_BULK_HISTORY_ACTIVE, false );
+	$bulk_import_running = get_option( WP_OTIS_IMPORT_ACTIVE, false );
 
 	$list_table = new Otis_Log_List_Table();
 	$list_table->prepare_items();
@@ -650,14 +699,8 @@ function tror_poi_otis_log() {
 			<tr>
 				<td>Next expired event update:</td>
 				<td><?php echo esc_html( $next_expire_date ) ?></td>
-				<td>Bulk importer active:</td>
+				<td>Importer active:</td>
 				<td><?php echo esc_html( $bulk_import_running ) ? '<strong>Yes</strong>' : 'No'; ?></td>
-			</tr>
-			<tr>
-				<td></td>
-				<td></td>
-				<td>Bulk history importer active:</td>
-				<td><?php echo esc_html( $bulk_history_running ) ? '<strong>Yes</strong>' : 'No'; ?></td>
 			</tr>
 		</table>
 		<?php $list_table->display(); ?>

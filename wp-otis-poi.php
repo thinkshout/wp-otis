@@ -5,7 +5,7 @@
  */
 function wp_otis_poi_init() {
 	register_taxonomy( 'type', [ 'poi' ], [
-		'label'             => __( 'Types' ),
+		'label'             => __( 'Listing Types' ),
 		'rewrite'           => [
 			'slug'       => 'type',
 			'with_front' => false,
