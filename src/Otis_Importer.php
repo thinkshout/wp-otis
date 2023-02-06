@@ -438,7 +438,7 @@ class Otis_Importer {
 		update_option( WP_OTIS_CANCEL_IMPORT, false );
 		update_option( WP_OTIS_IMPORT_ACTIVE, false );
 		// Enable caching.
-		$this->_toggle_caching( true );
+		// $this->_toggle_caching( true );
 		// Log the cancel.
 		$this->logger->log( $log_message );
 	}
@@ -562,7 +562,7 @@ class Otis_Importer {
 			return;
 		}
 		// Disable Caching if it's enabled.
-		$this->_toggle_caching( false );
+		// $this->_toggle_caching( false );
 
 		// Run actions for before processing listings.
 		do_action( 'wp_otis_before_process_listings', $assoc_args );
@@ -616,7 +616,7 @@ class Otis_Importer {
 		}
 
 		// Enable Caching if it's disabled.
-		$this->_toggle_caching( true );
+		// $this->_toggle_caching( true );
 
 		// Run actions for after processing listings.
 		do_action( 'wp_otis_after_process_listings', $assoc_args );
@@ -856,7 +856,7 @@ class Otis_Importer {
 			$this->logger->log( 'Pausing automatic imports.' );
 		}
 		// Disable Caching if it's enabled.
-		$this->_toggle_caching( false );
+		// $this->_toggle_caching( false );
 
 		// Run actions for before importing all listings.
 		do_action( 'wp_otis_before_import_active_listings', $assoc_args );
@@ -899,7 +899,7 @@ class Otis_Importer {
 		do_action( 'wp_otis_after_import_active_listings', $assoc_args );
 
 		// Enable Caching if it's disabled.
-		$this->_toggle_caching( true );
+		// $this->_toggle_caching( true );
 
 		// Update the WP_OTIS_IMPORT_ACTIVE option to false.
 		$this->_reset_importer_active_flag();
