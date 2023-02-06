@@ -73,8 +73,8 @@ class Otis_Importer {
 	public function __construct( $otis, $logger ) {
 		$this->otis   = $otis;
 		$this->logger = $logger;
-		$this->processing_chunk_size = apply_filters( 'wp_otis_processing_chunk_size', 10 );
-		$this->processing_chunk_size = intval( $this->processing_chunk_size, 10 ) > 0 ? intval( $this->processing_chunk_size, 10 ) : 10;
+		$this->processing_chunk_size = apply_filters( 'wp_otis_processing_chunk_size', 5 );
+		$this->processing_chunk_size = intval( $this->processing_chunk_size, 10 ) > 0 ? intval( $this->processing_chunk_size, 10 ) : 5;
 	}
 
 	/** Cancel current Import and Process */
@@ -1083,12 +1083,12 @@ class Otis_Importer {
 			$post_date = empty($result['modified']) ? '' : date('Y-m-d H:i:s', strtotime($result['modified']) + 28800);
 
 			$post_result = wp_insert_post([
-				'post_type' => 'poi',
-				'post_status' => $post_status,
-				'ID' => $post_id,
-				'post_title' => $post_title,
-				'post_name' => '', // Empty = auto-generate.
-				'post_content' => $post_content,
+				'post_type'     => 'poi',
+				'post_status'   => $post_status,
+				'ID'            => $post_id,
+				'post_title'    => $post_title,
+				'post_name'     => '',              // Empty = auto-generate.
+				'post_content'  => $post_content,
 				'post_date_gmt' => $post_date,
 			], true);
 
