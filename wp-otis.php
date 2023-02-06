@@ -281,6 +281,13 @@ add_action( 'wp_otis_expire_events', function () {
   	wp_cache_add_non_persistent_groups( ['acf'] );
   }
 
+	// Check if import is already running
+	$import_active = get_option( WP_OTIS_IMPORT_ACTIVE, false );
+
+	if ( $import_active ) {
+		return;
+	}
+
   $logger = new Otis_Logger_Simple();
 
   $logger->log( 'Checking for expired posts -----------------------');
