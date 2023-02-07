@@ -831,7 +831,7 @@ class Otis_Importer {
 			$total_pages = count( $active_poi_post_chunks );
 			$assoc_args['process_page'] = $next_page;
 			$this->schedule_action( 'wp_otis_sync_all_listings_process', [ 'params' => $assoc_args ] );
-			$this->logger->log( "Scheduling process of page $next_page of $total_pages of process active listings" );
+			$this->logger->log( "Scheduling process of page $next_page of $total_pages of remove inactive listings" );
 			return;
 		}
 
