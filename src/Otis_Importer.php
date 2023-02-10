@@ -365,6 +365,7 @@ class Otis_Importer {
 		}
 
 		$post_id = wp_otis_get_post_id_for_uuid( $result['uuid'] );
+		$post_id = $post_id ?: 0;
 
 		try {
 			$post_id = $this->_upsert_poi( $post_id, $result );
@@ -581,12 +582,19 @@ class Otis_Importer {
 			return;
 		}
 
+		// Split listings into chunks.
 		$listings_chunks = array_chunk( $listings_transient, $this->processing_chunk_size );
 
 		// Apply filters to relevant chunk.
-		$listings_chunks[ $listings_page - 1 ] = apply_filters( 'wp_otis_listings_to_process', $listings_chunks[ $listings_page - 1 ], $listings_type );
+		$listings_chunk = $listings_chunks[ $listings_page - 1 ] ? $listings_chunks[ $listings_page - 1 ] : [];
+		$listings_chunk = apply_filters( 'wp_otis_listings_to_process', $listings_chunk, $listings_type );
+
+		// Get number of listings to process.
+		$listings_to_process = count( $listings_chunk );
+		$listings_processed_successfully = [];
+
 		// Loop over relevant chunk and process listings.
-		foreach ( $listings_chunks[ $listings_page - 1 ] as $listing ) {
+		foreach ( $listings_chunk as $listing ) {
 			// Check if the WP_OTIS_CANCEL_IMPORT option is set to true and if so, cancel the import.
 			if ( get_option( WP_OTIS_CANCEL_IMPORT, false ) ) {
 				$this->cancel_import();
@@ -594,8 +602,17 @@ class Otis_Importer {
 			}
 			// Get the existing listing ID from Wordpress if it exists.
 			$found_poi_post_id = wp_otis_get_post_id_for_uuid( $listing['uuid'] );
-			$this->_upsert_poi( $found_poi_post_id, $listing );
+			$found_poi_post_id = $found_poi_post_id ?: 0;
+			$upserted_post_id = $this->_upsert_poi( $found_poi_post_id, $listing );
+			if ( $upserted_post_id && ! is_wp_error($upserted_post_id) ) {
+				$listings_processed_successfully[] = $upserted_post_id;
+			} else {
+				$this->logger->log( 'Error processing listing with UUID: ' . $listing['uuid'] );
+			}
 		}
+
+		// Log results.
+		$this->logger->log( 'Processed ' . count( $listings_processed_successfully ) . ' of ' . $listings_to_process . ' listings in page.' );
 
 		// If we have more pages, schedule another action to process them.
 		if ( count( $listings_chunks ) > $listings_page ) {
