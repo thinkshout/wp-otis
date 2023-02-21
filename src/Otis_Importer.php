@@ -623,7 +623,7 @@ class Otis_Importer {
 			$assoc_args['modified_process_page'] = $next_page;
 			$assoc_args['modified_process_success'] = $listings_processed_successfully;
 			$this->schedule_action( 'wp_otis_process_listings', [ 'params' => $assoc_args ] );
-			$this->logger->log( 'Scheduling process page ' . $next_page . ' of ' . $total_pages . ' of ' . $listings_type );
+			$this->logger->log( 'Scheduling process page ' . $next_page . ' of ' . $total_pages . ' pages of ' . $listings_type );
 			return;
 		}
 
