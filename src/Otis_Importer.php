@@ -605,6 +605,9 @@ class Otis_Importer {
 			// Get the existing listing ID from Wordpress if it exists.
 			$found_poi_post_id = wp_otis_get_post_id_for_uuid( $listing['uuid'] );
 			$found_poi_post_id = $found_poi_post_id ?: 0;
+			// Log the UUID of the listing we're processing.
+			$this->logger->log( 'Processing listing with UUID: ' . $listing['uuid'], $found_poi_post_id );
+			// Upsert the listing.
 			$upserted_post_id = $this->_upsert_poi( $found_poi_post_id, $listing );
 			if ( $upserted_post_id && ! is_wp_error($upserted_post_id) ) {
 				$listings_processed_successfully++;
