@@ -1099,8 +1099,7 @@ class Otis_Importer {
 			$post_status = $this->_get_post_status($result);
 			$post_title = $result['name'];
 			$post_content = empty($result['description']) ? '' : $this->_sanitize_content($result['description']);
-			// Add 8 hours to the modified date to account for the timezone difference between the OTIS and WordPress servers.
-			$post_date = empty($result['modified']) ? '' : date('Y-m-d H:i:s', strtotime($result['modified']) + 28800);
+			$post_date = empty($result['modified']) ? '' : date('Y-m-d H:i:s', strtotime($result['modified']));
 
 			$post_result = wp_insert_post([
 				'post_type'     => 'poi',
