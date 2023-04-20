@@ -593,7 +593,7 @@ class Otis_Importer {
 		$listings_chunk = apply_filters( 'wp_otis_listings_to_process', $listings_chunk, $listings_type );
 
 		// Get number of listings to processed from.
-		$listings_processed_successfully = $assoc_args['modified_process_success'] ? intval( $assoc_args['modified_process_success'], 10 ): 0;
+		$listings_processed_successfully = isset( $assoc_args['modified_process_success'] ) ? intval( $assoc_args['modified_process_success'], 10 ): 0;
 
 		// Loop over relevant chunk and process listings.
 		foreach ( $listings_chunk as $listing ) {
@@ -661,7 +661,7 @@ class Otis_Importer {
 		$after = $after ? date( 'Y-m-d', strtotime( $after ) ) : null;
 
 		// Check if there's a page in args and set it to the first one if it's not present.
-		$deletes_page = $assoc_args['deletes_page'] ? intval( $assoc_args['deletes_page'] ) : 1;
+		$deletes_page = isset( $assoc_args['deletes_page'] ) ? intval( $assoc_args['deletes_page'] ) : 1;
 		
 		// Construct API params.
 		$api_params = [];
