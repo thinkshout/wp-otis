@@ -40,28 +40,33 @@ require_once 'wp-logging/WP_Logging.php';
  * @return false|int
  */
 function wp_otis_get_post_id_for_uuid( $uuid ) {
-	$the_query = new WP_Query( [
-		'no_found_rows'          => true,
-		'update_post_meta_cache' => false,
-		'update_post_term_cache' => false,
-		'posts_per_page'         => 1,
-		'post_status'            => 'any',
-		'post_type'              => 'poi',
-		'meta_key'               => 'uuid',
-		'meta_value'             => $uuid,
-	] );
-
-	$post_id = null;
-
-	while ( $the_query->have_posts() ) {
-		$the_query->the_post();
-
-		$post_id = get_the_ID();
+	try {
+		// Get post w/ meta query for UUID.
+		$found_pois = get_posts( [
+			'fields'                 => 'ids',
+			'posts_per_page'         => 1,
+			'post_status'            => 'any',
+			'post_type'              => 'poi',
+			'meta_key'               => 'uuid',
+			'meta_query'             => [
+				[
+					'key'     => 'uuid',
+					'value'   => $uuid,
+					'compare' => '=',
+				],
+			],
+		] );
+		
+		// Return the first post id found if any.
+		if ( ! empty( $found_pois ) ) {
+			return $found_pois[0];
+		}
+		// Return false if no post found.
+		return false;
+	} catch ( Exception $e ) {
+		// Return false if any exception is thrown.
+		return false;
 	}
-
-	wp_reset_postdata();
-
-	return $post_id;
 }
 
 /**
