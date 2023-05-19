@@ -7,7 +7,7 @@
  * Author URI:      thinkshout.com
  * Text Domain:     wp-otis
  * Domain Path:     /languages
- * Version:         1.1.15
+ * Version:         1.2.3.1
  *
  * @package         Otis
  */
@@ -101,6 +101,8 @@ add_action( 'wp_otis_cron', function () {
 	$import_active = get_option( WP_OTIS_IMPORT_ACTIVE, false );
 
 	if ($import_active == false) {
+		// Set the timezone to LA for the duration of the import and get the current date.
+		date_default_timezone_set( 'America/Los_Angeles' );
 		$current_date     = date( 'c' );
 		$last_import_date = get_option( WP_OTIS_LAST_IMPORT_DATE, '' );
 
