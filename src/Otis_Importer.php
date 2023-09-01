@@ -544,6 +544,8 @@ class Otis_Importer {
 
 		// If we don't have more pages, check if there are listings to process and schedule actions for each.
 		if ( count( $listings_transient ) ) {
+			// Log that we're scheduling processing actions.
+			$this->logger->log( 'No more pages to fetch. Scheduling process actions...' );
 			// Add listings_total to api args to pass forward to processing.
 			$api_params['listings_total'] = $listings_total;
 			foreach ( $listings_transient as $listing_key => $listing ) {
@@ -554,7 +556,7 @@ class Otis_Importer {
 				];
 				$this->schedule_action( 'wp_otis_process_single_listing', [ 'params' => $params ] );
 			}
-			$this->logger->log( 'No more pages to fetch, process ' . $listings_type . ' actions scheduled.' );
+			$this->logger->log( 'Process ' . $listings_type . ' actions scheduled.' );
 		}
 		// Schedule action to delete removed listings.
 		if ( 'pois' === $listings_type ) {
