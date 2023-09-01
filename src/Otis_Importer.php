@@ -391,7 +391,7 @@ class Otis_Importer {
 	/** Set Listings transient */
 	private function set_listings_transient( $data = [], $listings_type = 'pois' ) {
 		$transient_key = $this->make_listings_transient_key( $listings_type );
-		return set_transient( $transient_key, $data, 3600 );
+		return set_transient( $transient_key, $data, 21600 );
 	}
 
 	/** Delete Listings transient */
