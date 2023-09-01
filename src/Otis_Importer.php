@@ -422,7 +422,7 @@ class Otis_Importer {
 	private function _cancel_import( $log_message = 'Import canceled' ) {
 		// Unschedule all actions.
 		$this->unschedule_action( 'wp_otis_fetch_listings' );
-		$this->unschedule_action( 'wp_otis_process_listings' );
+		$this->unschedule_action( 'wp_otis_process_single_listing' );
 		$this->unschedule_action( 'wp_otis_delete_removed_listings' );
 		$this->unschedule_action( 'wp_otis_sync_all_listings' );
 		$this->unschedule_action( 'wp_otis_sync_all_listings_fetch' );
