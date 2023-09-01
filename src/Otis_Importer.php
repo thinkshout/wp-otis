@@ -614,7 +614,7 @@ class Otis_Importer {
 			$found_poi_post_id = $found_poi_post_id ?: 0;
 			$upserted_post_id = $this->_upsert_poi( $found_poi_post_id, $transient_listing );
 			if ( $upserted_post_id && ! is_wp_error($upserted_post_id) ) {
-				$this->logger->log( 'Successfully processed listing: ' . $transient_listing['name'] . ' (' . $assoc_args['listing_number'] . ' of ' . $assoc_args['listings_total'] . ')' );
+				$this->logger->log( 'Successfully processed listing: ' . $transient_listing['name'] . ' (' . $assoc_args['listing_number'] . ' of ' . count($listings_transient) . ')' );
 			} else {
 				$this->logger->log( 'Error processing listing: ' . $transient_listing['name'] );
 			}
