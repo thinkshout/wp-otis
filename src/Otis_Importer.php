@@ -410,10 +410,7 @@ class Otis_Importer {
 
 	/** Unschedule action scheduler action */
 	private function unschedule_action($action, $args = []) {
-		$timestamp = as_next_scheduled_action($action, $args);
-		if ( false !== $timestamp ) {
-			as_unschedule_all_actions($action, $args);
-		}
+		as_unschedule_all_actions($action, $args);
 	}
 
 	/**
@@ -556,12 +553,12 @@ class Otis_Importer {
 				];
 				$this->schedule_action( 'wp_otis_process_single_listing', [ 'params' => $params ] );
 			}
-			$this->logger->log( 'Process ' . $listings_type . ' actions scheduled.' );
+			$this->logger->log( count( $listings_transient ) . ' process ' . $listings_type . ' actions scheduled.' );
 		}
 		// Schedule action to delete removed listings.
 		if ( 'pois' === $listings_type ) {
 			$this->schedule_action( 'wp_otis_delete_removed_listings', [ 'params' => [ 'modified' => $assoc_args['modified'] ] ] );
-			$this->logger->log( 'Scheduling delete removed listings action.' );
+			$this->logger->log( 'Scheduling post processing delete removed listings action.' );
 		}
 	}
 
