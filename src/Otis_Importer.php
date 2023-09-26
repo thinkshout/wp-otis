@@ -203,7 +203,7 @@ class Otis_Importer {
 
 	/** Process Transient Data */
 	public function process_listings( $assoc_args ) {
-		$this->logger->log( 'Processing ' . $assoc_args['type'] . ' listings...' );
+		$this->logger->log( 'Initialized processing of ' . $assoc_args['type'] . ' listing with UUID: ' . $assoc_args['listing_uuid'] );
 		$this->_process_listings( $assoc_args );
 	}
 
@@ -391,7 +391,7 @@ class Otis_Importer {
 	/** Set Listings transient */
 	private function set_listings_transient( $data = [], $listings_type = 'pois' ) {
 		$transient_key = $this->make_listings_transient_key( $listings_type );
-		return set_transient( $transient_key, $data, 3600 );
+		return set_transient( $transient_key, $data, 21600 );
 	}
 
 	/** Delete Listings transient */
@@ -410,10 +410,7 @@ class Otis_Importer {
 
 	/** Unschedule action scheduler action */
 	private function unschedule_action($action, $args = []) {
-		$timestamp = as_next_scheduled_action($action, $args);
-		if ( false !== $timestamp ) {
-			as_unschedule_all_actions($action, $args);
-		}
+		as_unschedule_all_actions($action, $args);
 	}
 
 	/**
@@ -422,7 +419,7 @@ class Otis_Importer {
 	private function _cancel_import( $log_message = 'Import canceled' ) {
 		// Unschedule all actions.
 		$this->unschedule_action( 'wp_otis_fetch_listings' );
-		$this->unschedule_action( 'wp_otis_process_listings' );
+		$this->unschedule_action( 'wp_otis_process_single_listing' );
 		$this->unschedule_action( 'wp_otis_delete_removed_listings' );
 		$this->unschedule_action( 'wp_otis_sync_all_listings' );
 		$this->unschedule_action( 'wp_otis_sync_all_listings_fetch' );
@@ -513,7 +510,7 @@ class Otis_Importer {
 		$listings = $listings['results'] ?? [];
 
 		// Loop through listings and add end date to each one.
-		foreach ($listings as $listing_key => $listing) {
+		foreach ($listings as &$listing) {
 			$end_date = '';
 			if ( ! empty( $listing['attributes'] ) ) {
 				foreach ( $listing['attributes'] as $attribute ) {
@@ -522,7 +519,7 @@ class Otis_Importer {
 					}
 				}
 			}
-			$listings[ $listing_key ]['end_date'] = $end_date;
+			$listing['end_date'] = $end_date;
 		}
 
 		// If we have listings, store them in a transient.
@@ -542,19 +539,26 @@ class Otis_Importer {
 		// Do post fetch actions.
 		do_action( 'wp_otis_after_fetch_listings', $assoc_args );
 
-		// If we don't have more pages, check if there are listings to process and schedule an action if so.
+		// If we don't have more pages, check if there are listings to process and schedule actions for each.
 		if ( count( $listings_transient ) ) {
+			// Log that we're scheduling processing actions.
+			$this->logger->log( 'No more pages to fetch. Scheduling process actions...' );
 			// Add listings_total to api args to pass forward to processing.
 			$api_params['listings_total'] = $listings_total;
-			$this->schedule_action( 'wp_otis_process_listings', [ 'params' => $api_params ] );
-			$this->logger->log( 'No more pages to fetch, scheduling process ' . $listings_type . ' action' );
-			return;
+			foreach ( $listings_transient as $listing_key => $listing ) {
+				$params = [
+					'listing_uuid' => $listing['uuid'],
+					'listing_number' => $listing_key + 1,
+					'import_args' => $api_params,
+				];
+				$this->schedule_action( 'wp_otis_process_single_listing', [ 'params' => $params ] );
+			}
+			$this->logger->log( count( $listings_transient ) . ' process ' . $listings_type . ' actions scheduled.' );
 		}
-		// If we don't have more pages and no listings to process, skip to deletes run.
-		$this->logger->log( 'No more pages to fetch and no ' . $listings_type . ' listings to process.' );
+		// Schedule action to delete removed listings.
 		if ( 'pois' === $listings_type ) {
 			$this->schedule_action( 'wp_otis_delete_removed_listings', [ 'params' => [ 'modified' => $assoc_args['modified'] ] ] );
-			$this->logger->log( 'Scheduling delete removed listings action.' );
+			$this->logger->log( 'Scheduling post processing delete removed listings action.' );
 		}
 	}
 
@@ -564,7 +568,7 @@ class Otis_Importer {
 		if ( get_option( WP_OTIS_CANCEL_IMPORT, false ) ) {
 			$this->cancel_import();
 			return;
-		}
+		} 
 		// Disable Caching if it's enabled.
 		// $this->_toggle_caching( false );
 
@@ -572,11 +576,8 @@ class Otis_Importer {
 		do_action( 'wp_otis_before_process_listings', $assoc_args );
 		$assoc_args = apply_filters( 'wp_otis_before_process_listings_args', $assoc_args );
 
-		// Get listings page from args.
-		$listings_page = $assoc_args['modified_process_page'] ? intval( $assoc_args['modified_process_page'] ) : 1;
-
 		// Get listings type from args.
-		$listings_type = $assoc_args['type'] ?? 'pois';
+		$listings_type = $assoc_args['import_args']['type'] ?? 'pois';
 		// Get listings from transient.
 		$listings_transient = $this->get_listings_transient( $listings_type );
 		// If we don't have any listings, return.
@@ -585,61 +586,43 @@ class Otis_Importer {
 			return;
 		}
 
-		// Split listings into chunks.
-		$listings_chunks = array_chunk( $listings_transient, $this->processing_chunk_size );
-
-		// Apply filters to relevant chunk.
-		$listings_chunk = $listings_chunks[ $listings_page - 1 ] ? $listings_chunks[ $listings_page - 1 ] : [];
-		$listings_chunk = apply_filters( 'wp_otis_listings_to_process', $listings_chunk, $listings_type );
-
-		// Get number of listings to processed from.
-		$listings_processed_successfully = isset( $assoc_args['modified_process_success'] ) ? intval( $assoc_args['modified_process_success'], 10 ): 0;
-
-		// Loop over relevant chunk and process listings.
-		foreach ( $listings_chunk as $listing ) {
-			// Check if the WP_OTIS_CANCEL_IMPORT option is set to true and if so, cancel the import.
-			if ( get_option( WP_OTIS_CANCEL_IMPORT, false ) ) {
-				$this->cancel_import();
-				return;
-			}
-			// Get the existing listing ID from Wordpress if it exists.
-			$found_poi_post_id = wp_otis_get_post_id_for_uuid( $listing['uuid'] );
-			$found_poi_post_id = $found_poi_post_id ?: 0;
-			$upserted_post_id = $this->_upsert_poi( $found_poi_post_id, $listing );
-			if ( $upserted_post_id && ! is_wp_error($upserted_post_id) ) {
-				$listings_processed_successfully++;
-			} else {
-				$this->logger->log( 'Error processing listing with UUID: ' . $listing['uuid'] );
-			}
-		}
-
-		// If we have more pages, schedule another action to process them.
-		if ( count( $listings_chunks ) > $listings_page ) {
-			$next_page = $listings_page + 1;
-			$total_pages = count( $listings_chunks );
-			$assoc_args['modified_process_page'] = $next_page;
-			$assoc_args['modified_process_success'] = $listings_processed_successfully;
-			$this->schedule_action( 'wp_otis_process_listings', [ 'params' => $assoc_args ] );
-			$this->logger->log( 'Scheduling process page ' . $next_page . ' of ' . $total_pages . ' of ' . $listings_type );
+		// Get the relevant listing from the transient by UUID
+		$transient_listing = array_filter( $listings_transient, function( $listing ) use ( $assoc_args ) {
+			return $listing['uuid'] === $assoc_args['listing_uuid'];
+		} );
+		$transient_listing = array_shift( $transient_listing );
+		// If we don't have a listing, return.
+		if ( false === $transient_listing ) {
+			$this->logger->log( "No $listings_type listing to process" );
 			return;
 		}
+		// Apply filters to relevant listing.
+		$transient_listing = apply_filters( 'wp_otis_listing_to_process', $transient_listing, $listings_type );
 
-		// If we don't have more pages, log the number of listings processed.
-		$listings_total = $assoc_args['listings_total'] ?? 0;
-		$this->logger->log( 'Processed ' . $listings_processed_successfully . ' of ' . $listings_total . ' listings.' );
-		// Delete transient.
-		$this->delete_listings_transient( $listings_type );
-		// Schedule action to delete removed OTIS listings.
-		if ( 'pois' === $listings_type ) {
-			$this->schedule_action( 'wp_otis_delete_removed_listings', [ 'params' => [ 'modified' => $assoc_args['modified'] ] ] );
-			$this->logger->log( 'Scheduling delete removed listings action' );
+		// Process the listing.
+		// Check if the WP_OTIS_CANCEL_IMPORT option is set to true and if so, cancel the import.
+		if ( get_option( WP_OTIS_CANCEL_IMPORT, false ) ) {
+			$this->cancel_import();
+			return;
 		}
-
-		// Enable Caching if it's disabled.
-		// $this->_toggle_caching( true );
+		// Get the existing listing ID from Wordpress if it exists.
+		try {
+			$found_poi_post_id = wp_otis_get_post_id_for_uuid( $transient_listing['uuid'] );
+			$found_poi_post_id = $found_poi_post_id ?: 0;
+			$upserted_post_id = $this->_upsert_poi( $found_poi_post_id, $transient_listing );
+			if ( $upserted_post_id && ! is_wp_error($upserted_post_id) ) {
+				$this->logger->log( 'Successfully processed listing: ' . $transient_listing['name'] . ' (' . $assoc_args['listing_number'] . ' of ' . count($listings_transient) . ')' );
+			} else {
+				$this->logger->log( 'Error processing listing: ' . $transient_listing['name'] );
+			}
+		} catch (\Throwable $th) {
+			$this->logger->log( 'Error processing listing: ' . $transient_listing['name'] );
+		}
 
 		// Run actions for after processing listings.
 		do_action( 'wp_otis_after_process_listings', $assoc_args );
+
+		return;
 	}
 
 	/** Delete listings that have been removed from OTIS */

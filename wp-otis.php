@@ -175,7 +175,7 @@ add_action( 'wp_otis_fetch_listings', function( $params ) {
 
 }, 10, 1 );
 
-add_action( 'wp_otis_process_listings', function( $params ) {
+add_action( 'wp_otis_process_single_listing', function( $params ) {
 
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
