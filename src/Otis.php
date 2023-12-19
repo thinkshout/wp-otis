@@ -10,14 +10,16 @@ class Otis {
 	const AUTH_ROOT = 'https://otis.traveloregon.com/rest-auth';
 
 	private $ch;
+	private $ua;
 
 	/**
 	 * Otis constructor.
 	 */
 	public function __construct() {
 		$this->ch = curl_init();
+		$this->ua = 'Otis-PHP/' . $this->wp_otis_version();
 
-		curl_setopt( $this->ch, CURLOPT_USERAGENT, 'Otis-PHP/1.2.2' );
+		curl_setopt( $this->ch, CURLOPT_USERAGENT, $this->ua );
 		curl_setopt( $this->ch, CURLOPT_HEADER, false );
 		curl_setopt( $this->ch, CURLOPT_RETURNTRANSFER, true );
 		curl_setopt( $this->ch, CURLOPT_CONNECTTIMEOUT, 30 );
@@ -31,6 +33,21 @@ class Otis {
 		if ( is_resource( $this->ch ) ) {
 			curl_close( $this->ch );
 		}
+	}
+
+	protected function wp_otis_version() {
+		// Check if the function is available.
+		if( ! function_exists( 'get_plugin_data' ) ) {
+			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		}
+		// Retrieve plugin data from the main plugin file.
+		$plugin_data = get_plugin_data( __FILE__ . '/../wp-otis.php' );
+		// Check if the plugin version was retrieved successfully.
+		if ( ! isset( $plugin_data['Version'] ) ) {
+			return '';
+		}
+		// Return the plugin version number.
+		return $plugin_data['Version'];
 	}
 
 	/**
