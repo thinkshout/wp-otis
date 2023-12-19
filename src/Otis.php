@@ -17,9 +17,9 @@ class Otis {
 	 */
 	public function __construct() {
 		$this->ch = curl_init();
-		$this->ua = 'Otis-PHP/' . $this->wp_otis_version();
+		$user_agent = 'Otis-PHP/' . $this->wp_otis_version();
 
-		curl_setopt( $this->ch, CURLOPT_USERAGENT, $this->ua );
+		curl_setopt( $this->ch, CURLOPT_USERAGENT, $user_agent );
 		curl_setopt( $this->ch, CURLOPT_HEADER, false );
 		curl_setopt( $this->ch, CURLOPT_RETURNTRANSFER, true );
 		curl_setopt( $this->ch, CURLOPT_CONNECTTIMEOUT, 30 );
