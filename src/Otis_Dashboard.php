@@ -48,17 +48,13 @@ class Otis_Dashboard
 
   public function otis_init_import() {
     $modified_start = isset($_POST['from_date']) ? _sanitize_text_fields($_POST['from_date']) : false;
-    $initial = isset($_POST['initial_import']);
-    $assoc_args = array(
-      'bulk' => true,
-    );
-    if ($initial) {
-      $assoc_args['type'] = 'pois';
-    } else {
-      $assoc_args['type'] = 'pois-only';
-    }
+    $assoc_args = apply_filters( 'wp_otis_listings', [] );
     if ($modified_start) {
       $assoc_args['modified'] = $modified_start;
+    }
+    // Check if the type filter is set and if it isn't, set it to 'pois'
+    if ( ! isset( $assoc_args['type'] ) ) {
+      $assoc_args['type'] = 'pois';
     }
     try {
       as_enqueue_async_action( 'wp_otis_fetch_listings', ['params' => $assoc_args] );
