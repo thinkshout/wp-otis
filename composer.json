@@ -6,19 +6,11 @@
     "authors": [
         {
             "name": "ThinkShout",
-        "homepage": "https://thinkshout.com/"
+            "homepage": "https://thinkshout.com/"
         }
     ],
     "require": {
-        "composer/installers": "^1.3.0",
         "woocommerce/action-scheduler": "^3.7"
-    },
-    "extra": {
-        "installer-paths": {
-            "vendor/{$name}": [
-                "woocommerce/action-scheduler"
-            ]
-        }
     },
     "config": {
         "allow-plugins": {
