@@ -1,0 +1,3 @@
+[submodule "libraries/action-scheduler"]
+	path = libraries/action-scheduler
+	url = git@github.com:woocommerce/action-scheduler.git

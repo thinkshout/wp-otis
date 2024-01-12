@@ -24,6 +24,7 @@ define( 'WP_OTIS_BULK_DISABLE_CACHE', 0 );
 define( 'WP_OTIS_CANCEL_IMPORT', 'wp_otis_cancel_current_import' );
 
 require_once 'wp-otis-poi.php';
+require_once 'libraries/action-scheduler/action-scheduler.php';
 require_once 'src/Otis_Importer.php';
 require_once 'src/Otis_Logger_Simple.php';
 require_once 'src/Otis_Command.php';

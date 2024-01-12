@@ -8,13 +8,5 @@
             "name": "ThinkShout",
             "homepage": "https://thinkshout.com/"
         }
-    ],
-    "require": {
-        "woocommerce/action-scheduler": "^3.7"
-    },
-    "config": {
-        "allow-plugins": {
-            "composer/installers": true
-        }
-    }
+    ]
 }
