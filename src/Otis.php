@@ -17,9 +17,9 @@ class Otis {
 	 */
 	public function __construct() {
 		$this->ch = curl_init();
-		$user_agent = 'Otis-PHP/' . $this->wp_otis_version();
+		$this->ua = 'Otis-PHP/' . $this->wp_otis_version();
 
-		curl_setopt( $this->ch, CURLOPT_USERAGENT, $user_agent );
+		curl_setopt( $this->ch, CURLOPT_USERAGENT, $this->ua );
 		curl_setopt( $this->ch, CURLOPT_HEADER, false );
 		curl_setopt( $this->ch, CURLOPT_RETURNTRANSFER, true );
 		curl_setopt( $this->ch, CURLOPT_CONNECTTIMEOUT, 30 );
@@ -41,7 +41,7 @@ class Otis {
 			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		}
 		// Retrieve plugin data from the main plugin file.
-		$plugin_data = get_plugin_data( __FILE__ . '/../wp-otis.php' );
+		$plugin_data = get_plugin_data( WP_OTIS_PLUGIN_PATH . 'wp-otis.php' );
 		// Check if the plugin version was retrieved successfully.
 		if ( ! isset( $plugin_data['Version'] ) ) {
 			return '';
@@ -159,7 +159,7 @@ class Otis {
 		curl_setopt( $this->ch, CURLOPT_TIMEOUT, 30 );
 
 		if ($logger) {
-			$logger->log("About to call url ".$url);
+			$logger->log("About to call url " . $url . ' User Agent: ' . $this->ua);
 		}
 		$response_body = curl_exec( $this->ch );
 		if ($logger && $verbose) {

@@ -123,6 +123,7 @@ class Otis_Importer {
 
 			case 'regions':
 				$assoc_args['type'] = 'Regions';
+				$assoc_args['import_type'] = 'regions';
 				$assoc_args['all']  = true;
 
 				$this->_fetch_otis_listings( $assoc_args );
@@ -133,6 +134,7 @@ class Otis_Importer {
 
 			case 'cities':
 				$assoc_args['type'] = 'Cities';
+				$assoc_args['import_type'] = 'cities';
 				$assoc_args['all']  = true;
 
 				$this->_fetch_otis_listings( $assoc_args );
@@ -145,7 +147,7 @@ class Otis_Importer {
 					$this->import( 'terms', $assoc_args );
 					$this->import( 'regions', $assoc_args );
 					$this->import( 'cities', $assoc_args );
-					$assoc_args['type'] = 'pois';
+					$assoc_args['import_type'] = 'pois';
 
 					$this->_fetch_otis_listings( $assoc_args );
 					// $this->_import_history( $assoc_args );
@@ -155,7 +157,7 @@ class Otis_Importer {
 					return $log;
 
 			case 'pois-only':
-					$assoc_args['type'] = 'pois';
+					$assoc_args['import_type'] = 'pois';
 					$this->_fetch_otis_listings( $assoc_args );
 					// $this->_import_history( $assoc_args );
 
@@ -203,7 +205,7 @@ class Otis_Importer {
 
 	/** Process Transient Data */
 	public function process_listings( $assoc_args ) {
-		$this->logger->log( 'Initialized processing of ' . $assoc_args['type'] . ' listing with UUID: ' . $assoc_args['listing_uuid'] );
+		$this->logger->log( 'Initialized processing of ' . $assoc_args['import_type'] . ' listing with UUID: ' . $assoc_args['listing_uuid'] );
 		$this->_process_listings( $assoc_args );
 	}
 
@@ -484,8 +486,8 @@ class Otis_Importer {
 
 		// Look for listing page in args and set it to the first one if it's not present.
 		$listings_page = ! empty( $assoc_args['page'] ) ? $assoc_args['page'] : 1;
-		// Look for listing type in args and set it to pois if it's not present.
-		$listings_type = ! empty( $assoc_args['type'] ) ? $assoc_args['type'] : 'pois';
+		// Look for listing import type in args and set it to pois if it's not present.
+		$listings_type = ! empty( $assoc_args['import_type'] ) ? $assoc_args['import_type'] : 'pois';
 		// Create API params to pass to array.
 		$api_params    = [
 			'page'      => $listings_page,
@@ -497,8 +499,12 @@ class Otis_Importer {
 		// Merge API params with passed args.
 		$api_params    = array_merge( $assoc_args, $api_params );
 		// Check if API params type is pois and unset it if so (OTIS listings are all POIs).
-		if ( 'pois' === $api_params['type'] ) {
+		if ( 'pois' === $api_params['type'] || 'pois-only' === $api_params['type'] ) {
 			unset( $api_params['type'] );
+		}
+		// Unset the bulk flag if it's present.
+		if ( isset( $api_params['bulk'] ) ) {
+			unset( $api_params['bulk'] );
 		}
 		// Fetch listings from OTIS.
 		$this->logger->log( 'Fetching page ' . $listings_page . ' of ' . $listings_type );
@@ -577,7 +583,7 @@ class Otis_Importer {
 		$assoc_args = apply_filters( 'wp_otis_before_process_listings_args', $assoc_args );
 
 		// Get listings type from args.
-		$listings_type = $assoc_args['import_args']['type'] ?? 'pois';
+		$listings_type = $assoc_args['import_args']['import_type'] ?? 'pois';
 		// Get listings from transient.
 		$listings_transient = $this->get_listings_transient( $listings_type );
 		// If we don't have any listings, return.
