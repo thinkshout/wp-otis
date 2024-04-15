@@ -1,6 +1,8 @@
 <template>
   <div class="otis-dashboard">
     <h1>OTIS Dashboard</h1>
+
+    <!-- Initial import -->
     <div v-if="displayInitialImport" class="otis-dashboard__banner">
       <div class="otis-dashboard__initial-import">
         <div class="postbox">
@@ -20,8 +22,14 @@
         </div>
       </div>
     </div>
+
+    <!-- Dashboard settings -->
     <div class="otis-dashboard__settings">
+
+      <!-- POI import and update, reset and status -->
       <div class="otis-dashboard__setting-group">
+
+        <!-- POI import and update -->
         <div v-if="!displayInitialImport" class="otis-dashboard__setting">
           <va-card>
             <va-card-title>POI Import & Update</va-card-title>
@@ -51,7 +59,12 @@
             </va-card-actions>
           </va-card>
         </div>
+
+
+        <!-- Statuses and reset -->
         <div class="otis-dashboard__statuses">
+
+          <!-- Last Import -->
           <div class="otis-dashboard__status">
             <va-card>
               <va-card-title>Last Import</va-card-title>
@@ -65,6 +78,8 @@
               </va-card-content>
             </va-card>
           </div>
+          
+          <!-- Next import -->
           <div class="otis-dashboard__status">
             <va-card>
               <va-card-title>Next Import</va-card-title>
@@ -78,6 +93,8 @@
               </va-card-content>
             </va-card>
           </div>
+
+          <!-- Status -->
           <div class="otis-dashboard__status">
             <va-card>
               <va-card-title>Importer Status</va-card-title>
@@ -91,6 +108,8 @@
               </va-card-content>
             </va-card>
           </div>
+
+          <!-- Reset Importer Processes -->
           <div class="otis-dashboard__status otis-dashboard__status--full-width">
             <va-card>
               <va-card-title>Reset Importer Processes</va-card-title>
@@ -111,6 +130,8 @@
           </div>
         </div>
       </div>
+
+      <!-- Sync all POIs -->
       <div v-if="!displayInitialImport" class="otis-dashboard__setting otis-dashboard__setting--full-width">
         <va-card>
           <va-card-title>Sync All POIs</va-card-title>
@@ -131,6 +152,8 @@
           </va-card-actions>
         </va-card>
       </div>
+
+      <!-- Import log preview -->
       <div v-if="!displayInitialImport" class="otis-dashboard__setting">
         <va-card>
           <va-card-title>Import Log Preview</va-card-title>
@@ -161,6 +184,8 @@
           </va-card-actions>
         </va-card>
       </div>
+
+      <!-- POI counts -->
       <div v-if="!displayInitialImport" class="otis-dashboard__setting">
         <va-card>
           <va-card-title>POI Counts</va-card-title>
