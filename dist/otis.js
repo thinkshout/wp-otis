@@ -23745,8 +23745,8 @@ parcelHelpers.defineInteropFlag(exports);
 var _vue = require("vue");
 var _axios = require("axios");
 var _axiosDefault = parcelHelpers.interopDefault(_axios);
-var _otisLoaderVue = require("./components/OtisLoader.vue");
-var _otisLoaderVueDefault = parcelHelpers.interopDefault(_otisLoaderVue);
+var _loadingIndicatorVue = require("./components/LoadingIndicator.vue");
+var _loadingIndicatorVueDefault = parcelHelpers.interopDefault(_loadingIndicatorVue);
 var _cardVue = require("./components/Card.vue");
 var _cardVueDefault = parcelHelpers.interopDefault(_cardVue);
 var _alertVue = require("./components/Alert.vue");
@@ -23756,7 +23756,7 @@ var _modalVueDefault = parcelHelpers.interopDefault(_modalVue);
 exports.default = {
     name: "OtisDashboard",
     components: {
-        OtisLoader: (0, _otisLoaderVueDefault.default),
+        LoadingIndicator: (0, _loadingIndicatorVueDefault.default),
         Card: (0, _cardVueDefault.default),
         Alert: (0, _alertVueDefault.default),
         Modal: (0, _modalVueDefault.default)
@@ -24003,7 +24003,7 @@ exports.default = {
     }
 };
 
-},{"vue":"gzxs9","axios":"jo6P5","./components/OtisLoader.vue":"dBz6P","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./components/Card.vue":"ks9Jz","./components/Alert.vue":"c6qb5","./components/Modal.vue":"gE0mL"}],"jo6P5":[function(require,module,exports) {
+},{"vue":"gzxs9","axios":"jo6P5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./components/Card.vue":"ks9Jz","./components/Alert.vue":"c6qb5","./components/Modal.vue":"gE0mL","./components/LoadingIndicator.vue":"a5JR0"}],"jo6P5":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "default", ()=>(0, _axiosJsDefault.default));
@@ -28184,58 +28184,6 @@ Object.entries(HttpStatusCode).forEach(([key, value])=>{
 });
 exports.default = HttpStatusCode;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dBz6P":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-let script;
-let initialize = ()=>{
-    script = require("c78240367f19a53c");
-    if (script.__esModule) script = script.default;
-    script.render = require("497cf0a54dc7d6d7").render;
-    require("d57426531df04a85").default(script);
-    script.__scopeId = "data-v-1e5282";
-    script.__file = "/Users/jordank/Sites/tror/web/wp-content/plugins/wp-otis/assets/js/vue/components/OtisLoader.vue";
-};
-initialize();
-if (module.hot) {
-    script.__hmrId = "1e5282-hmr";
-    module.hot.accept(()=>{
-        setTimeout(()=>{
-            initialize();
-            if (!__VUE_HMR_RUNTIME__.createRecord("1e5282-hmr", script)) __VUE_HMR_RUNTIME__.reload("1e5282-hmr", script);
-        }, 0);
-    });
-}
-exports.default = script;
-
-},{"c78240367f19a53c":"jd303","497cf0a54dc7d6d7":"k6jVO","d57426531df04a85":"hvXzF","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jd303":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-exports.default = {
-    name: "OtisLoader"
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"k6jVO":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "render", ()=>render);
-var _vue = require("vue");
-function render(_ctx, _cache, $props, $setup, $data, $options) {
-    const _component_va_progress_bar = (0, _vue.resolveComponent)("va-progress-bar");
-    return (0, _vue.openBlock)(), (0, _vue.createBlock)(_component_va_progress_bar, {
-        indeterminate: ""
-    });
-}
-if (module.hot) module.hot.accept(()=>{
-    __VUE_HMR_RUNTIME__.rerender("1e5282-hmr", render);
-});
-
-},{"vue":"gzxs9","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hvXzF":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-let NOOP = ()=>{};
-exports.default = (script)=>{};
-
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"ks9Jz":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
@@ -28489,6 +28437,58 @@ parcelHelpers.defineInteropFlag(exports);
 let NOOP = ()=>{};
 exports.default = (script)=>{};
 
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"a5JR0":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+let script;
+let initialize = ()=>{
+    script = require("87e37dee430413cc");
+    if (script.__esModule) script = script.default;
+    script.render = require("23c72f8393f6e07b").render;
+    require("eaead18d596e0917").default(script);
+    script.__scopeId = "data-v-fb2ecd";
+    script.__file = "/Users/jordank/Sites/tror/web/wp-content/plugins/wp-otis/assets/js/vue/components/LoadingIndicator.vue";
+};
+initialize();
+if (module.hot) {
+    script.__hmrId = "fb2ecd-hmr";
+    module.hot.accept(()=>{
+        setTimeout(()=>{
+            initialize();
+            if (!__VUE_HMR_RUNTIME__.createRecord("fb2ecd-hmr", script)) __VUE_HMR_RUNTIME__.reload("fb2ecd-hmr", script);
+        }, 0);
+    });
+}
+exports.default = script;
+
+},{"87e37dee430413cc":"bPRlp","23c72f8393f6e07b":"jqR9H","eaead18d596e0917":"kwZoV","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bPRlp":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+exports.default = {
+    name: "LoadingIndicator"
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jqR9H":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "render", ()=>render);
+var _vue = require("vue");
+function render(_ctx, _cache, $props, $setup, $data, $options) {
+    const _component_va_progress_bar = (0, _vue.resolveComponent)("va-progress-bar");
+    return (0, _vue.openBlock)(), (0, _vue.createBlock)(_component_va_progress_bar, {
+        indeterminate: ""
+    });
+}
+if (module.hot) module.hot.accept(()=>{
+    __VUE_HMR_RUNTIME__.rerender("fb2ecd-hmr", render);
+});
+
+},{"vue":"gzxs9","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kwZoV":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+let NOOP = ()=>{};
+exports.default = (script)=>{};
+
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"65hEO":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
@@ -28694,7 +28694,7 @@ const _hoisted_66 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.create
 const _hoisted_67 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Are you sure you want to cancel?", -1 /* HOISTED */ ));
 const _hoisted_68 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Are you sure you want to restart automatic imports?", -1 /* HOISTED */ ));
 function render(_ctx, _cache, $props, $setup, $data, $options) {
-    const _component_OtisLoader = (0, _vue.resolveComponent)("OtisLoader");
+    const _component_LoadingIndicator = (0, _vue.resolveComponent)("LoadingIndicator");
     const _component_Datepicker = (0, _vue.resolveComponent)("Datepicker");
     const _component_Card = (0, _vue.resolveComponent)("Card");
     const _component_Alert = (0, _vue.resolveComponent)("Alert");
@@ -28705,7 +28705,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
         $setup.displayInitialImport ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_3, [
             (0, _vue.createElementVNode)("div", _hoisted_4, [
                 (0, _vue.createElementVNode)("div", _hoisted_5, [
-                    $setup.importStarting ? ((0, _vue.openBlock)(), (0, _vue.createBlock)(_component_OtisLoader, {
+                    $setup.importStarting ? ((0, _vue.openBlock)(), (0, _vue.createBlock)(_component_LoadingIndicator, {
                         key: 0
                     })) : (0, _vue.createCommentVNode)("v-if", true),
                     _hoisted_6,
@@ -28775,7 +28775,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                 ]),
                             content: (0, _vue.withCtx)(()=>[
                                     $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_27, [
-                                        (0, _vue.createVNode)(_component_OtisLoader)
+                                        (0, _vue.createVNode)(_component_LoadingIndicator)
                                     ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_28, (0, _vue.toDisplayString)($setup.lastImport), 1 /* TEXT */ ))
                                 ]),
                             _: 1 /* STABLE */ 
@@ -28789,7 +28789,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                 ]),
                             content: (0, _vue.withCtx)(()=>[
                                     $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_30, [
-                                        (0, _vue.createVNode)(_component_OtisLoader)
+                                        (0, _vue.createVNode)(_component_LoadingIndicator)
                                     ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_31, (0, _vue.toDisplayString)($setup.nextImport), 1 /* TEXT */ ))
                                 ]),
                             _: 1 /* STABLE */ 
@@ -28803,7 +28803,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                 ]),
                             content: (0, _vue.withCtx)(()=>[
                                     $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_33, [
-                                        (0, _vue.createVNode)(_component_OtisLoader)
+                                        (0, _vue.createVNode)(_component_LoadingIndicator)
                                     ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_34, (0, _vue.toDisplayString)($setup.importerStatus), 1 /* TEXT */ ))
                                 ]),
                             _: 1 /* STABLE */ 
@@ -28817,7 +28817,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                 ]),
                             content: (0, _vue.withCtx)(()=>[
                                     $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_36, [
-                                        (0, _vue.createVNode)(_component_OtisLoader)
+                                        (0, _vue.createVNode)(_component_LoadingIndicator)
                                     ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_37, [
                                         ..._hoisted_39
                                     ]))
@@ -28871,7 +28871,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                         ]),
                     content: (0, _vue.withCtx)(()=>[
                             $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_50, [
-                                (0, _vue.createVNode)(_component_OtisLoader)
+                                (0, _vue.createVNode)(_component_LoadingIndicator)
                             ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_51, [
                                 (0, _vue.createElementVNode)("p", null, [
                                     (0, _vue.createTextVNode)("The last 15 entries in the import log. The full import log is available under "),
@@ -28914,7 +28914,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                         ]),
                     content: (0, _vue.withCtx)(()=>[
                             $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_58, [
-                                (0, _vue.createVNode)(_component_OtisLoader)
+                                (0, _vue.createVNode)(_component_LoadingIndicator)
                             ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_59, [
                                 (0, _vue.createElementVNode)("div", _hoisted_60, [
                                     (0, _vue.createElementVNode)("table", _hoisted_61, [

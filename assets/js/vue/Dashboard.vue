@@ -6,7 +6,7 @@
     <div v-if="displayInitialImport" class="otis-dashboard__banner">
       <div class="otis-dashboard__initial-import">
         <div class="postbox">
-          <OtisLoader v-if="importStarting" />
+          <LoadingIndicator v-if="importStarting" />
           <h2>Initial POI Import</h2>
           <p>Start here if this is your first time running the plugin. This button will trigger the initial import of POI data from OTIS.</p>
           <p><em>Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme or a different plugin.</em></p>
@@ -86,7 +86,7 @@
                 <!-- Content -->
                 <template #content>
                   <div v-if="countsLoading">
-                    <OtisLoader />
+                    <LoadingIndicator />
                   </div>
                   <div v-else>
                     {{ lastImport }}
@@ -103,7 +103,7 @@
               </template>
               <template #content>
                 <div v-if="countsLoading">
-                  <OtisLoader />
+                  <LoadingIndicator />
                 </div>
                 <div v-else>
                   {{ nextImport }}
@@ -120,7 +120,7 @@
               </template>
               <template #content>
                 <div v-if="countsLoading">
-                  <OtisLoader />
+                  <LoadingIndicator />
                 </div>
                 <div v-else>
                   {{ importerStatus }}
@@ -137,7 +137,7 @@
               </template>
               <template #content>
                 <div v-if="countsLoading">
-                  <OtisLoader />
+                  <LoadingIndicator />
                 </div>
                 <div v-else>
                   <p>Use this to restart standard automatic imports, useful if automatic imports seem stuck.</p>
@@ -185,7 +185,7 @@
           </template>
           <template #content>
             <div v-if="countsLoading">
-              <OtisLoader />
+              <LoadingIndicator />
             </div>
             <div v-else>
               <p>The last 15 entries in the import log. The full import log is available under <a :href="importLogUrl">POI > Import Log</a>.</p>
@@ -219,7 +219,7 @@
           </template>
           <template #content>
             <div v-if="countsLoading">
-              <OtisLoader />
+              <LoadingIndicator />
             </div>
             <div v-else>
               <div class="va-table-responsive">
@@ -284,7 +284,7 @@
   // Dashboard uses https://vuestic.dev/ UI Framework
   import { ref, computed, onMounted } from "vue";
   import axios from "axios";
-  import OtisLoader from "./components/OtisLoader.vue";
+  import LoadingIndicator from "./components/LoadingIndicator.vue";
   import Card from "./components/Card.vue";
   import Alert from "./components/Alert.vue";
   import Modal from "./components/Modal.vue";
@@ -292,7 +292,7 @@
   export default {
     name: "OtisDashboard",
     components: {
-      OtisLoader,
+      LoadingIndicator,
       Card,
       Alert,
       Modal,

@@ -4,6 +4,6 @@
 
 <script>
 export default {
-  name: 'OtisLoader',
+  name: 'LoadingIndicator',
 };
 </script>
