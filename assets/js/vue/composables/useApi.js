@@ -1,5 +1,4 @@
 // Composables/useApi.js
-import { ref } from 'vue';
 import axios from 'axios';
 
 export default function useApi() {

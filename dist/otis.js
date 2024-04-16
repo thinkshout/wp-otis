@@ -64996,7 +64996,6 @@ exports.default = (script)=>{};
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "default", ()=>useApi);
-var _vue = require("vue");
 var _axios = require("axios");
 var _axiosDefault = parcelHelpers.interopDefault(_axios);
 function useApi() {
@@ -65022,7 +65021,7 @@ function useApi() {
     };
 }
 
-},{"vue":"gzxs9","axios":"jo6P5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dF4Uf":[function(require,module,exports) {
+},{"axios":"jo6P5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dF4Uf":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "render", ()=>render);
