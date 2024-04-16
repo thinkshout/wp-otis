@@ -142,10 +142,10 @@
       this[globalName] = mainExports;
     }
   }
-})({"eYWZL":[function(require,module,exports) {
+})({"6Uoo0":[function(require,module,exports) {
 var global = arguments[3];
 var HMR_HOST = null;
-var HMR_PORT = 62358;
+var HMR_PORT = 59512;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "d6ea1d42532a7575";
 var HMR_USE_SSE = false;
@@ -598,7 +598,7 @@ var _vue = require("vue");
 var _vueDatepicker = require("@vuepic/vue-datepicker");
 var _vueDatepickerDefault = parcelHelpers.interopDefault(_vueDatepicker);
 var _mainCss = require("@vuepic/vue-datepicker/dist/main.css");
-var _dashboardVue = require("./vue/components/04_templates/Dashboard.vue");
+var _dashboardVue = require("./vue/components/03_organisms/Dashboard.vue");
 var _dashboardVueDefault = parcelHelpers.interopDefault(_dashboardVue);
 var _vuesticUi = require("vuestic-ui");
 function dashboardVue() {
@@ -621,7 +621,7 @@ function dashboardVue() {
     app.mount("#otis-dashboard-mount");
 }
 
-},{"vue":"gzxs9","@vuepic/vue-datepicker":"lOLHi","@vuepic/vue-datepicker/dist/main.css":"d7I8C","vuestic-ui":"8BiRm","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./vue/components/04_templates/Dashboard.vue":"3Snlp"}],"gzxs9":[function(require,module,exports) {
+},{"vue":"gzxs9","@vuepic/vue-datepicker":"lOLHi","@vuepic/vue-datepicker/dist/main.css":"d7I8C","vuestic-ui":"8BiRm","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./vue/components/03_organisms/Dashboard.vue":"4pY62"}],"gzxs9":[function(require,module,exports) {
 /**
 * vue v3.4.22
 * (c) 2018-present Yuxi (Evan) You and Vue contributors
@@ -60221,32 +60221,32 @@ const usePlugin = (app, plugin, ...options)=>{
     else app.use(plugin);
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3Snlp":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4pY62":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 let script;
 let initialize = ()=>{
-    script = require("c1eabb2df19d3cf4");
+    script = require("53df3cf81b744e73");
     if (script.__esModule) script = script.default;
-    script.render = require("a2611b4026b811a").render;
-    script.__cssModules = require("5f6824dd6b9c1f8f").default;
-    require("2933b535d1ff850e").default(script);
-    script.__scopeId = "data-v-565a54";
-    script.__file = "/Users/jordank/Sites/tror/web/wp-content/plugins/wp-otis/assets/js/vue/components/04_templates/Dashboard.vue";
+    script.render = require("187c869fd2436f6e").render;
+    script.__cssModules = require("312d96f4f836f5d").default;
+    require("b513872e22961e9a").default(script);
+    script.__scopeId = "data-v-f4c30f";
+    script.__file = "/Users/jordank/Sites/tror/web/wp-content/plugins/wp-otis/assets/js/vue/components/03_organisms/Dashboard.vue";
 };
 initialize();
 if (module.hot) {
-    script.__hmrId = "565a54-hmr";
+    script.__hmrId = "f4c30f-hmr";
     module.hot.accept(()=>{
         setTimeout(()=>{
             initialize();
-            if (!__VUE_HMR_RUNTIME__.createRecord("565a54-hmr", script)) __VUE_HMR_RUNTIME__.reload("565a54-hmr", script);
+            if (!__VUE_HMR_RUNTIME__.createRecord("f4c30f-hmr", script)) __VUE_HMR_RUNTIME__.reload("f4c30f-hmr", script);
         }, 0);
     });
 }
 exports.default = script;
 
-},{"c1eabb2df19d3cf4":"8i5c4","a2611b4026b811a":"dudkv","5f6824dd6b9c1f8f":"7TpLY","2933b535d1ff850e":"iKgNc","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"8i5c4":[function(require,module,exports) {
+},{"53df3cf81b744e73":"8SQQk","187c869fd2436f6e":"dF4Uf","312d96f4f836f5d":"1uUx5","b513872e22961e9a":"c3Nee","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"8SQQk":[function(require,module,exports) {
 // Dashboard uses https://vuestic.dev/ UI Framework
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
@@ -60261,6 +60261,8 @@ var _alertVue = require("../02_molecules/Alert.vue");
 var _alertVueDefault = parcelHelpers.interopDefault(_alertVue);
 var _modalVue = require("../02_molecules/Modal.vue");
 var _modalVueDefault = parcelHelpers.interopDefault(_modalVue);
+var _useApi = require("../../composables/useApi");
+var _useApiDefault = parcelHelpers.interopDefault(_useApi);
 exports.default = {
     name: "OtisDashboard",
     components: {
@@ -60286,6 +60288,7 @@ exports.default = {
         const showCancelModal = (0, _vue.ref)(false);
         const showImportModal = (0, _vue.ref)(false);
         const showStopAllModal = (0, _vue.ref)(false);
+        const { triggerAction } = (0, _useApiDefault.default)();
         // Computed
         const lastImport = (0, _vue.computed)(()=>{
             if (!lastImportDate.value) return "N/A";
@@ -60370,15 +60373,6 @@ exports.default = {
         };
         const notifyImportStarted = ()=>{
             importStarted.value = true;
-        };
-        const triggerAction = async (action, data = {})=>{
-            const payload = makePayload({
-                action,
-                ...data
-            });
-            return await (0, _axiosDefault.default).post(otisDash.ajax_url, payload, {
-                timeout: 0
-            });
         };
         const otisStatus = async ()=>{
             countsLoading.value = true;
@@ -60511,7 +60505,7 @@ exports.default = {
     }
 };
 
-},{"vue":"gzxs9","axios":"jo6P5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../01_atoms/LoadingIndicator.vue":"8RWTs","../02_molecules/Card.vue":"eZkOW","../02_molecules/Alert.vue":"cdGyZ","../02_molecules/Modal.vue":"aPaKd"}],"jo6P5":[function(require,module,exports) {
+},{"vue":"gzxs9","axios":"jo6P5","../01_atoms/LoadingIndicator.vue":"8RWTs","../02_molecules/Card.vue":"eZkOW","../02_molecules/Alert.vue":"cdGyZ","../02_molecules/Modal.vue":"aPaKd","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../../composables/useApi":"cMhyd"}],"jo6P5":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "default", ()=>(0, _axiosJsDefault.default));
@@ -64997,12 +64991,43 @@ parcelHelpers.defineInteropFlag(exports);
 let NOOP = ()=>{};
 exports.default = (script)=>{};
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dudkv":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cMhyd":[function(require,module,exports) {
+// Composables/useApi.js
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "default", ()=>useApi);
+var _vue = require("vue");
+var _axios = require("axios");
+var _axiosDefault = parcelHelpers.interopDefault(_axios);
+function useApi() {
+    const makePayload = (payloadData = {})=>{
+        const payload = new FormData();
+        Object.keys(payloadData).forEach((key)=>{
+            payload.append(key, payloadData[key]);
+        });
+        return payload;
+    };
+    const triggerAction = async (action, data = {})=>{
+        console.log("Triggering action:", action, "with data:", data);
+        const payload = makePayload({
+            action,
+            ...data
+        });
+        return await (0, _axiosDefault.default).post(otisDash.ajax_url, payload, {
+            timeout: 0
+        });
+    };
+    return {
+        triggerAction
+    };
+}
+
+},{"vue":"gzxs9","axios":"jo6P5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dF4Uf":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "render", ()=>render);
 var _vue = require("vue");
-const _withScopeId = (n)=>((0, _vue.pushScopeId)("data-v-565a54"), n = n(), (0, _vue.popScopeId)(), n);
+const _withScopeId = (n)=>((0, _vue.pushScopeId)("data-v-f4c30f"), n = n(), (0, _vue.popScopeId)(), n);
 const _hoisted_1 = {
     class: "otis-dashboard"
 };
@@ -65536,15 +65561,15 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     ]);
 }
 if (module.hot) module.hot.accept(()=>{
-    __VUE_HMR_RUNTIME__.rerender("565a54-hmr", render);
+    __VUE_HMR_RUNTIME__.rerender("f4c30f-hmr", render);
 });
 
-},{"vue":"gzxs9","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7TpLY":[function() {},{}],"iKgNc":[function(require,module,exports) {
+},{"vue":"gzxs9","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"1uUx5":[function() {},{}],"c3Nee":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 let NOOP = ()=>{};
 exports.default = (script)=>{};
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"clNoW":[function() {},{}]},["eYWZL","6gilS"], "6gilS", "parcelRequiree80c")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"clNoW":[function() {},{}]},["6Uoo0","6gilS"], "6gilS", "parcelRequiree80c")
 
 //# sourceMappingURL=otis.js.map

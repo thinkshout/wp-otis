@@ -288,6 +288,7 @@
   import Card from "../02_molecules/Card.vue";
   import Alert from "../02_molecules/Alert.vue";
   import Modal from "../02_molecules/Modal.vue";
+  import useApi from "../../composables/useApi";
 
   export default {
     name: "OtisDashboard",
@@ -314,6 +315,7 @@
       const showCancelModal = ref(false);
       const showImportModal = ref(false);
       const showStopAllModal = ref(false);
+      const { triggerAction } = useApi();
 
       // Computed
       const lastImport = computed(() => {
@@ -403,17 +405,6 @@
       };
       const notifyImportStarted = () => {
         importStarted.value = true;
-      };
-      const triggerAction = async (action, data = {}) => {
-        const payload = makePayload({
-          action,
-          ...data,
-        });
-        return await axios.post(
-          otisDash.ajax_url,
-          payload,
-          { timeout: 0 }
-        );
       };
       const otisStatus = async () => {
         countsLoading.value = true;

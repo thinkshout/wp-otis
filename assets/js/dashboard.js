@@ -1,7 +1,7 @@
 import { createApp } from "vue";
 import Datepicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
-import OtisDashboard from "./vue/components/04_templates/Dashboard.vue";
+import OtisDashboard from "./vue/components/03_organisms/Dashboard.vue";
 import { createVuestic } from 'vuestic-ui';
 
 export default function dashboardVue() {
