@@ -245,9 +245,11 @@
       
     </div>
     <div v-if="importStarted" class="otis-dashboard__notifications">
-      <va-alert v-model="importStarted" color="success" icon="info" closeable>
-        OTIS Importer Started.
-      </va-alert>
+      <Alert v-model="importStarted" color="success">
+        <template #message>
+          OTIS Importer Started.
+        </template>
+      </Alert>
     </div>
     <va-modal v-model="showSyncModal" title="Confirm Sync All POIs" cancel-text="No, do not start the sync." ok-text="Yes, start the sync process." @ok="triggerSyncPois">
       <p><strong>Are you sure you want to sync all POIs?</strong></p>
@@ -274,12 +276,14 @@
   import axios from "axios";
   import OtisLoader from "./components/OtisLoader.vue";
   import Card from "./components/Card.vue";
+  import Alert from "./components/Alert.vue";
 
   export default {
     name: "OtisDashboard",
     components: {
       OtisLoader,
       Card,
+      Alert,
     },
     setup() {
       // Refs

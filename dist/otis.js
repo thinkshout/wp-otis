@@ -142,10 +142,10 @@
       this[globalName] = mainExports;
     }
   }
-})({"16VVk":[function(require,module,exports) {
+})({"9QPY7":[function(require,module,exports) {
 var global = arguments[3];
 var HMR_HOST = null;
-var HMR_PORT = 55843;
+var HMR_PORT = 50226;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "d6ea1d42532a7575";
 var HMR_USE_SSE = false;
@@ -23749,11 +23749,14 @@ var _otisLoaderVue = require("./components/OtisLoader.vue");
 var _otisLoaderVueDefault = parcelHelpers.interopDefault(_otisLoaderVue);
 var _cardVue = require("./components/Card.vue");
 var _cardVueDefault = parcelHelpers.interopDefault(_cardVue);
+var _alertVue = require("./components/Alert.vue");
+var _alertVueDefault = parcelHelpers.interopDefault(_alertVue);
 exports.default = {
     name: "OtisDashboard",
     components: {
         OtisLoader: (0, _otisLoaderVueDefault.default),
-        Card: (0, _cardVueDefault.default)
+        Card: (0, _cardVueDefault.default),
+        Alert: (0, _alertVueDefault.default)
     },
     setup () {
         // Refs
@@ -23997,7 +24000,7 @@ exports.default = {
     }
 };
 
-},{"vue":"gzxs9","axios":"jo6P5","./components/OtisLoader.vue":"dBz6P","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./components/Card.vue":"ks9Jz"}],"jo6P5":[function(require,module,exports) {
+},{"vue":"gzxs9","axios":"jo6P5","./components/OtisLoader.vue":"dBz6P","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./components/Card.vue":"ks9Jz","./components/Alert.vue":"c6qb5"}],"jo6P5":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "default", ()=>(0, _axiosJsDefault.default));
@@ -28303,6 +28306,86 @@ parcelHelpers.defineInteropFlag(exports);
 let NOOP = ()=>{};
 exports.default = (script)=>{};
 
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"c6qb5":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+let script;
+let initialize = ()=>{
+    script = require("587c252b21b12cf");
+    if (script.__esModule) script = script.default;
+    script.render = require("32440a4f1db5719d").render;
+    require("c2a696b9bd4bce8f").default(script);
+    script.__scopeId = "data-v-881101";
+    script.__file = "/Users/jordank/Sites/tror/web/wp-content/plugins/wp-otis/assets/js/vue/components/Alert.vue";
+};
+initialize();
+if (module.hot) {
+    script.__hmrId = "881101-hmr";
+    module.hot.accept(()=>{
+        setTimeout(()=>{
+            initialize();
+            if (!__VUE_HMR_RUNTIME__.createRecord("881101-hmr", script)) __VUE_HMR_RUNTIME__.reload("881101-hmr", script);
+        }, 0);
+    });
+}
+exports.default = script;
+
+},{"587c252b21b12cf":"hNISB","32440a4f1db5719d":"kTtaY","c2a696b9bd4bce8f":"47csJ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hNISB":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+exports.default = {
+    props: {
+        value: {
+            type: Boolean,
+            default: false
+        },
+        color: {
+            type: String,
+            default: "success"
+        }
+    },
+    methods: {
+        updateValue (newValue) {
+            this.$emit("update:value", newValue);
+        }
+    }
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kTtaY":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "render", ()=>render);
+var _vue = require("vue");
+function render(_ctx, _cache, $props, $setup, $data, $options) {
+    const _component_va_alert = (0, _vue.resolveComponent)("va-alert");
+    return (0, _vue.openBlock)(), (0, _vue.createBlock)(_component_va_alert, {
+        value: $props.value,
+        onInput: $options.updateValue,
+        color: $props.color,
+        icon: "info",
+        closeable: ""
+    }, {
+        default: (0, _vue.withCtx)(()=>[
+                (0, _vue.createCommentVNode)(" Named slot for the alert message "),
+                (0, _vue.renderSlot)(_ctx.$slots, "message")
+            ]),
+        _: 3 /* FORWARDED */ 
+    }, 8 /* PROPS */ , [
+        "value",
+        "onInput",
+        "color"
+    ]);
+}
+if (module.hot) module.hot.accept(()=>{
+    __VUE_HMR_RUNTIME__.rerender("881101-hmr", render);
+});
+
+},{"vue":"gzxs9","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"47csJ":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+let NOOP = ()=>{};
+exports.default = (script)=>{};
+
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"65hEO":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
@@ -28511,7 +28594,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     const _component_OtisLoader = (0, _vue.resolveComponent)("OtisLoader");
     const _component_Datepicker = (0, _vue.resolveComponent)("Datepicker");
     const _component_Card = (0, _vue.resolveComponent)("Card");
-    const _component_va_alert = (0, _vue.resolveComponent)("va-alert");
+    const _component_Alert = (0, _vue.resolveComponent)("Alert");
     const _component_va_modal = (0, _vue.resolveComponent)("va-modal");
     return (0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_1, [
         _hoisted_2,
@@ -28756,14 +28839,12 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
             ])) : (0, _vue.createCommentVNode)("v-if", true)
         ]),
         $setup.importStarted ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_64, [
-            (0, _vue.createVNode)(_component_va_alert, {
+            (0, _vue.createVNode)(_component_Alert, {
                 modelValue: $setup.importStarted,
                 "onUpdate:modelValue": _cache[7] || (_cache[7] = ($event)=>$setup.importStarted = $event),
-                color: "success",
-                icon: "info",
-                closeable: ""
+                color: "success"
             }, {
-                default: (0, _vue.withCtx)(()=>[
+                message: (0, _vue.withCtx)(()=>[
                         (0, _vue.createTextVNode)(" OTIS Importer Started. ")
                     ]),
                 _: 1 /* STABLE */ 
@@ -65356,6 +65437,6 @@ const usePlugin = (app, plugin, ...options)=>{
     else app.use(plugin);
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"clNoW":[function() {},{}]},["16VVk","6gilS"], "6gilS", "parcelRequiree80c")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"clNoW":[function() {},{}]},["9QPY7","6gilS"], "6gilS", "parcelRequiree80c")
 
 //# sourceMappingURL=otis.js.map
