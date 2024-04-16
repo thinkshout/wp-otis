@@ -142,10 +142,10 @@
       this[globalName] = mainExports;
     }
   }
-})({"9QPY7":[function(require,module,exports) {
+})({"aEzMb":[function(require,module,exports) {
 var global = arguments[3];
 var HMR_HOST = null;
-var HMR_PORT = 50226;
+var HMR_PORT = 62727;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "d6ea1d42532a7575";
 var HMR_USE_SSE = false;
@@ -23751,12 +23751,15 @@ var _cardVue = require("./components/Card.vue");
 var _cardVueDefault = parcelHelpers.interopDefault(_cardVue);
 var _alertVue = require("./components/Alert.vue");
 var _alertVueDefault = parcelHelpers.interopDefault(_alertVue);
+var _modalVue = require("./components/Modal.vue");
+var _modalVueDefault = parcelHelpers.interopDefault(_modalVue);
 exports.default = {
     name: "OtisDashboard",
     components: {
         OtisLoader: (0, _otisLoaderVueDefault.default),
         Card: (0, _cardVueDefault.default),
-        Alert: (0, _alertVueDefault.default)
+        Alert: (0, _alertVueDefault.default),
+        Modal: (0, _modalVueDefault.default)
     },
     setup () {
         // Refs
@@ -24000,7 +24003,7 @@ exports.default = {
     }
 };
 
-},{"vue":"gzxs9","axios":"jo6P5","./components/OtisLoader.vue":"dBz6P","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./components/Card.vue":"ks9Jz","./components/Alert.vue":"c6qb5"}],"jo6P5":[function(require,module,exports) {
+},{"vue":"gzxs9","axios":"jo6P5","./components/OtisLoader.vue":"dBz6P","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./components/Card.vue":"ks9Jz","./components/Alert.vue":"c6qb5","./components/Modal.vue":"gE0mL"}],"jo6P5":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "default", ()=>(0, _axiosJsDefault.default));
@@ -28386,6 +28389,106 @@ parcelHelpers.defineInteropFlag(exports);
 let NOOP = ()=>{};
 exports.default = (script)=>{};
 
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gE0mL":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+let script;
+let initialize = ()=>{
+    script = require("286cfef6e4ef07a2");
+    if (script.__esModule) script = script.default;
+    script.render = require("6afc4ec41f48c667").render;
+    require("7d660d0ff7abbbd8").default(script);
+    script.__scopeId = "data-v-7d6203";
+    script.__file = "/Users/jordank/Sites/tror/web/wp-content/plugins/wp-otis/assets/js/vue/components/Modal.vue";
+};
+initialize();
+if (module.hot) {
+    script.__hmrId = "7d6203-hmr";
+    module.hot.accept(()=>{
+        setTimeout(()=>{
+            initialize();
+            if (!__VUE_HMR_RUNTIME__.createRecord("7d6203-hmr", script)) __VUE_HMR_RUNTIME__.reload("7d6203-hmr", script);
+        }, 0);
+    });
+}
+exports.default = script;
+
+},{"286cfef6e4ef07a2":"iB6Np","6afc4ec41f48c667":"eGj0L","7d660d0ff7abbbd8":"eYIYV","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"iB6Np":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+exports.default = {
+    props: {
+        value: {
+            type: Boolean,
+            default: false
+        },
+        title: {
+            type: String,
+            default: ""
+        },
+        cancelText: {
+            type: String,
+            default: ""
+        },
+        okText: {
+            type: String,
+            default: ""
+        },
+        action: {
+            type: Function,
+            default: ()=>{}
+        }
+    },
+    methods: {
+        updateValue (newValue) {
+            this.$emit("update:value", newValue);
+        },
+        triggerAction () {
+            this.$emit("update:value", false);
+            this.action();
+        }
+    }
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"eGj0L":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "render", ()=>render);
+var _vue = require("vue");
+function render(_ctx, _cache, $props, $setup, $data, $options) {
+    const _component_va_modal = (0, _vue.resolveComponent)("va-modal");
+    return (0, _vue.openBlock)(), (0, _vue.createBlock)(_component_va_modal, {
+        value: $props.value,
+        onInput: $options.updateValue,
+        title: $props.title,
+        "cancel-text": $props.cancelText,
+        "ok-text": $props.okText,
+        onOk: $options.triggerAction
+    }, {
+        default: (0, _vue.withCtx)(()=>[
+                (0, _vue.createCommentVNode)(" Named slot for the modal content "),
+                (0, _vue.renderSlot)(_ctx.$slots, "content")
+            ]),
+        _: 3 /* FORWARDED */ 
+    }, 8 /* PROPS */ , [
+        "value",
+        "onInput",
+        "title",
+        "cancel-text",
+        "ok-text",
+        "onOk"
+    ]);
+}
+if (module.hot) module.hot.accept(()=>{
+    __VUE_HMR_RUNTIME__.rerender("7d6203-hmr", render);
+});
+
+},{"vue":"gzxs9","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"eYIYV":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+let NOOP = ()=>{};
+exports.default = (script)=>{};
+
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"65hEO":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
@@ -28595,7 +28698,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     const _component_Datepicker = (0, _vue.resolveComponent)("Datepicker");
     const _component_Card = (0, _vue.resolveComponent)("Card");
     const _component_Alert = (0, _vue.resolveComponent)("Alert");
-    const _component_va_modal = (0, _vue.resolveComponent)("va-modal");
+    const _component_Modal = (0, _vue.resolveComponent)("Modal");
     return (0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_1, [
         _hoisted_2,
         (0, _vue.createCommentVNode)(" Initial import "),
@@ -28838,6 +28941,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                 })
             ])) : (0, _vue.createCommentVNode)("v-if", true)
         ]),
+        (0, _vue.createCommentVNode)(" Notifications "),
         $setup.importStarted ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_64, [
             (0, _vue.createVNode)(_component_Alert, {
                 modelValue: $setup.importStarted,
@@ -28852,7 +28956,8 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                 "modelValue"
             ])
         ])) : (0, _vue.createCommentVNode)("v-if", true),
-        (0, _vue.createVNode)(_component_va_modal, {
+        (0, _vue.createCommentVNode)(" Modal - Confirm Sync "),
+        (0, _vue.createVNode)(_component_Modal, {
             modelValue: $setup.showSyncModal,
             "onUpdate:modelValue": _cache[8] || (_cache[8] = ($event)=>$setup.showSyncModal = $event),
             title: "Confirm Sync All POIs",
@@ -28869,7 +28974,8 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
             "modelValue",
             "onOk"
         ]),
-        (0, _vue.createVNode)(_component_va_modal, {
+        (0, _vue.createCommentVNode)(" Modal - Confirm Cancel "),
+        (0, _vue.createVNode)(_component_Modal, {
             modelValue: $setup.showCancelModal,
             "onUpdate:modelValue": _cache[9] || (_cache[9] = ($event)=>$setup.showCancelModal = $event),
             title: "Confirm Cancellation",
@@ -28885,7 +28991,8 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
             "modelValue",
             "onOk"
         ]),
-        (0, _vue.createVNode)(_component_va_modal, {
+        (0, _vue.createCommentVNode)(" Modal - Confirm import "),
+        (0, _vue.createVNode)(_component_Modal, {
             modelValue: $setup.showImportModal,
             "onUpdate:modelValue": _cache[10] || (_cache[10] = ($event)=>$setup.showImportModal = $event),
             title: "Confirm POI Import",
@@ -28901,7 +29008,8 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
             "modelValue",
             "onOk"
         ]),
-        (0, _vue.createVNode)(_component_va_modal, {
+        (0, _vue.createCommentVNode)(" Modal - Confirm Stop All "),
+        (0, _vue.createVNode)(_component_Modal, {
             modelValue: $setup.showStopAllModal,
             "onUpdate:modelValue": _cache[11] || (_cache[11] = ($event)=>$setup.showStopAllModal = $event),
             title: "Confirm Reset",
@@ -65437,6 +65545,6 @@ const usePlugin = (app, plugin, ...options)=>{
     else app.use(plugin);
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"clNoW":[function() {},{}]},["9QPY7","6gilS"], "6gilS", "parcelRequiree80c")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"clNoW":[function() {},{}]},["aEzMb","6gilS"], "6gilS", "parcelRequiree80c")
 
 //# sourceMappingURL=otis.js.map

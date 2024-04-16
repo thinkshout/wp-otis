@@ -244,6 +244,8 @@
       </div>
       
     </div>
+
+    <!-- Notifications -->
     <div v-if="importStarted" class="otis-dashboard__notifications">
       <Alert v-model="importStarted" color="success">
         <template #message>
@@ -251,19 +253,27 @@
         </template>
       </Alert>
     </div>
-    <va-modal v-model="showSyncModal" title="Confirm Sync All POIs" cancel-text="No, do not start the sync." ok-text="Yes, start the sync process." @ok="triggerSyncPois">
+
+    <!-- Modal - Confirm Sync -->
+    <Modal v-model="showSyncModal" title="Confirm Sync All POIs" cancel-text="No, do not start the sync." ok-text="Yes, start the sync process." @ok="triggerSyncPois">
       <p><strong>Are you sure you want to sync all POIs?</strong></p>
       <p>This action could take several hours to complete. You may close this browser window while the sync is running.</p>
-    </va-modal>
-    <va-modal v-model="showCancelModal" title="Confirm Cancellation" cancel-text="No, continue the process." ok-text="Yes, cancel the process." @ok="cancelImporter">
+    </Modal>
+
+    <!-- Modal - Confirm Cancel -->
+    <Modal v-model="showCancelModal" title="Confirm Cancellation" cancel-text="No, continue the process." ok-text="Yes, cancel the process." @ok="cancelImporter">
       <p>Are you sure you want to cancel?</p>
-    </va-modal>
-    <va-modal v-model="showImportModal" title="Confirm POI Import" cancel-text="No, do not start the import." ok-text="Yes, start the import process." @ok="triggerModifiedImport">
+    </Modal>
+
+    <!-- Modal - Confirm import -->
+    <Modal v-model="showImportModal" title="Confirm POI Import" cancel-text="No, do not start the import." ok-text="Yes, start the import process." @ok="triggerModifiedImport">
       <p>Are you sure you want to start the importer using the date: {{modifiedDateString}}?</p>
-    </va-modal>
-    <va-modal v-model="showStopAllModal" title="Confirm Reset" cancel-text="No, do not reset importer." ok-text="Yes, reset importer." @ok="triggerStopAll">
+    </Modal>
+
+    <!-- Modal - Confirm Stop All -->
+    <Modal v-model="showStopAllModal" title="Confirm Reset" cancel-text="No, do not reset importer." ok-text="Yes, reset importer." @ok="triggerStopAll">
       <p>Are you sure you want to restart automatic imports?</p>
-    </va-modal>
+    </Modal>
   </div>
 </template>
 
@@ -277,6 +287,7 @@
   import OtisLoader from "./components/OtisLoader.vue";
   import Card from "./components/Card.vue";
   import Alert from "./components/Alert.vue";
+  import Modal from "./components/Modal.vue";
 
   export default {
     name: "OtisDashboard",
@@ -284,6 +295,7 @@
       OtisLoader,
       Card,
       Alert,
+      Modal,
     },
     setup() {
       // Refs
