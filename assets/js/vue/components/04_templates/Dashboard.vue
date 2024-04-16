@@ -284,10 +284,10 @@
   // Dashboard uses https://vuestic.dev/ UI Framework
   import { ref, computed, onMounted } from "vue";
   import axios from "axios";
-  import LoadingIndicator from "./components/LoadingIndicator.vue";
-  import Card from "./components/Card.vue";
-  import Alert from "./components/Alert.vue";
-  import Modal from "./components/Modal.vue";
+  import LoadingIndicator from "../01_atoms/LoadingIndicator.vue";
+  import Card from "../02_molecules/Card.vue";
+  import Alert from "../02_molecules/Alert.vue";
+  import Modal from "../02_molecules/Modal.vue";
 
   export default {
     name: "OtisDashboard",
