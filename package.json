@@ -10,7 +10,8 @@
   "devDependencies": {
     "@parcel/transformer-vue": "^2.8.1",
     "buffer": "^5.7.1",
-    "parcel": "^2.8.1"
+    "parcel": "^2.8.1",
+    "process": "^0.11.10"
   },
   "dependencies": {
     "@vuepic/vue-datepicker": "^3.6.1",
