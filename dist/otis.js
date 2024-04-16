@@ -65007,7 +65007,6 @@ function useApi() {
         return payload;
     };
     const triggerAction = async (action, data = {})=>{
-        console.log("Triggering action:", action, "with data:", data);
         const payload = makePayload({
             action,
             ...data
