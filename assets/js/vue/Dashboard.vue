@@ -23,10 +23,8 @@
       </div>
     </div>
 
-    <!-- Dashboard settings -->
+    <!-- POI import and update, reset and status -->
     <div class="otis-dashboard__settings">
-
-      <!-- POI import and update, reset and status -->
       <div class="otis-dashboard__setting-group">
 
         <!-- POI import and update -->
