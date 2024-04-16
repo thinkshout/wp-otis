@@ -29,7 +29,6 @@
 
         <!-- POI import and update -->
         <div v-if="!displayInitialImport" class="otis-dashboard__setting">
-
           <Card>
 
             <!-- Title -->
@@ -98,67 +97,75 @@
           
           <!-- Next import -->
           <div class="otis-dashboard__status">
-            <va-card>
-              <va-card-title>Next Import</va-card-title>
-              <va-card-content>
+            <Card>
+              <template #title>
+                Next Import
+              </template>
+              <template #content>
                 <div v-if="countsLoading">
                   <OtisLoader />
                 </div>
                 <div v-else>
                   {{ nextImport }}
                 </div>
-              </va-card-content>
-            </va-card>
+              </template>
+            </Card>
           </div>
 
           <!-- Status -->
           <div class="otis-dashboard__status">
-            <va-card>
-              <va-card-title>Importer Status</va-card-title>
-              <va-card-content>
+            <Card>
+              <template #title>
+                Importer Status
+              </template>
+              <template #content>
                 <div v-if="countsLoading">
                   <OtisLoader />
                 </div>
                 <div v-else>
                   {{ importerStatus }}
                 </div>
-              </va-card-content>
-            </va-card>
+              </template>
+            </Card>
           </div>
 
           <!-- Reset Importer Processes -->
           <div class="otis-dashboard__status otis-dashboard__status--full-width">
-            <va-card>
-              <va-card-title>Reset Importer Processes</va-card-title>
-              <va-card-content>
+            <Card>
+              <template #title>
+                Reset Importer Processes
+              </template>
+              <template #content>
                 <div v-if="countsLoading">
                   <OtisLoader />
                 </div>
                 <div v-else>
                   <p>Use this to restart standard automatic imports, useful if automatic imports seem stuck.</p>
                 </div>
-              </va-card-content>
-              <va-card-actions>
+              </template>
+              <template #actions>
                 <button class="button button-primary" :disabled="importActive || syncAllActive" @click="toggleStopAllConfirm">
                   Reset Importer Processes
                 </button>
-              </va-card-actions>
-            </va-card>
+              </template>
+            </Card>
           </div>
         </div>
       </div>
 
       <!-- Sync all POIs -->
       <div v-if="!displayInitialImport" class="otis-dashboard__setting otis-dashboard__setting--full-width">
-        <va-card>
-          <va-card-title>Sync All POIs</va-card-title>
-          <va-card-content>
+        <Card>
+          <template #title>
+            Sync All POIs
+          </template>
+          <template #content>
             <p><i><strong>Note:</strong> This is a lengthy and resource intensive process</i></p>
             <p>This will sync all relevant POIs that are active in OTIS with WordPress using the Otis filters you have set. This is useful if you find there are POIs that are stale/should have been imported/deleted.</p>
             <p>This process is split into several actions and each action is split into pages. The process will run until all pages have been processed. You can cancel the process at any time but it will need to be started from the beginning if canceled.</p>
             <p><strong>This process will trash POI posts if they've been removed from OTIS.</strong></p>
-          </va-card-content>
-          <va-card-actions>
+          </template>
+          <template #actions>
             <button class="button button-primary" :disabled="importStarting || importActive || syncAllActive" @click="toggleSyncConfirm">
               <span v-if="importStarting || importActive || syncAllActive">Sync Running Please Wait...</span>
               <span v-else>Sync POIs</span>
@@ -166,15 +173,17 @@
             <button v-if="syncAllActive" class="button button-primary" @click="toggleCancelConfirm">
               Cancel Sync All
             </button>
-          </va-card-actions>
-        </va-card>
+          </template>
+        </Card>
       </div>
 
       <!-- Import log preview -->
       <div v-if="!displayInitialImport" class="otis-dashboard__setting">
-        <va-card>
-          <va-card-title>Import Log Preview</va-card-title>
-          <va-card-content>
+        <Card>
+          <template #title>
+            Import Log Preview
+          </template>
+          <template #content>
             <div v-if="countsLoading">
               <OtisLoader />
             </div>
@@ -195,18 +204,20 @@
                 </table>
               </div>
             </div>
-          </va-card-content>
-          <va-card-actions>
+          </template>
+          <template #actions>
             <a :href="importLogUrl" role="button" class="button">View Full Import Log</a>
-          </va-card-actions>
-        </va-card>
+          </template>
+        </Card>
       </div>
 
       <!-- POI counts -->
       <div v-if="!displayInitialImport" class="otis-dashboard__setting">
-        <va-card>
-          <va-card-title>POI Counts</va-card-title>
-          <va-card-content>
+        <Card>
+          <template #title>
+            POI Counts
+          </template>
+          <template #content>
             <div v-if="countsLoading">
               <OtisLoader />
             </div>
@@ -228,8 +239,8 @@
                 </table>
               </div>
             </div>
-          </va-card-content>
-        </va-card>
+          </template>
+        </Card>
       </div>
       
     </div>

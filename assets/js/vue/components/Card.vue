@@ -1,4 +1,4 @@
-<!-- CustomCard.vue -->
+<!-- Card.vue -->
 <template>
 
   <!-- Card -->

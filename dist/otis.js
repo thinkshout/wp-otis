@@ -142,10 +142,10 @@
       this[globalName] = mainExports;
     }
   }
-})({"9IHoZ":[function(require,module,exports) {
+})({"16VVk":[function(require,module,exports) {
 var global = arguments[3];
 var HMR_HOST = null;
-var HMR_PORT = 58212;
+var HMR_PORT = 55843;
 var HMR_SECURE = false;
 var HMR_ENV_HASH = "d6ea1d42532a7575";
 var HMR_USE_SSE = false;
@@ -28511,10 +28511,6 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     const _component_OtisLoader = (0, _vue.resolveComponent)("OtisLoader");
     const _component_Datepicker = (0, _vue.resolveComponent)("Datepicker");
     const _component_Card = (0, _vue.resolveComponent)("Card");
-    const _component_va_card_title = (0, _vue.resolveComponent)("va-card-title");
-    const _component_va_card_content = (0, _vue.resolveComponent)("va-card-content");
-    const _component_va_card = (0, _vue.resolveComponent)("va-card");
-    const _component_va_card_actions = (0, _vue.resolveComponent)("va-card-actions");
     const _component_va_alert = (0, _vue.resolveComponent)("va-alert");
     const _component_va_modal = (0, _vue.resolveComponent)("va-modal");
     return (0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_1, [
@@ -28601,78 +28597,51 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                     ]),
                     (0, _vue.createCommentVNode)(" Next import "),
                     (0, _vue.createElementVNode)("div", _hoisted_29, [
-                        (0, _vue.createVNode)(_component_va_card, null, {
-                            default: (0, _vue.withCtx)(()=>[
-                                    (0, _vue.createVNode)(_component_va_card_title, null, {
-                                        default: (0, _vue.withCtx)(()=>[
-                                                (0, _vue.createTextVNode)("Next Import")
-                                            ]),
-                                        _: 1 /* STABLE */ 
-                                    }),
-                                    (0, _vue.createVNode)(_component_va_card_content, null, {
-                                        default: (0, _vue.withCtx)(()=>[
-                                                $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_30, [
-                                                    (0, _vue.createVNode)(_component_OtisLoader)
-                                                ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_31, (0, _vue.toDisplayString)($setup.nextImport), 1 /* TEXT */ ))
-                                            ]),
-                                        _: 1 /* STABLE */ 
-                                    })
+                        (0, _vue.createVNode)(_component_Card, null, {
+                            title: (0, _vue.withCtx)(()=>[
+                                    (0, _vue.createTextVNode)(" Next Import ")
+                                ]),
+                            content: (0, _vue.withCtx)(()=>[
+                                    $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_30, [
+                                        (0, _vue.createVNode)(_component_OtisLoader)
+                                    ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_31, (0, _vue.toDisplayString)($setup.nextImport), 1 /* TEXT */ ))
                                 ]),
                             _: 1 /* STABLE */ 
                         })
                     ]),
                     (0, _vue.createCommentVNode)(" Status "),
                     (0, _vue.createElementVNode)("div", _hoisted_32, [
-                        (0, _vue.createVNode)(_component_va_card, null, {
-                            default: (0, _vue.withCtx)(()=>[
-                                    (0, _vue.createVNode)(_component_va_card_title, null, {
-                                        default: (0, _vue.withCtx)(()=>[
-                                                (0, _vue.createTextVNode)("Importer Status")
-                                            ]),
-                                        _: 1 /* STABLE */ 
-                                    }),
-                                    (0, _vue.createVNode)(_component_va_card_content, null, {
-                                        default: (0, _vue.withCtx)(()=>[
-                                                $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_33, [
-                                                    (0, _vue.createVNode)(_component_OtisLoader)
-                                                ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_34, (0, _vue.toDisplayString)($setup.importerStatus), 1 /* TEXT */ ))
-                                            ]),
-                                        _: 1 /* STABLE */ 
-                                    })
+                        (0, _vue.createVNode)(_component_Card, null, {
+                            title: (0, _vue.withCtx)(()=>[
+                                    (0, _vue.createTextVNode)(" Importer Status ")
+                                ]),
+                            content: (0, _vue.withCtx)(()=>[
+                                    $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_33, [
+                                        (0, _vue.createVNode)(_component_OtisLoader)
+                                    ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_34, (0, _vue.toDisplayString)($setup.importerStatus), 1 /* TEXT */ ))
                                 ]),
                             _: 1 /* STABLE */ 
                         })
                     ]),
                     (0, _vue.createCommentVNode)(" Reset Importer Processes "),
                     (0, _vue.createElementVNode)("div", _hoisted_35, [
-                        (0, _vue.createVNode)(_component_va_card, null, {
-                            default: (0, _vue.withCtx)(()=>[
-                                    (0, _vue.createVNode)(_component_va_card_title, null, {
-                                        default: (0, _vue.withCtx)(()=>[
-                                                (0, _vue.createTextVNode)("Reset Importer Processes")
-                                            ]),
-                                        _: 1 /* STABLE */ 
-                                    }),
-                                    (0, _vue.createVNode)(_component_va_card_content, null, {
-                                        default: (0, _vue.withCtx)(()=>[
-                                                $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_36, [
-                                                    (0, _vue.createVNode)(_component_OtisLoader)
-                                                ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_37, [
-                                                    ..._hoisted_39
-                                                ]))
-                                            ]),
-                                        _: 1 /* STABLE */ 
-                                    }),
-                                    (0, _vue.createVNode)(_component_va_card_actions, null, {
-                                        default: (0, _vue.withCtx)(()=>[
-                                                (0, _vue.createElementVNode)("button", {
-                                                    class: "button button-primary",
-                                                    disabled: $setup.importActive || $setup.syncAllActive,
-                                                    onClick: _cache[4] || (_cache[4] = (...args)=>$setup.toggleStopAllConfirm && $setup.toggleStopAllConfirm(...args))
-                                                }, " Reset Importer Processes ", 8 /* PROPS */ , _hoisted_40)
-                                            ]),
-                                        _: 1 /* STABLE */ 
-                                    })
+                        (0, _vue.createVNode)(_component_Card, null, {
+                            title: (0, _vue.withCtx)(()=>[
+                                    (0, _vue.createTextVNode)(" Reset Importer Processes ")
+                                ]),
+                            content: (0, _vue.withCtx)(()=>[
+                                    $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_36, [
+                                        (0, _vue.createVNode)(_component_OtisLoader)
+                                    ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_37, [
+                                        ..._hoisted_39
+                                    ]))
+                                ]),
+                            actions: (0, _vue.withCtx)(()=>[
+                                    (0, _vue.createElementVNode)("button", {
+                                        class: "button button-primary",
+                                        disabled: $setup.importActive || $setup.syncAllActive,
+                                        onClick: _cache[4] || (_cache[4] = (...args)=>$setup.toggleStopAllConfirm && $setup.toggleStopAllConfirm(...args))
+                                    }, " Reset Importer Processes ", 8 /* PROPS */ , _hoisted_40)
                                 ]),
                             _: 1 /* STABLE */ 
                         })
@@ -28681,136 +28650,106 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
             ]),
             (0, _vue.createCommentVNode)(" Sync all POIs "),
             !$setup.displayInitialImport ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_41, [
-                (0, _vue.createVNode)(_component_va_card, null, {
-                    default: (0, _vue.withCtx)(()=>[
-                            (0, _vue.createVNode)(_component_va_card_title, null, {
-                                default: (0, _vue.withCtx)(()=>[
-                                        (0, _vue.createTextVNode)("Sync All POIs")
-                                    ]),
-                                _: 1 /* STABLE */ 
-                            }),
-                            (0, _vue.createVNode)(_component_va_card_content, null, {
-                                default: (0, _vue.withCtx)(()=>[
-                                        _hoisted_42,
-                                        _hoisted_43,
-                                        _hoisted_44,
-                                        _hoisted_45
-                                    ]),
-                                _: 1 /* STABLE */ 
-                            }),
-                            (0, _vue.createVNode)(_component_va_card_actions, null, {
-                                default: (0, _vue.withCtx)(()=>[
-                                        (0, _vue.createElementVNode)("button", {
-                                            class: "button button-primary",
-                                            disabled: $setup.importStarting || $setup.importActive || $setup.syncAllActive,
-                                            onClick: _cache[5] || (_cache[5] = (...args)=>$setup.toggleSyncConfirm && $setup.toggleSyncConfirm(...args))
-                                        }, [
-                                            $setup.importStarting || $setup.importActive || $setup.syncAllActive ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_47, "Sync Running Please Wait...")) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_48, "Sync POIs"))
-                                        ], 8 /* PROPS */ , _hoisted_46),
-                                        $setup.syncAllActive ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("button", {
-                                            key: 0,
-                                            class: "button button-primary",
-                                            onClick: _cache[6] || (_cache[6] = (...args)=>$setup.toggleCancelConfirm && $setup.toggleCancelConfirm(...args))
-                                        }, " Cancel Sync All ")) : (0, _vue.createCommentVNode)("v-if", true)
-                                    ]),
-                                _: 1 /* STABLE */ 
-                            })
+                (0, _vue.createVNode)(_component_Card, null, {
+                    title: (0, _vue.withCtx)(()=>[
+                            (0, _vue.createTextVNode)(" Sync All POIs ")
+                        ]),
+                    content: (0, _vue.withCtx)(()=>[
+                            _hoisted_42,
+                            _hoisted_43,
+                            _hoisted_44,
+                            _hoisted_45
+                        ]),
+                    actions: (0, _vue.withCtx)(()=>[
+                            (0, _vue.createElementVNode)("button", {
+                                class: "button button-primary",
+                                disabled: $setup.importStarting || $setup.importActive || $setup.syncAllActive,
+                                onClick: _cache[5] || (_cache[5] = (...args)=>$setup.toggleSyncConfirm && $setup.toggleSyncConfirm(...args))
+                            }, [
+                                $setup.importStarting || $setup.importActive || $setup.syncAllActive ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_47, "Sync Running Please Wait...")) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_48, "Sync POIs"))
+                            ], 8 /* PROPS */ , _hoisted_46),
+                            $setup.syncAllActive ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("button", {
+                                key: 0,
+                                class: "button button-primary",
+                                onClick: _cache[6] || (_cache[6] = (...args)=>$setup.toggleCancelConfirm && $setup.toggleCancelConfirm(...args))
+                            }, " Cancel Sync All ")) : (0, _vue.createCommentVNode)("v-if", true)
                         ]),
                     _: 1 /* STABLE */ 
                 })
             ])) : (0, _vue.createCommentVNode)("v-if", true),
             (0, _vue.createCommentVNode)(" Import log preview "),
             !$setup.displayInitialImport ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_49, [
-                (0, _vue.createVNode)(_component_va_card, null, {
-                    default: (0, _vue.withCtx)(()=>[
-                            (0, _vue.createVNode)(_component_va_card_title, null, {
-                                default: (0, _vue.withCtx)(()=>[
-                                        (0, _vue.createTextVNode)("Import Log Preview")
-                                    ]),
-                                _: 1 /* STABLE */ 
-                            }),
-                            (0, _vue.createVNode)(_component_va_card_content, null, {
-                                default: (0, _vue.withCtx)(()=>[
-                                        $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_50, [
-                                            (0, _vue.createVNode)(_component_OtisLoader)
-                                        ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_51, [
-                                            (0, _vue.createElementVNode)("p", null, [
-                                                (0, _vue.createTextVNode)("The last 15 entries in the import log. The full import log is available under "),
-                                                (0, _vue.createElementVNode)("a", {
-                                                    href: $setup.importLogUrl
-                                                }, "POI > Import Log", 8 /* PROPS */ , _hoisted_52),
-                                                (0, _vue.createTextVNode)(".")
-                                            ]),
-                                            (0, _vue.createElementVNode)("div", _hoisted_53, [
-                                                (0, _vue.createElementVNode)("table", _hoisted_54, [
-                                                    _hoisted_55,
-                                                    (0, _vue.createElementVNode)("tbody", null, [
-                                                        ((0, _vue.openBlock)(true), (0, _vue.createElementBlock)((0, _vue.Fragment), null, (0, _vue.renderList)($setup.importLog, ({ post_content }, index)=>{
-                                                            return (0, _vue.openBlock)(), (0, _vue.createElementBlock)("tr", {
-                                                                key: index
-                                                            }, [
-                                                                (0, _vue.createElementVNode)("td", null, (0, _vue.toDisplayString)(post_content), 1 /* TEXT */ )
-                                                            ]);
-                                                        }), 128 /* KEYED_FRAGMENT */ ))
-                                                    ])
-                                                ])
-                                            ])
-                                        ]))
-                                    ]),
-                                _: 1 /* STABLE */ 
-                            }),
-                            (0, _vue.createVNode)(_component_va_card_actions, null, {
-                                default: (0, _vue.withCtx)(()=>[
-                                        (0, _vue.createElementVNode)("a", {
-                                            href: $setup.importLogUrl,
-                                            role: "button",
-                                            class: "button"
-                                        }, "View Full Import Log", 8 /* PROPS */ , _hoisted_56)
-                                    ]),
-                                _: 1 /* STABLE */ 
-                            })
+                (0, _vue.createVNode)(_component_Card, null, {
+                    title: (0, _vue.withCtx)(()=>[
+                            (0, _vue.createTextVNode)(" Import Log Preview ")
+                        ]),
+                    content: (0, _vue.withCtx)(()=>[
+                            $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_50, [
+                                (0, _vue.createVNode)(_component_OtisLoader)
+                            ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_51, [
+                                (0, _vue.createElementVNode)("p", null, [
+                                    (0, _vue.createTextVNode)("The last 15 entries in the import log. The full import log is available under "),
+                                    (0, _vue.createElementVNode)("a", {
+                                        href: $setup.importLogUrl
+                                    }, "POI > Import Log", 8 /* PROPS */ , _hoisted_52),
+                                    (0, _vue.createTextVNode)(".")
+                                ]),
+                                (0, _vue.createElementVNode)("div", _hoisted_53, [
+                                    (0, _vue.createElementVNode)("table", _hoisted_54, [
+                                        _hoisted_55,
+                                        (0, _vue.createElementVNode)("tbody", null, [
+                                            ((0, _vue.openBlock)(true), (0, _vue.createElementBlock)((0, _vue.Fragment), null, (0, _vue.renderList)($setup.importLog, ({ post_content }, index)=>{
+                                                return (0, _vue.openBlock)(), (0, _vue.createElementBlock)("tr", {
+                                                    key: index
+                                                }, [
+                                                    (0, _vue.createElementVNode)("td", null, (0, _vue.toDisplayString)(post_content), 1 /* TEXT */ )
+                                                ]);
+                                            }), 128 /* KEYED_FRAGMENT */ ))
+                                        ])
+                                    ])
+                                ])
+                            ]))
+                        ]),
+                    actions: (0, _vue.withCtx)(()=>[
+                            (0, _vue.createElementVNode)("a", {
+                                href: $setup.importLogUrl,
+                                role: "button",
+                                class: "button"
+                            }, "View Full Import Log", 8 /* PROPS */ , _hoisted_56)
                         ]),
                     _: 1 /* STABLE */ 
                 })
             ])) : (0, _vue.createCommentVNode)("v-if", true),
             (0, _vue.createCommentVNode)(" POI counts "),
             !$setup.displayInitialImport ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_57, [
-                (0, _vue.createVNode)(_component_va_card, null, {
-                    default: (0, _vue.withCtx)(()=>[
-                            (0, _vue.createVNode)(_component_va_card_title, null, {
-                                default: (0, _vue.withCtx)(()=>[
-                                        (0, _vue.createTextVNode)("POI Counts")
-                                    ]),
-                                _: 1 /* STABLE */ 
-                            }),
-                            (0, _vue.createVNode)(_component_va_card_content, null, {
-                                default: (0, _vue.withCtx)(()=>[
-                                        $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_58, [
-                                            (0, _vue.createVNode)(_component_OtisLoader)
-                                        ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_59, [
-                                            (0, _vue.createElementVNode)("div", _hoisted_60, [
-                                                (0, _vue.createElementVNode)("table", _hoisted_61, [
-                                                    _hoisted_62,
-                                                    (0, _vue.createElementVNode)("tbody", null, [
-                                                        ((0, _vue.openBlock)(true), (0, _vue.createElementBlock)((0, _vue.Fragment), null, (0, _vue.renderList)($setup.poiCount, (count, status)=>{
-                                                            return (0, _vue.openBlock)(), (0, _vue.createElementBlock)("tr", {
-                                                                key: status
-                                                            }, [
-                                                                (0, _vue.createElementVNode)("td", null, (0, _vue.toDisplayString)(status), 1 /* TEXT */ ),
-                                                                (0, _vue.createElementVNode)("td", null, [
-                                                                    (0, _vue.createElementVNode)("a", {
-                                                                        href: $setup.poiPostsUrl(status)
-                                                                    }, (0, _vue.toDisplayString)(count), 9 /* TEXT, PROPS */ , _hoisted_63)
-                                                                ])
-                                                            ]);
-                                                        }), 128 /* KEYED_FRAGMENT */ ))
+                (0, _vue.createVNode)(_component_Card, null, {
+                    title: (0, _vue.withCtx)(()=>[
+                            (0, _vue.createTextVNode)(" POI Counts ")
+                        ]),
+                    content: (0, _vue.withCtx)(()=>[
+                            $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_58, [
+                                (0, _vue.createVNode)(_component_OtisLoader)
+                            ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_59, [
+                                (0, _vue.createElementVNode)("div", _hoisted_60, [
+                                    (0, _vue.createElementVNode)("table", _hoisted_61, [
+                                        _hoisted_62,
+                                        (0, _vue.createElementVNode)("tbody", null, [
+                                            ((0, _vue.openBlock)(true), (0, _vue.createElementBlock)((0, _vue.Fragment), null, (0, _vue.renderList)($setup.poiCount, (count, status)=>{
+                                                return (0, _vue.openBlock)(), (0, _vue.createElementBlock)("tr", {
+                                                    key: status
+                                                }, [
+                                                    (0, _vue.createElementVNode)("td", null, (0, _vue.toDisplayString)(status), 1 /* TEXT */ ),
+                                                    (0, _vue.createElementVNode)("td", null, [
+                                                        (0, _vue.createElementVNode)("a", {
+                                                            href: $setup.poiPostsUrl(status)
+                                                        }, (0, _vue.toDisplayString)(count), 9 /* TEXT, PROPS */ , _hoisted_63)
                                                     ])
-                                                ])
-                                            ])
-                                        ]))
-                                    ]),
-                                _: 1 /* STABLE */ 
-                            })
+                                                ]);
+                                            }), 128 /* KEYED_FRAGMENT */ ))
+                                        ])
+                                    ])
+                                ])
+                            ]))
                         ]),
                     _: 1 /* STABLE */ 
                 })
@@ -65417,6 +65356,6 @@ const usePlugin = (app, plugin, ...options)=>{
     else app.use(plugin);
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"clNoW":[function() {},{}]},["9IHoZ","6gilS"], "6gilS", "parcelRequiree80c")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"clNoW":[function() {},{}]},["16VVk","6gilS"], "6gilS", "parcelRequiree80c")
 
 //# sourceMappingURL=otis.js.map
