@@ -29,9 +29,17 @@
 
         <!-- POI import and update -->
         <div v-if="!displayInitialImport" class="otis-dashboard__setting">
-          <va-card>
-            <va-card-title>POI Import & Update</va-card-title>
-            <va-card-content>
+
+          <Card>
+
+            <!-- Title -->
+            <template #title>
+              POI Import & Update
+            </template>
+
+            <!-- Content -->
+            <template #content>
+
               <p>Start an import of POIs that have been modified since a given date. POIs that already exist on the site will be updated or trashed if the have been updated or deleted on or after that date.</p>
               <p><em>Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme or a different plugin.</em></p>
               <label for="modified-date">Date To Import From</label>
@@ -41,9 +49,13 @@
                 :max-date="maxDate"
                 format="MM/dd/yyyy"
               />
-            </va-card-content>
-            <va-card-actions>
-              <button class="button button-primary" :disabled="!dateIsValid || importStarting || importActive || syncAllActive" @click="toggleImportConfirm">
+            </template>
+
+            <!-- Actions -->
+            <template #actions>
+              <button class="button button-primary" 
+                :disabled="!dateIsValid || importStarting || importActive || syncAllActive" @click="toggleImportConfirm"
+              >
                 <span v-if="importStarting">
                   Import Starting Please Wait...
                 </span>
@@ -54,8 +66,9 @@
               <button v-if="importActive" class="button button-primary" @click="toggleCancelConfirm">
                 Cancel Import
               </button>
-            </va-card-actions>
-          </va-card>
+            </template>
+
+          </Card>
         </div>
 
 
@@ -243,11 +256,13 @@
   import { ref, computed, onMounted } from "vue";
   import axios from "axios";
   import OtisLoader from "./components/OtisLoader.vue";
+  import Card from "./components/Card.vue";
 
   export default {
     name: "OtisDashboard",
     components: {
       OtisLoader,
+      Card,
     },
     setup() {
       // Refs
