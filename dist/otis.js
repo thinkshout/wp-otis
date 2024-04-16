@@ -28587,22 +28587,14 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                 (0, _vue.createElementVNode)("div", _hoisted_25, [
                     (0, _vue.createCommentVNode)(" Last Import "),
                     (0, _vue.createElementVNode)("div", _hoisted_26, [
-                        (0, _vue.createVNode)(_component_va_card, null, {
-                            default: (0, _vue.withCtx)(()=>[
-                                    (0, _vue.createVNode)(_component_va_card_title, null, {
-                                        default: (0, _vue.withCtx)(()=>[
-                                                (0, _vue.createTextVNode)("Last Import")
-                                            ]),
-                                        _: 1 /* STABLE */ 
-                                    }),
-                                    (0, _vue.createVNode)(_component_va_card_content, null, {
-                                        default: (0, _vue.withCtx)(()=>[
-                                                $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_27, [
-                                                    (0, _vue.createVNode)(_component_OtisLoader)
-                                                ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_28, (0, _vue.toDisplayString)($setup.lastImport), 1 /* TEXT */ ))
-                                            ]),
-                                        _: 1 /* STABLE */ 
-                                    })
+                        (0, _vue.createVNode)(_component_Card, null, {
+                            title: (0, _vue.withCtx)(()=>[
+                                    (0, _vue.createTextVNode)(" Last Import ")
+                                ]),
+                            content: (0, _vue.withCtx)(()=>[
+                                    $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_27, [
+                                        (0, _vue.createVNode)(_component_OtisLoader)
+                                    ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_28, (0, _vue.toDisplayString)($setup.lastImport), 1 /* TEXT */ ))
                                 ]),
                             _: 1 /* STABLE */ 
                         })

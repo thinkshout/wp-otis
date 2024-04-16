@@ -77,17 +77,23 @@
 
           <!-- Last Import -->
           <div class="otis-dashboard__status">
-            <va-card>
-              <va-card-title>Last Import</va-card-title>
-              <va-card-content>
-                <div v-if="countsLoading">
-                  <OtisLoader />
-                </div>
-                <div v-else>
-                  {{ lastImport }}
-                </div>
-              </va-card-content>
-            </va-card>
+            <Card>
+                
+                <!-- Title -->
+                <template #title>
+                  Last Import
+                </template>
+  
+                <!-- Content -->
+                <template #content>
+                  <div v-if="countsLoading">
+                    <OtisLoader />
+                  </div>
+                  <div v-else>
+                    {{ lastImport }}
+                  </div>
+                </template>
+            </Card>
           </div>
           
           <!-- Next import -->
