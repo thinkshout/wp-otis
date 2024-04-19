@@ -70,7 +70,6 @@
           </Card>
         </div>
 
-
         <!-- Statuses and reset -->
         <div class="otis-dashboard__statuses">
 
