@@ -209,3 +209,27 @@
 		transform: translate(24px, 0);
 	}
 }
+
+/* Text input */
+.otis-dashboard input[type="text"] {
+  padding: 0;
+
+  &:focus {
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+/* Fieldset */
+.otis-dashboard__fieldset {
+  display: inline-flex;
+  flex-direction: column;
+}
+
+/* Form grid */
+.otis-dashboard__form-grid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 2rem;
+}

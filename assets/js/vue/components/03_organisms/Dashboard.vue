@@ -176,6 +176,48 @@
         </Card>
       </div>
 
+      <!-- OTIS Config -->
+      <div v-if="!displayInitialImport" class="otis-dashboard__setting otis-dashboard__setting--full-width">
+        <Card>
+          <template #title>
+            OTIS Config
+          </template>
+          <template #content>
+
+            <!-- Form grid -->
+            <div class="otis-dashboard__form-grid">
+
+              <!-- Login -->
+              <fieldset class="otis-dashboard__fieldset">
+                <legend class="va-h6">Login</legend>
+                <va-input v-model="value" placeholder="1234" label="Current Value" disabled />
+                <va-input v-model="value" placeholder="Enter value" label="New Value" />
+              </fieldset>
+  
+              <!-- Login -->
+              <fieldset class="otis-dashboard__fieldset">
+                <legend class="va-h6">Password</legend>
+                <va-input v-model="value" placeholder="a1b2c3" label="Current Value" disabled />
+                <va-input v-model="value" placeholder="Enter value" label="New Value" />
+              </fieldset>
+
+              <!-- Login -->
+              <fieldset class="otis-dashboard__fieldset">
+                <legend class="va-h6">Sint cupidatat</legend>
+                <va-input v-model="value" placeholder="1KML2" label="Current Value" disabled />
+                <va-input v-model="value" placeholder="Enter value" label="New Value" />
+              </fieldset>
+            </div>
+
+          </template>
+          <template #actions>
+            <button class="button button-primary" :disabled="importStarting || importActive || syncAllActive" @click="toggleConfigSyncConfirm">
+              <span>Sync Config</span>
+            </button>
+          </template>
+        </Card>
+      </div>
+
       <!-- Import log preview -->
       <div v-if="!displayInitialImport" class="otis-dashboard__setting">
         <Card>
@@ -273,6 +315,11 @@
     <Modal v-model="showStopAllModal" title="Confirm Reset" cancel-text="No, do not reset importer." ok-text="Yes, reset importer." @ok="triggerStopAll">
       <p>Are you sure you want to restart automatic imports?</p>
     </Modal>
+
+    <!-- Modal - Confirm OTIS sync -->
+    <Modal v-model="showOtisSyncModal" title="Confirm OTIS config sync" cancel-text="No, do not sync." ok-text="Yes, sync config." @ok="triggerSyncOtisConfig">
+      <p>Are you sure you want to sync OTIS configuration?</p>
+    </Modal>
   </div>
 </template>
 
@@ -282,7 +329,6 @@
 <script>
   // Dashboard uses https://vuestic.dev/ UI Framework
   import { ref, computed, onMounted } from "vue";
-  import axios from "axios";
   import LoadingIndicator from "../01_atoms/LoadingIndicator.vue";
   import Card from "../02_molecules/Card.vue";
   import Alert from "../02_molecules/Alert.vue";
@@ -314,6 +360,7 @@
       const showCancelModal = ref(false);
       const showImportModal = ref(false);
       const showStopAllModal = ref(false);
+      const showOtisSyncModal = ref(false);
       const { triggerAction } = useApi();
 
       // Computed
@@ -469,8 +516,14 @@
         await triggerAction("otis_stop_all");
         await otisStatus();
       };
+      const triggerSyncOtisConfig = () => {
+        console.log("Syncing config");
+      };
       const toggleSyncConfirm = () => {
         showSyncModal.value = !showSyncModal.value;
+      };
+      const toggleConfigSyncConfirm = () => {
+        showOtisSyncModal.value = !showOtisSyncModal.value;
       };
       const toggleCancelConfirm = () => {
         showCancelModal.value = !showCancelModal.value;
@@ -513,6 +566,7 @@
         showCancelModal,
         showImportModal,
         showStopAllModal,
+        showOtisSyncModal,
         modifiedDateString,
         importSchedule,
         nextImport,
@@ -526,7 +580,9 @@
         triggerModifiedImport,
         triggerSyncPois,
         triggerStopAll,
+        triggerSyncOtisConfig,
         toggleSyncConfirm,
+        toggleConfigSyncConfirm,
         toggleCancelConfirm,
         toggleImportConfirm,
         toggleStopAllConfirm,

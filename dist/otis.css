@@ -16951,4 +16951,24 @@ body[data-v-f4c30f] {
     transform: translate(24px);
   }
 }
+
+.otis-dashboard input[type="text"] {
+  padding: 0;
+
+  &:focus {
+    box-shadow: none;
+    outline: none;
+  }
+}
+
+.otis-dashboard__fieldset {
+  flex-direction: column;
+  display: inline-flex;
+}
+
+.otis-dashboard__form-grid {
+  flex-flow: wrap;
+  gap: 2rem;
+  display: flex;
+}
 /*# sourceMappingURL=otis.css.map */

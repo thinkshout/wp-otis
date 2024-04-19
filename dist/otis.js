@@ -60251,8 +60251,6 @@ exports.default = script;
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _vue = require("vue");
-var _axios = require("axios");
-var _axiosDefault = parcelHelpers.interopDefault(_axios);
 var _loadingIndicatorVue = require("../01_atoms/LoadingIndicator.vue");
 var _loadingIndicatorVueDefault = parcelHelpers.interopDefault(_loadingIndicatorVue);
 var _cardVue = require("../02_molecules/Card.vue");
@@ -60288,6 +60286,7 @@ exports.default = {
         const showCancelModal = (0, _vue.ref)(false);
         const showImportModal = (0, _vue.ref)(false);
         const showStopAllModal = (0, _vue.ref)(false);
+        const showOtisSyncModal = (0, _vue.ref)(false);
         const { triggerAction } = (0, _useApiDefault.default)();
         // Computed
         const lastImport = (0, _vue.computed)(()=>{
@@ -60442,8 +60441,14 @@ exports.default = {
             await triggerAction("otis_stop_all");
             await otisStatus();
         };
+        const triggerSyncOtisConfig = ()=>{
+            console.log("Syncing config");
+        };
         const toggleSyncConfirm = ()=>{
             showSyncModal.value = !showSyncModal.value;
+        };
+        const toggleConfigSyncConfirm = ()=>{
+            showOtisSyncModal.value = !showOtisSyncModal.value;
         };
         const toggleCancelConfirm = ()=>{
             showCancelModal.value = !showCancelModal.value;
@@ -60484,6 +60489,7 @@ exports.default = {
             showCancelModal,
             showImportModal,
             showStopAllModal,
+            showOtisSyncModal,
             modifiedDateString,
             importSchedule,
             nextImport,
@@ -60497,7 +60503,9 @@ exports.default = {
             triggerModifiedImport,
             triggerSyncPois,
             triggerStopAll,
+            triggerSyncOtisConfig,
             toggleSyncConfirm,
+            toggleConfigSyncConfirm,
             toggleCancelConfirm,
             toggleImportConfirm,
             toggleStopAllConfirm
@@ -60505,7 +60513,341 @@ exports.default = {
     }
 };
 
-},{"vue":"gzxs9","axios":"jo6P5","../01_atoms/LoadingIndicator.vue":"8RWTs","../02_molecules/Card.vue":"eZkOW","../02_molecules/Alert.vue":"cdGyZ","../02_molecules/Modal.vue":"aPaKd","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../../composables/useApi":"cMhyd"}],"jo6P5":[function(require,module,exports) {
+},{"vue":"gzxs9","../01_atoms/LoadingIndicator.vue":"8RWTs","../02_molecules/Card.vue":"eZkOW","../02_molecules/Alert.vue":"cdGyZ","../02_molecules/Modal.vue":"aPaKd","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../../composables/useApi":"cMhyd"}],"8RWTs":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+let script;
+let initialize = ()=>{
+    script = require("4b20e2f234dba91b");
+    if (script.__esModule) script = script.default;
+    script.render = require("45c7f6643fb41eaa").render;
+    require("93d112519d017dd4").default(script);
+    script.__scopeId = "data-v-6a6cd7";
+    script.__file = "/Users/jordank/Sites/tror/web/wp-content/plugins/wp-otis/assets/js/vue/components/01_atoms/LoadingIndicator.vue";
+};
+initialize();
+if (module.hot) {
+    script.__hmrId = "6a6cd7-hmr";
+    module.hot.accept(()=>{
+        setTimeout(()=>{
+            initialize();
+            if (!__VUE_HMR_RUNTIME__.createRecord("6a6cd7-hmr", script)) __VUE_HMR_RUNTIME__.reload("6a6cd7-hmr", script);
+        }, 0);
+    });
+}
+exports.default = script;
+
+},{"4b20e2f234dba91b":"bU4O2","45c7f6643fb41eaa":"iq5ss","93d112519d017dd4":"7zpLu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bU4O2":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+exports.default = {
+    name: "LoadingIndicator"
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"iq5ss":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "render", ()=>render);
+var _vue = require("vue");
+function render(_ctx, _cache, $props, $setup, $data, $options) {
+    const _component_va_progress_bar = (0, _vue.resolveComponent)("va-progress-bar");
+    return (0, _vue.openBlock)(), (0, _vue.createBlock)(_component_va_progress_bar, {
+        indeterminate: ""
+    });
+}
+if (module.hot) module.hot.accept(()=>{
+    __VUE_HMR_RUNTIME__.rerender("6a6cd7-hmr", render);
+});
+
+},{"vue":"gzxs9","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7zpLu":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+let NOOP = ()=>{};
+exports.default = (script)=>{};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"eZkOW":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+let script;
+let initialize = ()=>{
+    script = {};
+    script.render = require("f62dca6685dcc895").render;
+    require("db5313633e66a6e8").default(script);
+    script.__scopeId = "data-v-b3bc84";
+    script.__file = "/Users/jordank/Sites/tror/web/wp-content/plugins/wp-otis/assets/js/vue/components/02_molecules/Card.vue";
+};
+initialize();
+if (module.hot) {
+    script.__hmrId = "b3bc84-hmr";
+    module.hot.accept(()=>{
+        setTimeout(()=>{
+            initialize();
+            if (!__VUE_HMR_RUNTIME__.createRecord("b3bc84-hmr", script)) __VUE_HMR_RUNTIME__.reload("b3bc84-hmr", script);
+        }, 0);
+    });
+}
+exports.default = script;
+
+},{"f62dca6685dcc895":"iDkF8","db5313633e66a6e8":"6hNuK","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"iDkF8":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "render", ()=>render);
+var _vue = require("vue");
+function render(_ctx, _cache) {
+    const _component_va_card_title = (0, _vue.resolveComponent)("va-card-title");
+    const _component_va_card_content = (0, _vue.resolveComponent)("va-card-content");
+    const _component_va_card_actions = (0, _vue.resolveComponent)("va-card-actions");
+    const _component_va_card = (0, _vue.resolveComponent)("va-card");
+    return (0, _vue.openBlock)(), (0, _vue.createElementBlock)((0, _vue.Fragment), null, [
+        (0, _vue.createCommentVNode)(" Card "),
+        (0, _vue.createVNode)(_component_va_card, null, {
+            default: (0, _vue.withCtx)(()=>[
+                    (0, _vue.createCommentVNode)(" Title "),
+                    (0, _vue.createVNode)(_component_va_card_title, null, {
+                        default: (0, _vue.withCtx)(()=>[
+                                (0, _vue.renderSlot)(_ctx.$slots, "title")
+                            ]),
+                        _: 3 /* FORWARDED */ 
+                    }),
+                    (0, _vue.createCommentVNode)(" Content "),
+                    (0, _vue.createVNode)(_component_va_card_content, null, {
+                        default: (0, _vue.withCtx)(()=>[
+                                (0, _vue.renderSlot)(_ctx.$slots, "content")
+                            ]),
+                        _: 3 /* FORWARDED */ 
+                    }),
+                    (0, _vue.createCommentVNode)(" Actions "),
+                    (0, _vue.createVNode)(_component_va_card_actions, null, {
+                        default: (0, _vue.withCtx)(()=>[
+                                (0, _vue.renderSlot)(_ctx.$slots, "actions")
+                            ]),
+                        _: 3 /* FORWARDED */ 
+                    })
+                ]),
+            _: 3 /* FORWARDED */ 
+        })
+    ], 2112 /* STABLE_FRAGMENT, DEV_ROOT_FRAGMENT */ );
+}
+if (module.hot) module.hot.accept(()=>{
+    __VUE_HMR_RUNTIME__.rerender("b3bc84-hmr", render);
+});
+
+},{"vue":"gzxs9","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6hNuK":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+let NOOP = ()=>{};
+exports.default = (script)=>{};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cdGyZ":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+let script;
+let initialize = ()=>{
+    script = require("4cbfe64e87d1f055");
+    if (script.__esModule) script = script.default;
+    script.render = require("995770a342cbf561").render;
+    require("8a5a4da5a32c6d3f").default(script);
+    script.__scopeId = "data-v-d8ca9f";
+    script.__file = "/Users/jordank/Sites/tror/web/wp-content/plugins/wp-otis/assets/js/vue/components/02_molecules/Alert.vue";
+};
+initialize();
+if (module.hot) {
+    script.__hmrId = "d8ca9f-hmr";
+    module.hot.accept(()=>{
+        setTimeout(()=>{
+            initialize();
+            if (!__VUE_HMR_RUNTIME__.createRecord("d8ca9f-hmr", script)) __VUE_HMR_RUNTIME__.reload("d8ca9f-hmr", script);
+        }, 0);
+    });
+}
+exports.default = script;
+
+},{"4cbfe64e87d1f055":"g3ppW","995770a342cbf561":"g1CDE","8a5a4da5a32c6d3f":"7dc1w","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"g3ppW":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+exports.default = {
+    props: {
+        value: {
+            type: Boolean,
+            default: false
+        },
+        color: {
+            type: String,
+            default: "success"
+        }
+    },
+    methods: {
+        updateValue (newValue) {
+            this.$emit("update:value", newValue);
+        }
+    }
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"g1CDE":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "render", ()=>render);
+var _vue = require("vue");
+function render(_ctx, _cache, $props, $setup, $data, $options) {
+    const _component_va_alert = (0, _vue.resolveComponent)("va-alert");
+    return (0, _vue.openBlock)(), (0, _vue.createBlock)(_component_va_alert, {
+        value: $props.value,
+        onInput: $options.updateValue,
+        color: $props.color,
+        icon: "info",
+        closeable: ""
+    }, {
+        default: (0, _vue.withCtx)(()=>[
+                (0, _vue.createCommentVNode)(" Named slot for the alert message "),
+                (0, _vue.renderSlot)(_ctx.$slots, "message")
+            ]),
+        _: 3 /* FORWARDED */ 
+    }, 8 /* PROPS */ , [
+        "value",
+        "onInput",
+        "color"
+    ]);
+}
+if (module.hot) module.hot.accept(()=>{
+    __VUE_HMR_RUNTIME__.rerender("d8ca9f-hmr", render);
+});
+
+},{"vue":"gzxs9","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7dc1w":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+let NOOP = ()=>{};
+exports.default = (script)=>{};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"aPaKd":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+let script;
+let initialize = ()=>{
+    script = require("413acda1ed0a3b28");
+    if (script.__esModule) script = script.default;
+    script.render = require("10a3145c8395de7c").render;
+    require("23a0ce3b2cdd4643").default(script);
+    script.__scopeId = "data-v-3a7730";
+    script.__file = "/Users/jordank/Sites/tror/web/wp-content/plugins/wp-otis/assets/js/vue/components/02_molecules/Modal.vue";
+};
+initialize();
+if (module.hot) {
+    script.__hmrId = "3a7730-hmr";
+    module.hot.accept(()=>{
+        setTimeout(()=>{
+            initialize();
+            if (!__VUE_HMR_RUNTIME__.createRecord("3a7730-hmr", script)) __VUE_HMR_RUNTIME__.reload("3a7730-hmr", script);
+        }, 0);
+    });
+}
+exports.default = script;
+
+},{"413acda1ed0a3b28":"5I0E0","10a3145c8395de7c":"2NvkX","23a0ce3b2cdd4643":"hrX9k","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5I0E0":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+exports.default = {
+    props: {
+        value: {
+            type: Boolean,
+            default: false
+        },
+        title: {
+            type: String,
+            default: ""
+        },
+        cancelText: {
+            type: String,
+            default: ""
+        },
+        okText: {
+            type: String,
+            default: ""
+        },
+        action: {
+            type: Function,
+            default: ()=>{}
+        }
+    },
+    methods: {
+        updateValue (newValue) {
+            this.$emit("update:value", newValue);
+        },
+        triggerAction () {
+            this.$emit("update:value", false);
+            this.action();
+        }
+    }
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2NvkX":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "render", ()=>render);
+var _vue = require("vue");
+function render(_ctx, _cache, $props, $setup, $data, $options) {
+    const _component_va_modal = (0, _vue.resolveComponent)("va-modal");
+    return (0, _vue.openBlock)(), (0, _vue.createBlock)(_component_va_modal, {
+        value: $props.value,
+        onInput: $options.updateValue,
+        title: $props.title,
+        "cancel-text": $props.cancelText,
+        "ok-text": $props.okText,
+        onOk: $options.triggerAction
+    }, {
+        default: (0, _vue.withCtx)(()=>[
+                (0, _vue.createCommentVNode)(" Named slot for the modal content "),
+                (0, _vue.renderSlot)(_ctx.$slots, "content")
+            ]),
+        _: 3 /* FORWARDED */ 
+    }, 8 /* PROPS */ , [
+        "value",
+        "onInput",
+        "title",
+        "cancel-text",
+        "ok-text",
+        "onOk"
+    ]);
+}
+if (module.hot) module.hot.accept(()=>{
+    __VUE_HMR_RUNTIME__.rerender("3a7730-hmr", render);
+});
+
+},{"vue":"gzxs9","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hrX9k":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+let NOOP = ()=>{};
+exports.default = (script)=>{};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cMhyd":[function(require,module,exports) {
+// Composables/useApi.js
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "default", ()=>useApi);
+var _axios = require("axios");
+var _axiosDefault = parcelHelpers.interopDefault(_axios);
+function useApi() {
+    const makePayload = (payloadData = {})=>{
+        const payload = new FormData();
+        Object.keys(payloadData).forEach((key)=>{
+            payload.append(key, payloadData[key]);
+        });
+        return payload;
+    };
+    const triggerAction = async (action, data = {})=>{
+        const payload = makePayload({
+            action,
+            ...data
+        });
+        return await (0, _axiosDefault.default).post(otisDash.ajax_url, payload, {
+            timeout: 0
+        });
+    };
+    return {
+        triggerAction
+    };
+}
+
+},{"axios":"jo6P5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jo6P5":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "default", ()=>(0, _axiosJsDefault.default));
@@ -64686,341 +65028,7 @@ Object.entries(HttpStatusCode).forEach(([key, value])=>{
 });
 exports.default = HttpStatusCode;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"8RWTs":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-let script;
-let initialize = ()=>{
-    script = require("4b20e2f234dba91b");
-    if (script.__esModule) script = script.default;
-    script.render = require("45c7f6643fb41eaa").render;
-    require("93d112519d017dd4").default(script);
-    script.__scopeId = "data-v-6a6cd7";
-    script.__file = "/Users/jordank/Sites/tror/web/wp-content/plugins/wp-otis/assets/js/vue/components/01_atoms/LoadingIndicator.vue";
-};
-initialize();
-if (module.hot) {
-    script.__hmrId = "6a6cd7-hmr";
-    module.hot.accept(()=>{
-        setTimeout(()=>{
-            initialize();
-            if (!__VUE_HMR_RUNTIME__.createRecord("6a6cd7-hmr", script)) __VUE_HMR_RUNTIME__.reload("6a6cd7-hmr", script);
-        }, 0);
-    });
-}
-exports.default = script;
-
-},{"4b20e2f234dba91b":"bU4O2","45c7f6643fb41eaa":"iq5ss","93d112519d017dd4":"7zpLu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"bU4O2":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-exports.default = {
-    name: "LoadingIndicator"
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"iq5ss":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "render", ()=>render);
-var _vue = require("vue");
-function render(_ctx, _cache, $props, $setup, $data, $options) {
-    const _component_va_progress_bar = (0, _vue.resolveComponent)("va-progress-bar");
-    return (0, _vue.openBlock)(), (0, _vue.createBlock)(_component_va_progress_bar, {
-        indeterminate: ""
-    });
-}
-if (module.hot) module.hot.accept(()=>{
-    __VUE_HMR_RUNTIME__.rerender("6a6cd7-hmr", render);
-});
-
-},{"vue":"gzxs9","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7zpLu":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-let NOOP = ()=>{};
-exports.default = (script)=>{};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"eZkOW":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-let script;
-let initialize = ()=>{
-    script = {};
-    script.render = require("f62dca6685dcc895").render;
-    require("db5313633e66a6e8").default(script);
-    script.__scopeId = "data-v-b3bc84";
-    script.__file = "/Users/jordank/Sites/tror/web/wp-content/plugins/wp-otis/assets/js/vue/components/02_molecules/Card.vue";
-};
-initialize();
-if (module.hot) {
-    script.__hmrId = "b3bc84-hmr";
-    module.hot.accept(()=>{
-        setTimeout(()=>{
-            initialize();
-            if (!__VUE_HMR_RUNTIME__.createRecord("b3bc84-hmr", script)) __VUE_HMR_RUNTIME__.reload("b3bc84-hmr", script);
-        }, 0);
-    });
-}
-exports.default = script;
-
-},{"f62dca6685dcc895":"iDkF8","db5313633e66a6e8":"6hNuK","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"iDkF8":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "render", ()=>render);
-var _vue = require("vue");
-function render(_ctx, _cache) {
-    const _component_va_card_title = (0, _vue.resolveComponent)("va-card-title");
-    const _component_va_card_content = (0, _vue.resolveComponent)("va-card-content");
-    const _component_va_card_actions = (0, _vue.resolveComponent)("va-card-actions");
-    const _component_va_card = (0, _vue.resolveComponent)("va-card");
-    return (0, _vue.openBlock)(), (0, _vue.createElementBlock)((0, _vue.Fragment), null, [
-        (0, _vue.createCommentVNode)(" Card "),
-        (0, _vue.createVNode)(_component_va_card, null, {
-            default: (0, _vue.withCtx)(()=>[
-                    (0, _vue.createCommentVNode)(" Title "),
-                    (0, _vue.createVNode)(_component_va_card_title, null, {
-                        default: (0, _vue.withCtx)(()=>[
-                                (0, _vue.renderSlot)(_ctx.$slots, "title")
-                            ]),
-                        _: 3 /* FORWARDED */ 
-                    }),
-                    (0, _vue.createCommentVNode)(" Content "),
-                    (0, _vue.createVNode)(_component_va_card_content, null, {
-                        default: (0, _vue.withCtx)(()=>[
-                                (0, _vue.renderSlot)(_ctx.$slots, "content")
-                            ]),
-                        _: 3 /* FORWARDED */ 
-                    }),
-                    (0, _vue.createCommentVNode)(" Actions "),
-                    (0, _vue.createVNode)(_component_va_card_actions, null, {
-                        default: (0, _vue.withCtx)(()=>[
-                                (0, _vue.renderSlot)(_ctx.$slots, "actions")
-                            ]),
-                        _: 3 /* FORWARDED */ 
-                    })
-                ]),
-            _: 3 /* FORWARDED */ 
-        })
-    ], 2112 /* STABLE_FRAGMENT, DEV_ROOT_FRAGMENT */ );
-}
-if (module.hot) module.hot.accept(()=>{
-    __VUE_HMR_RUNTIME__.rerender("b3bc84-hmr", render);
-});
-
-},{"vue":"gzxs9","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6hNuK":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-let NOOP = ()=>{};
-exports.default = (script)=>{};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cdGyZ":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-let script;
-let initialize = ()=>{
-    script = require("4cbfe64e87d1f055");
-    if (script.__esModule) script = script.default;
-    script.render = require("995770a342cbf561").render;
-    require("8a5a4da5a32c6d3f").default(script);
-    script.__scopeId = "data-v-d8ca9f";
-    script.__file = "/Users/jordank/Sites/tror/web/wp-content/plugins/wp-otis/assets/js/vue/components/02_molecules/Alert.vue";
-};
-initialize();
-if (module.hot) {
-    script.__hmrId = "d8ca9f-hmr";
-    module.hot.accept(()=>{
-        setTimeout(()=>{
-            initialize();
-            if (!__VUE_HMR_RUNTIME__.createRecord("d8ca9f-hmr", script)) __VUE_HMR_RUNTIME__.reload("d8ca9f-hmr", script);
-        }, 0);
-    });
-}
-exports.default = script;
-
-},{"4cbfe64e87d1f055":"g3ppW","995770a342cbf561":"g1CDE","8a5a4da5a32c6d3f":"7dc1w","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"g3ppW":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-exports.default = {
-    props: {
-        value: {
-            type: Boolean,
-            default: false
-        },
-        color: {
-            type: String,
-            default: "success"
-        }
-    },
-    methods: {
-        updateValue (newValue) {
-            this.$emit("update:value", newValue);
-        }
-    }
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"g1CDE":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "render", ()=>render);
-var _vue = require("vue");
-function render(_ctx, _cache, $props, $setup, $data, $options) {
-    const _component_va_alert = (0, _vue.resolveComponent)("va-alert");
-    return (0, _vue.openBlock)(), (0, _vue.createBlock)(_component_va_alert, {
-        value: $props.value,
-        onInput: $options.updateValue,
-        color: $props.color,
-        icon: "info",
-        closeable: ""
-    }, {
-        default: (0, _vue.withCtx)(()=>[
-                (0, _vue.createCommentVNode)(" Named slot for the alert message "),
-                (0, _vue.renderSlot)(_ctx.$slots, "message")
-            ]),
-        _: 3 /* FORWARDED */ 
-    }, 8 /* PROPS */ , [
-        "value",
-        "onInput",
-        "color"
-    ]);
-}
-if (module.hot) module.hot.accept(()=>{
-    __VUE_HMR_RUNTIME__.rerender("d8ca9f-hmr", render);
-});
-
-},{"vue":"gzxs9","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7dc1w":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-let NOOP = ()=>{};
-exports.default = (script)=>{};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"aPaKd":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-let script;
-let initialize = ()=>{
-    script = require("413acda1ed0a3b28");
-    if (script.__esModule) script = script.default;
-    script.render = require("10a3145c8395de7c").render;
-    require("23a0ce3b2cdd4643").default(script);
-    script.__scopeId = "data-v-3a7730";
-    script.__file = "/Users/jordank/Sites/tror/web/wp-content/plugins/wp-otis/assets/js/vue/components/02_molecules/Modal.vue";
-};
-initialize();
-if (module.hot) {
-    script.__hmrId = "3a7730-hmr";
-    module.hot.accept(()=>{
-        setTimeout(()=>{
-            initialize();
-            if (!__VUE_HMR_RUNTIME__.createRecord("3a7730-hmr", script)) __VUE_HMR_RUNTIME__.reload("3a7730-hmr", script);
-        }, 0);
-    });
-}
-exports.default = script;
-
-},{"413acda1ed0a3b28":"5I0E0","10a3145c8395de7c":"2NvkX","23a0ce3b2cdd4643":"hrX9k","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5I0E0":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-exports.default = {
-    props: {
-        value: {
-            type: Boolean,
-            default: false
-        },
-        title: {
-            type: String,
-            default: ""
-        },
-        cancelText: {
-            type: String,
-            default: ""
-        },
-        okText: {
-            type: String,
-            default: ""
-        },
-        action: {
-            type: Function,
-            default: ()=>{}
-        }
-    },
-    methods: {
-        updateValue (newValue) {
-            this.$emit("update:value", newValue);
-        },
-        triggerAction () {
-            this.$emit("update:value", false);
-            this.action();
-        }
-    }
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2NvkX":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "render", ()=>render);
-var _vue = require("vue");
-function render(_ctx, _cache, $props, $setup, $data, $options) {
-    const _component_va_modal = (0, _vue.resolveComponent)("va-modal");
-    return (0, _vue.openBlock)(), (0, _vue.createBlock)(_component_va_modal, {
-        value: $props.value,
-        onInput: $options.updateValue,
-        title: $props.title,
-        "cancel-text": $props.cancelText,
-        "ok-text": $props.okText,
-        onOk: $options.triggerAction
-    }, {
-        default: (0, _vue.withCtx)(()=>[
-                (0, _vue.createCommentVNode)(" Named slot for the modal content "),
-                (0, _vue.renderSlot)(_ctx.$slots, "content")
-            ]),
-        _: 3 /* FORWARDED */ 
-    }, 8 /* PROPS */ , [
-        "value",
-        "onInput",
-        "title",
-        "cancel-text",
-        "ok-text",
-        "onOk"
-    ]);
-}
-if (module.hot) module.hot.accept(()=>{
-    __VUE_HMR_RUNTIME__.rerender("3a7730-hmr", render);
-});
-
-},{"vue":"gzxs9","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hrX9k":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-let NOOP = ()=>{};
-exports.default = (script)=>{};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cMhyd":[function(require,module,exports) {
-// Composables/useApi.js
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "default", ()=>useApi);
-var _axios = require("axios");
-var _axiosDefault = parcelHelpers.interopDefault(_axios);
-function useApi() {
-    const makePayload = (payloadData = {})=>{
-        const payload = new FormData();
-        Object.keys(payloadData).forEach((key)=>{
-            payload.append(key, payloadData[key]);
-        });
-        return payload;
-    };
-    const triggerAction = async (action, data = {})=>{
-        const payload = makePayload({
-            action,
-            ...data
-        });
-        return await (0, _axiosDefault.default).post(otisDash.ajax_url, payload, {
-            timeout: 0
-        });
-    };
-    return {
-        triggerAction
-    };
-}
-
-},{"axios":"jo6P5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dF4Uf":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dF4Uf":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "render", ()=>render);
@@ -65164,70 +65172,104 @@ const _hoisted_48 = {
 };
 const _hoisted_49 = {
     key: 1,
-    class: "otis-dashboard__setting"
+    class: "otis-dashboard__setting otis-dashboard__setting--full-width"
 };
 const _hoisted_50 = {
-    key: 0
+    class: "otis-dashboard__form-grid"
 };
 const _hoisted_51 = {
+    class: "otis-dashboard__fieldset"
+};
+const _hoisted_52 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("legend", {
+        class: "va-h6"
+    }, "Login", -1 /* HOISTED */ ));
+const _hoisted_53 = {
+    class: "otis-dashboard__fieldset"
+};
+const _hoisted_54 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("legend", {
+        class: "va-h6"
+    }, "Password", -1 /* HOISTED */ ));
+const _hoisted_55 = {
+    class: "otis-dashboard__fieldset"
+};
+const _hoisted_56 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("legend", {
+        class: "va-h6"
+    }, "Sint cupidatat", -1 /* HOISTED */ ));
+const _hoisted_57 = [
+    "disabled"
+];
+const _hoisted_58 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("span", null, "Sync Config", -1 /* HOISTED */ ));
+const _hoisted_59 = [
+    _hoisted_58
+];
+const _hoisted_60 = {
+    key: 2,
+    class: "otis-dashboard__setting"
+};
+const _hoisted_61 = {
+    key: 0
+};
+const _hoisted_62 = {
     key: 1
 };
-const _hoisted_52 = [
+const _hoisted_63 = [
     "href"
 ];
-const _hoisted_53 = {
+const _hoisted_64 = {
     class: "va-table-responsive"
 };
-const _hoisted_54 = {
+const _hoisted_65 = {
     class: "va-table va-table--striped"
 };
-const _hoisted_55 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("thead", null, [
+const _hoisted_66 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("thead", null, [
         /*#__PURE__*/ (0, _vue.createElementVNode)("tr", null, [
             /*#__PURE__*/ (0, _vue.createElementVNode)("th", null, "Log Entry")
         ])
     ], -1 /* HOISTED */ ));
-const _hoisted_56 = [
+const _hoisted_67 = [
     "href"
 ];
-const _hoisted_57 = {
-    key: 2,
+const _hoisted_68 = {
+    key: 3,
     class: "otis-dashboard__setting"
 };
-const _hoisted_58 = {
+const _hoisted_69 = {
     key: 0
 };
-const _hoisted_59 = {
+const _hoisted_70 = {
     key: 1
 };
-const _hoisted_60 = {
+const _hoisted_71 = {
     class: "va-table-responsive"
 };
-const _hoisted_61 = {
+const _hoisted_72 = {
     class: "va-table va-table--striped"
 };
-const _hoisted_62 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("thead", null, [
+const _hoisted_73 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("thead", null, [
         /*#__PURE__*/ (0, _vue.createElementVNode)("tr", null, [
             /*#__PURE__*/ (0, _vue.createElementVNode)("th", null, "Status"),
             /*#__PURE__*/ (0, _vue.createElementVNode)("th", null, "Count")
         ])
     ], -1 /* HOISTED */ ));
-const _hoisted_63 = [
+const _hoisted_74 = [
     "href"
 ];
-const _hoisted_64 = {
+const _hoisted_75 = {
     key: 1,
     class: "otis-dashboard__notifications"
 };
-const _hoisted_65 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, [
+const _hoisted_76 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, [
         /*#__PURE__*/ (0, _vue.createElementVNode)("strong", null, "Are you sure you want to sync all POIs?")
     ], -1 /* HOISTED */ ));
-const _hoisted_66 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "This action could take several hours to complete. You may close this browser window while the sync is running.", -1 /* HOISTED */ ));
-const _hoisted_67 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Are you sure you want to cancel?", -1 /* HOISTED */ ));
-const _hoisted_68 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Are you sure you want to restart automatic imports?", -1 /* HOISTED */ ));
+const _hoisted_77 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "This action could take several hours to complete. You may close this browser window while the sync is running.", -1 /* HOISTED */ ));
+const _hoisted_78 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Are you sure you want to cancel?", -1 /* HOISTED */ ));
+const _hoisted_79 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Are you sure you want to restart automatic imports?", -1 /* HOISTED */ ));
+const _hoisted_80 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Are you sure you want to sync OTIS configuration?", -1 /* HOISTED */ ));
 function render(_ctx, _cache, $props, $setup, $data, $options) {
     const _component_LoadingIndicator = (0, _vue.resolveComponent)("LoadingIndicator");
     const _component_Datepicker = (0, _vue.resolveComponent)("Datepicker");
     const _component_Card = (0, _vue.resolveComponent)("Card");
+    const _component_va_input = (0, _vue.resolveComponent)("va-input");
     const _component_Alert = (0, _vue.resolveComponent)("Alert");
     const _component_Modal = (0, _vue.resolveComponent)("Modal");
     return (0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_1, [
@@ -65394,26 +65436,112 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                     _: 1 /* STABLE */ 
                 })
             ])) : (0, _vue.createCommentVNode)("v-if", true),
-            (0, _vue.createCommentVNode)(" Import log preview "),
+            (0, _vue.createCommentVNode)(" OTIS Config "),
             !$setup.displayInitialImport ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_49, [
+                (0, _vue.createVNode)(_component_Card, null, {
+                    title: (0, _vue.withCtx)(()=>[
+                            (0, _vue.createTextVNode)(" OTIS Config ")
+                        ]),
+                    content: (0, _vue.withCtx)(()=>[
+                            (0, _vue.createCommentVNode)(" Form grid "),
+                            (0, _vue.createElementVNode)("div", _hoisted_50, [
+                                (0, _vue.createCommentVNode)(" Login "),
+                                (0, _vue.createElementVNode)("fieldset", _hoisted_51, [
+                                    _hoisted_52,
+                                    (0, _vue.createVNode)(_component_va_input, {
+                                        modelValue: _ctx.value,
+                                        "onUpdate:modelValue": _cache[7] || (_cache[7] = ($event)=>_ctx.value = $event),
+                                        placeholder: "1234",
+                                        label: "Current Value",
+                                        disabled: ""
+                                    }, null, 8 /* PROPS */ , [
+                                        "modelValue"
+                                    ]),
+                                    (0, _vue.createVNode)(_component_va_input, {
+                                        modelValue: _ctx.value,
+                                        "onUpdate:modelValue": _cache[8] || (_cache[8] = ($event)=>_ctx.value = $event),
+                                        placeholder: "Enter value",
+                                        label: "New Value"
+                                    }, null, 8 /* PROPS */ , [
+                                        "modelValue"
+                                    ])
+                                ]),
+                                (0, _vue.createCommentVNode)(" Login "),
+                                (0, _vue.createElementVNode)("fieldset", _hoisted_53, [
+                                    _hoisted_54,
+                                    (0, _vue.createVNode)(_component_va_input, {
+                                        modelValue: _ctx.value,
+                                        "onUpdate:modelValue": _cache[9] || (_cache[9] = ($event)=>_ctx.value = $event),
+                                        placeholder: "a1b2c3",
+                                        label: "Current Value",
+                                        disabled: ""
+                                    }, null, 8 /* PROPS */ , [
+                                        "modelValue"
+                                    ]),
+                                    (0, _vue.createVNode)(_component_va_input, {
+                                        modelValue: _ctx.value,
+                                        "onUpdate:modelValue": _cache[10] || (_cache[10] = ($event)=>_ctx.value = $event),
+                                        placeholder: "Enter value",
+                                        label: "New Value"
+                                    }, null, 8 /* PROPS */ , [
+                                        "modelValue"
+                                    ])
+                                ]),
+                                (0, _vue.createCommentVNode)(" Login "),
+                                (0, _vue.createElementVNode)("fieldset", _hoisted_55, [
+                                    _hoisted_56,
+                                    (0, _vue.createVNode)(_component_va_input, {
+                                        modelValue: _ctx.value,
+                                        "onUpdate:modelValue": _cache[11] || (_cache[11] = ($event)=>_ctx.value = $event),
+                                        placeholder: "1KML2",
+                                        label: "Current Value",
+                                        disabled: ""
+                                    }, null, 8 /* PROPS */ , [
+                                        "modelValue"
+                                    ]),
+                                    (0, _vue.createVNode)(_component_va_input, {
+                                        modelValue: _ctx.value,
+                                        "onUpdate:modelValue": _cache[12] || (_cache[12] = ($event)=>_ctx.value = $event),
+                                        placeholder: "Enter value",
+                                        label: "New Value"
+                                    }, null, 8 /* PROPS */ , [
+                                        "modelValue"
+                                    ])
+                                ])
+                            ])
+                        ]),
+                    actions: (0, _vue.withCtx)(()=>[
+                            (0, _vue.createElementVNode)("button", {
+                                class: "button button-primary",
+                                disabled: $setup.importStarting || $setup.importActive || $setup.syncAllActive,
+                                onClick: _cache[13] || (_cache[13] = (...args)=>$setup.toggleConfigSyncConfirm && $setup.toggleConfigSyncConfirm(...args))
+                            }, [
+                                ..._hoisted_59
+                            ], 8 /* PROPS */ , _hoisted_57)
+                        ]),
+                    _: 1 /* STABLE */ 
+                })
+            ])) : (0, _vue.createCommentVNode)("v-if", true),
+            (0, _vue.createCommentVNode)(" Import log preview "),
+            !$setup.displayInitialImport ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_60, [
                 (0, _vue.createVNode)(_component_Card, null, {
                     title: (0, _vue.withCtx)(()=>[
                             (0, _vue.createTextVNode)(" Import Log Preview ")
                         ]),
                     content: (0, _vue.withCtx)(()=>[
-                            $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_50, [
+                            $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_61, [
                                 (0, _vue.createVNode)(_component_LoadingIndicator)
-                            ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_51, [
+                            ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_62, [
                                 (0, _vue.createElementVNode)("p", null, [
                                     (0, _vue.createTextVNode)("The last 15 entries in the import log. The full import log is available under "),
                                     (0, _vue.createElementVNode)("a", {
                                         href: $setup.importLogUrl
-                                    }, "POI > Import Log", 8 /* PROPS */ , _hoisted_52),
+                                    }, "POI > Import Log", 8 /* PROPS */ , _hoisted_63),
                                     (0, _vue.createTextVNode)(".")
                                 ]),
-                                (0, _vue.createElementVNode)("div", _hoisted_53, [
-                                    (0, _vue.createElementVNode)("table", _hoisted_54, [
-                                        _hoisted_55,
+                                (0, _vue.createElementVNode)("div", _hoisted_64, [
+                                    (0, _vue.createElementVNode)("table", _hoisted_65, [
+                                        _hoisted_66,
                                         (0, _vue.createElementVNode)("tbody", null, [
                                             ((0, _vue.openBlock)(true), (0, _vue.createElementBlock)((0, _vue.Fragment), null, (0, _vue.renderList)($setup.importLog, ({ post_content }, index)=>{
                                                 return (0, _vue.openBlock)(), (0, _vue.createElementBlock)("tr", {
@@ -65432,24 +65560,24 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                 href: $setup.importLogUrl,
                                 role: "button",
                                 class: "button"
-                            }, "View Full Import Log", 8 /* PROPS */ , _hoisted_56)
+                            }, "View Full Import Log", 8 /* PROPS */ , _hoisted_67)
                         ]),
                     _: 1 /* STABLE */ 
                 })
             ])) : (0, _vue.createCommentVNode)("v-if", true),
             (0, _vue.createCommentVNode)(" POI counts "),
-            !$setup.displayInitialImport ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_57, [
+            !$setup.displayInitialImport ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_68, [
                 (0, _vue.createVNode)(_component_Card, null, {
                     title: (0, _vue.withCtx)(()=>[
                             (0, _vue.createTextVNode)(" POI Counts ")
                         ]),
                     content: (0, _vue.withCtx)(()=>[
-                            $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_58, [
+                            $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_69, [
                                 (0, _vue.createVNode)(_component_LoadingIndicator)
-                            ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_59, [
-                                (0, _vue.createElementVNode)("div", _hoisted_60, [
-                                    (0, _vue.createElementVNode)("table", _hoisted_61, [
-                                        _hoisted_62,
+                            ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_70, [
+                                (0, _vue.createElementVNode)("div", _hoisted_71, [
+                                    (0, _vue.createElementVNode)("table", _hoisted_72, [
+                                        _hoisted_73,
                                         (0, _vue.createElementVNode)("tbody", null, [
                                             ((0, _vue.openBlock)(true), (0, _vue.createElementBlock)((0, _vue.Fragment), null, (0, _vue.renderList)($setup.poiCount, (count, status)=>{
                                                 return (0, _vue.openBlock)(), (0, _vue.createElementBlock)("tr", {
@@ -65459,7 +65587,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                                     (0, _vue.createElementVNode)("td", null, [
                                                         (0, _vue.createElementVNode)("a", {
                                                             href: $setup.poiPostsUrl(status)
-                                                        }, (0, _vue.toDisplayString)(count), 9 /* TEXT, PROPS */ , _hoisted_63)
+                                                        }, (0, _vue.toDisplayString)(count), 9 /* TEXT, PROPS */ , _hoisted_74)
                                                     ])
                                                 ]);
                                             }), 128 /* KEYED_FRAGMENT */ ))
@@ -65473,10 +65601,10 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
             ])) : (0, _vue.createCommentVNode)("v-if", true)
         ]),
         (0, _vue.createCommentVNode)(" Notifications "),
-        $setup.importStarted ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_64, [
+        $setup.importStarted ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_75, [
             (0, _vue.createVNode)(_component_Alert, {
                 modelValue: $setup.importStarted,
-                "onUpdate:modelValue": _cache[7] || (_cache[7] = ($event)=>$setup.importStarted = $event),
+                "onUpdate:modelValue": _cache[14] || (_cache[14] = ($event)=>$setup.importStarted = $event),
                 color: "success"
             }, {
                 message: (0, _vue.withCtx)(()=>[
@@ -65490,15 +65618,15 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
         (0, _vue.createCommentVNode)(" Modal - Confirm Sync "),
         (0, _vue.createVNode)(_component_Modal, {
             modelValue: $setup.showSyncModal,
-            "onUpdate:modelValue": _cache[8] || (_cache[8] = ($event)=>$setup.showSyncModal = $event),
+            "onUpdate:modelValue": _cache[15] || (_cache[15] = ($event)=>$setup.showSyncModal = $event),
             title: "Confirm Sync All POIs",
             "cancel-text": "No, do not start the sync.",
             "ok-text": "Yes, start the sync process.",
             onOk: $setup.triggerSyncPois
         }, {
             default: (0, _vue.withCtx)(()=>[
-                    _hoisted_65,
-                    _hoisted_66
+                    _hoisted_76,
+                    _hoisted_77
                 ]),
             _: 1 /* STABLE */ 
         }, 8 /* PROPS */ , [
@@ -65508,14 +65636,14 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
         (0, _vue.createCommentVNode)(" Modal - Confirm Cancel "),
         (0, _vue.createVNode)(_component_Modal, {
             modelValue: $setup.showCancelModal,
-            "onUpdate:modelValue": _cache[9] || (_cache[9] = ($event)=>$setup.showCancelModal = $event),
+            "onUpdate:modelValue": _cache[16] || (_cache[16] = ($event)=>$setup.showCancelModal = $event),
             title: "Confirm Cancellation",
             "cancel-text": "No, continue the process.",
             "ok-text": "Yes, cancel the process.",
             onOk: $setup.cancelImporter
         }, {
             default: (0, _vue.withCtx)(()=>[
-                    _hoisted_67
+                    _hoisted_78
                 ]),
             _: 1 /* STABLE */ 
         }, 8 /* PROPS */ , [
@@ -65525,7 +65653,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
         (0, _vue.createCommentVNode)(" Modal - Confirm import "),
         (0, _vue.createVNode)(_component_Modal, {
             modelValue: $setup.showImportModal,
-            "onUpdate:modelValue": _cache[10] || (_cache[10] = ($event)=>$setup.showImportModal = $event),
+            "onUpdate:modelValue": _cache[17] || (_cache[17] = ($event)=>$setup.showImportModal = $event),
             title: "Confirm POI Import",
             "cancel-text": "No, do not start the import.",
             "ok-text": "Yes, start the import process.",
@@ -65542,14 +65670,31 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
         (0, _vue.createCommentVNode)(" Modal - Confirm Stop All "),
         (0, _vue.createVNode)(_component_Modal, {
             modelValue: $setup.showStopAllModal,
-            "onUpdate:modelValue": _cache[11] || (_cache[11] = ($event)=>$setup.showStopAllModal = $event),
+            "onUpdate:modelValue": _cache[18] || (_cache[18] = ($event)=>$setup.showStopAllModal = $event),
             title: "Confirm Reset",
             "cancel-text": "No, do not reset importer.",
             "ok-text": "Yes, reset importer.",
             onOk: $setup.triggerStopAll
         }, {
             default: (0, _vue.withCtx)(()=>[
-                    _hoisted_68
+                    _hoisted_79
+                ]),
+            _: 1 /* STABLE */ 
+        }, 8 /* PROPS */ , [
+            "modelValue",
+            "onOk"
+        ]),
+        (0, _vue.createCommentVNode)(" Modal - Confirm OTIS sync "),
+        (0, _vue.createVNode)(_component_Modal, {
+            modelValue: $setup.showOtisSyncModal,
+            "onUpdate:modelValue": _cache[19] || (_cache[19] = ($event)=>$setup.showOtisSyncModal = $event),
+            title: "Confirm OTIS config sync",
+            "cancel-text": "No, do not sync.",
+            "ok-text": "Yes, sync config.",
+            onOk: $setup.triggerSyncOtisConfig
+        }, {
+            default: (0, _vue.withCtx)(()=>[
+                    _hoisted_80
                 ]),
             _: 1 /* STABLE */ 
         }, 8 /* PROPS */ , [
