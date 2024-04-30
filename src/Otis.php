@@ -73,11 +73,11 @@ class Otis {
 			$token_fetch = true;
 
 			$params = array(
-				'username' => '',
-				'password' => '',
+				'username' => get_option( WP_OTIS_USERNAME, '' ),
+				'password' => get_option( WP_OTIS_PASSWORD, '' ),
 			);
 
-			$params = apply_filters( 'wp_otis_rest_auth', $params );
+			// $params = apply_filters( 'wp_otis_rest_auth', $params );
 
 			try {
 				$result = $this->_fetch( self::AUTH_ROOT . '/login/', array(

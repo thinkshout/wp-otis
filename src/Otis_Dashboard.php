@@ -80,6 +80,15 @@ class Otis_Dashboard
     $this->importer->cancel_import( 'Resetting importer...', 'Importer reset.' );
   }
 
+  public function otis_save_credentials() {
+    $username = isset($_POST['username']) ? _sanitize_text_fields($_POST['username']) : '';
+    $password = isset($_POST['password']) ? _sanitize_text_fields($_POST['password']) : '';
+    update_option( WP_OTIS_USERNAME, $username );
+    update_option( WP_OTIS_PASSWORD, $password );
+    echo json_encode('Credentials saved');
+    wp_die();
+  }
+
   public function otis_log_preview() {
     $args = [
 			'numberposts' => 15,
@@ -98,6 +107,15 @@ class Otis_Dashboard
     $otis_schedule = $this->otis_schedule();
     echo json_encode( $otis_schedule );
     wp_die();
+  }
+
+  public function otis_credentials_status() {
+    $username = get_option( WP_OTIS_USERNAME, '' );
+    $password = get_option( WP_OTIS_PASSWORD, '' );
+    return [
+      'username' => $username,
+      'password' => $password ? '********' : '',
+    ];
   }
 
 
@@ -141,6 +159,7 @@ class Otis_Dashboard
     add_action( 'wp_ajax_otis_cancel_importer', [ $this, 'otis_cancel_import' ] );
     add_action( 'wp_ajax_otis_sync_all_pois', [ $this, 'otis_init_pois_sync' ] );
     add_action( 'wp_ajax_otis_stop_all', [ $this, 'otis_stop_all' ] );
+    add_action( 'wp_ajax_otis_save_credentials', [ $this, 'otis_save_credentials' ] );
 
     $this->importer = $importer;
   }
