@@ -145,6 +145,7 @@ class Otis_Dashboard
       'lastImportDate' => get_option( WP_OTIS_LAST_IMPORT_DATE ),
       'poiCount' => $this->otis_poi_counts(),
       'activeFilters' => apply_filters( 'wp_otis_listings', [] ),
+      'credentials' => $this->otis_credentials_status(),
     ];
   }
   
