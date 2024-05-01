@@ -32,6 +32,9 @@ class Otis_Dashboard
       }
       .current .dashicons-oregon {
         background: url('<?php echo plugins_url( '../assets/icons/oregon-icon-active.svg', __FILE__ ); ?>') no-repeat;
+        background-size: 50%;
+        background-repeat: no-repeat;
+        background-position: center;
       }
     </style>
     <?php
