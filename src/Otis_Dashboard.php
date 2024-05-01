@@ -18,7 +18,7 @@ class Otis_Dashboard
   }
 
   public function otis_dashboard_page() {
-    add_menu_page( 'OTIS Dashboard', 'OTIS Dashboard', 'manage_options', 'otis-dashboard', [ $this, 'otis_dashboard_setup' ], 'dashicons-oregon', 75 );
+    add_menu_page( 'OTIS Dashboard', 'OTIS Dashboard', 'manage_options', 'otis-dashboard', [ $this, 'otis_dashboard_setup' ], 'dashicons-oregon', 95 );
   }
 
   public function otis_oregon_dashicon_css() {
