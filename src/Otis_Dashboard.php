@@ -30,6 +30,9 @@ class Otis_Dashboard
         background-repeat: no-repeat;
         background-position: center;
       }
+      .current .dashicons-oregon {
+        background: url('<?php echo plugins_url( '../assets/icons/oregon-icon-active.svg', __FILE__ ); ?>') no-repeat;
+      }
     </style>
     <?php
   }
