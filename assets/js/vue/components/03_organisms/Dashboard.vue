@@ -181,7 +181,8 @@
 
       <!-- OTIS Config -->
       <div class="otis-dashboard__setting otis-dashboard__setting--full-width">
-        <OtisConfig :greeting="greeting" :testbool="testbool" :importStarting="importStarting" :importActive="importActive" :syncAllActive="syncAllActive" :toggleConfigSyncConfirm="toggleConfigSyncConfirm" />
+        <OtisConfig :importStarting="importStarting" :importActive="importActive" :syncAllActive="syncAllActive" 
+        @credentials="updateCredentials" :toggleConfigSyncConfirm="toggleConfigSyncConfirm" />
       </div>
 
       <!-- Import log preview -->
@@ -322,8 +323,6 @@
   const showStopAllModal = ref(false);
   const showOtisSyncModal = ref(false);
   const { triggerAction } = useApi();
-  const greeting = ref("Greetings!");
-  const testbool = ref(false);
 
   // Computed
   const lastImport = computed(() => {
@@ -477,7 +476,10 @@
     await triggerAction("otis_stop_all");
     await otisStatus();
   };
-  const triggerSyncOtisConfig = () => {
+  const triggerSyncOtisConfig = async (credentials) => {
+    console.log('credentials are', credentials);
+    const { data } = await triggerAction("otis_save_credentials", { credentials });
+    console.log('data from sync', data);
     console.log("Syncing config");
   };
   const toggleSyncConfirm = () => {
@@ -494,6 +496,11 @@
   };
   const toggleStopAllConfirm = () => {
     showStopAllModal.value = !showStopAllModal.value;
+  };
+  const updateCredentials = (newCredentials) => {
+    console.log('newCredentials', newCredentials);
+    username.value = newCredentials.username;
+    password.value = newCredentials.password;
   };
 
   // On Mount

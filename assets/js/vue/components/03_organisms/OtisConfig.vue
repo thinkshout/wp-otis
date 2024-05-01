@@ -11,29 +11,20 @@
 
         <!-- Login -->
         <fieldset class="otis-dashboard__fieldset">
-          <legend class="va-h6">Login</legend>
-          <va-input v-model="value" placeholder="1234" label="Current Value" disabled />
-          <va-input v-model="value" placeholder="Enter value" label="New Value" />
+          <legend class="va-h6">Username</legend>
+          <va-input v-model="username" placeholder="Enter value" label="Username" />
         </fieldset>
 
         <!-- Login -->
         <fieldset class="otis-dashboard__fieldset">
           <legend class="va-h6">Password</legend>
-          <va-input v-model="value" placeholder="a1b2c3" label="Current Value" disabled />
-          <va-input v-model="value" placeholder="Enter value" label="New Value" />
-        </fieldset>
-
-        <!-- Login -->
-        <fieldset class="otis-dashboard__fieldset">
-          <legend class="va-h6">Sint cupidatat</legend>
-          <va-input v-model="value" placeholder="1KML2" label="Current Value" disabled />
-          <va-input v-model="value" placeholder="Enter value" label="New Value" />
+          <va-input v-model="password" placeholder="Enter value" label="Password" />
         </fieldset>
       </div>
 
     </template>
     <template #actions>
-      <button class="button button-primary" :disabled="importStarting || importActive || syncAllActive" @click="toggleConfigSyncConfirm">
+      <button class="button button-primary" :disabled="importStarting || importActive || syncAllActive" @click="emitCredentials">
         <span>Sync Config</span>
       </button>
     </template>
@@ -41,17 +32,13 @@
 </template>
 
 <script setup>
+  import { ref } from "vue";
   import Card from '../02_molecules/Card.vue';
 
+  const username = ref('');
+  const password = ref('');
+
   const props = defineProps({
-    greeting: {
-      type: String,
-      default: 'Default greeting',
-    },
-    testbool: {
-      type: Boolean,
-      default: false,
-    },
     importStarting: {
       type: Boolean,
       default: false,
@@ -69,4 +56,11 @@
       default: () => {},
     },
   });
+
+  const emit = defineEmits(['credentials']);
+
+  const emitCredentials = () => {
+    emit('credentials', { username: username.value, password: password.value });
+    props.toggleConfigSyncConfirm();
+  };
 </script>
