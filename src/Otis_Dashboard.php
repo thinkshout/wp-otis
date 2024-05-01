@@ -18,8 +18,7 @@ class Otis_Dashboard
   }
 
   public function otis_dashboard_page() {
-    $dashboard_menu_page = add_menu_page( 'OTIS Dashboard', 'OTIS Dashboard', 'manage_options', 'otis-dashboard', [ $this, 'otis_dashboard_setup' ], 'dashicons-oregon', 75 );
-    add_action( 'admin_print_styles-' . $dashboard_menu_page, 'wp-otis-icon-css' );
+    add_menu_page( 'OTIS Dashboard', 'OTIS Dashboard', 'manage_options', 'otis-dashboard', [ $this, 'otis_dashboard_setup' ], 'dashicons-oregon', 75 );
   }
 
   public function otis_oregon_dashicon_css() {
@@ -147,7 +146,7 @@ class Otis_Dashboard
   function __construct( $importer ) {
     add_action( 'admin_menu', [ $this, 'otis_dashboard_page' ] );
     add_action( 'admin_enqueue_scripts', [ $this, 'otis_dashboard_scripts' ] );
-    add_action('admin_head', [ $this, 'otis_oregon_dashicon_css' ]);
+    add_action( 'admin_head', [ $this, 'otis_oregon_dashicon_css' ] );
 
     // Ajax Handlers
     add_action( 'wp_ajax_otis_status', [ $this, 'otis_status' ] );
