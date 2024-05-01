@@ -182,7 +182,13 @@ class Otis_Importer {
 					$assoc_args['uuid'] = $args[1];
 				}
 
-				$this->_import_poi( $assoc_args );
+				try {
+					$this->_import_poi( $assoc_args );
+				} catch ( Exception $exception ) {
+					$this->logger->log( $exception->getMessage(), 0, 'error' );
+					$log[] = 'Error importing POI.';
+					return $log;
+				}
 
 				$log[] = 'POI import complete.';
 
