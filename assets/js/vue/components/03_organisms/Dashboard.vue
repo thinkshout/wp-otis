@@ -181,44 +181,7 @@
 
       <!-- OTIS Config -->
       <div class="otis-dashboard__setting otis-dashboard__setting--full-width">
-        <Card>
-          <template #title>
-            OTIS Config
-          </template>
-          <template #content>
-
-            <!-- Form grid -->
-            <div class="otis-dashboard__form-grid">
-
-              <!-- Login -->
-              <fieldset class="otis-dashboard__fieldset">
-                <legend class="va-h6">Login</legend>
-                <va-input v-model="value" placeholder="1234" label="Current Value" disabled />
-                <va-input v-model="value" placeholder="Enter value" label="New Value" />
-              </fieldset>
-  
-              <!-- Login -->
-              <fieldset class="otis-dashboard__fieldset">
-                <legend class="va-h6">Password</legend>
-                <va-input v-model="value" placeholder="a1b2c3" label="Current Value" disabled />
-                <va-input v-model="value" placeholder="Enter value" label="New Value" />
-              </fieldset>
-
-              <!-- Login -->
-              <fieldset class="otis-dashboard__fieldset">
-                <legend class="va-h6">Sint cupidatat</legend>
-                <va-input v-model="value" placeholder="1KML2" label="Current Value" disabled />
-                <va-input v-model="value" placeholder="Enter value" label="New Value" />
-              </fieldset>
-            </div>
-
-          </template>
-          <template #actions>
-            <button class="button button-primary" :disabled="importStarting || importActive || syncAllActive" @click="toggleConfigSyncConfirm">
-              <span>Sync Config</span>
-            </button>
-          </template>
-        </Card>
+        <OtisConfig :greeting="greeting" :testbool="testbool" :importStarting="importStarting" :importActive="importActive" :syncAllActive="syncAllActive" :toggleConfigSyncConfirm="toggleConfigSyncConfirm" />
       </div>
 
       <!-- Import log preview -->
@@ -337,6 +300,7 @@
   import Alert from "../02_molecules/Alert.vue";
   import Modal from "../02_molecules/Modal.vue";
   import useApi from "../../composables/useApi";
+  import OtisConfig from "./OtisConfig.vue";
 
   // Refs
   const modifiedDate = ref(new Date());
@@ -358,6 +322,8 @@
   const showStopAllModal = ref(false);
   const showOtisSyncModal = ref(false);
   const { triggerAction } = useApi();
+  const greeting = ref("Greetings!");
+  const testbool = ref(false);
 
   // Computed
   const lastImport = computed(() => {
