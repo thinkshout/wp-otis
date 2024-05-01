@@ -18,7 +18,7 @@ class Otis_Dashboard
   }
 
   public function otis_dashboard_page() {
-    $dashboard_menu_page = add_menu_page( 'OTIS Dashboard', 'OTIS Dashboard', 'manage_options', 'otis-dashboard', [ $this, 'otis_dashboard_setup' ], 'dashicons-oregon', 66 );
+    $dashboard_menu_page = add_menu_page( 'OTIS Dashboard', 'OTIS Dashboard', 'manage_options', 'otis-dashboard', [ $this, 'otis_dashboard_setup' ], 'dashicons-oregon', 75 );
     add_action( 'admin_print_styles-' . $dashboard_menu_page, 'wp-otis-icon-css' );
   }
 
@@ -26,7 +26,7 @@ class Otis_Dashboard
     ?>
     <style>
       .dashicons-oregon {
-        background: url('<?php echo plugins_url( '../assets/icons/oregon.svg', __FILE__ ); ?>') no-repeat;
+        background: url('<?php echo plugins_url( '../assets/icons/oregon-icon.svg', __FILE__ ); ?>') no-repeat;
         background-size: contain;
         background-repeat: no-repeat;
       }
