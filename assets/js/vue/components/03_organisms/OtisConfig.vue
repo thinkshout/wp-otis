@@ -9,12 +9,12 @@
       <!-- Form grid -->
       <div class="otis-dashboard__form-grid">
 
-        <!-- Login -->
+        <!-- Username -->
         <fieldset class="otis-dashboard__fieldset">
           <va-input v-model="username" placeholder="Enter value" label="Username" />
         </fieldset>
 
-        <!-- Login -->
+        <!-- Password -->
         <fieldset class="otis-dashboard__fieldset">
           <va-input v-model="password" placeholder="Enter value" label="Password" />
         </fieldset>
@@ -23,7 +23,7 @@
     </template>
     <template #actions>
       <button class="button button-primary" :disabled="importStarting || importActive || syncAllActive" @click="emitCredentials">
-        <span>Sync Config</span>
+        <span>Update Credentials</span>
       </button>
     </template>
   </Card>
@@ -52,6 +52,10 @@
     toggleConfigSyncConfirm: {
       type: Function,
       default: () => {},
+    },
+    storedCredentials: {
+      type: Object,
+      default: {},
     },
   });
 
