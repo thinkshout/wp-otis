@@ -301,7 +301,7 @@
   import Alert from "../02_molecules/Alert.vue";
   import Modal from "../02_molecules/Modal.vue";
   import useApi from "../../composables/useApi";
-  import OtisConfig from "./OtisConfig.vue";
+  import OtisConfig from "../03_organisms/OtisConfig.vue";
 
   // Refs
   const modifiedDate = ref(new Date());
