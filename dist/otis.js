@@ -65159,21 +65159,15 @@ const _hoisted_1 = {
 const _hoisted_2 = {
     class: "otis-dashboard__fieldset"
 };
-const _hoisted_3 = /*#__PURE__*/ (0, _vue.createElementVNode)("legend", {
-    class: "va-h6"
-}, "Username", -1 /* HOISTED */ );
-const _hoisted_4 = {
+const _hoisted_3 = {
     class: "otis-dashboard__fieldset"
 };
-const _hoisted_5 = /*#__PURE__*/ (0, _vue.createElementVNode)("legend", {
-    class: "va-h6"
-}, "Password", -1 /* HOISTED */ );
-const _hoisted_6 = [
+const _hoisted_4 = [
     "disabled"
 ];
-const _hoisted_7 = /*#__PURE__*/ (0, _vue.createElementVNode)("span", null, "Sync Config", -1 /* HOISTED */ );
-const _hoisted_8 = [
-    _hoisted_7
+const _hoisted_5 = /*#__PURE__*/ (0, _vue.createElementVNode)("span", null, "Sync Config", -1 /* HOISTED */ );
+const _hoisted_6 = [
+    _hoisted_5
 ];
 function render(_ctx, _cache, $props, $setup, $data, $options) {
     const _component_va_input = (0, _vue.resolveComponent)("va-input");
@@ -65186,7 +65180,6 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                 (0, _vue.createElementVNode)("div", _hoisted_1, [
                     (0, _vue.createCommentVNode)(" Login "),
                     (0, _vue.createElementVNode)("fieldset", _hoisted_2, [
-                        _hoisted_3,
                         (0, _vue.createVNode)(_component_va_input, {
                             modelValue: $setup.username,
                             "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event)=>$setup.username = $event),
@@ -65197,8 +65190,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                         ])
                     ]),
                     (0, _vue.createCommentVNode)(" Login "),
-                    (0, _vue.createElementVNode)("fieldset", _hoisted_4, [
-                        _hoisted_5,
+                    (0, _vue.createElementVNode)("fieldset", _hoisted_3, [
                         (0, _vue.createVNode)(_component_va_input, {
                             modelValue: $setup.password,
                             "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event)=>$setup.password = $event),
@@ -65216,8 +65208,8 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                     disabled: $props.importStarting || $props.importActive || $props.syncAllActive,
                     onClick: $setup.emitCredentials
                 }, [
-                    ..._hoisted_8
-                ], 8 /* PROPS */ , _hoisted_6)
+                    ..._hoisted_6
+                ], 8 /* PROPS */ , _hoisted_4)
             ]),
         _: 1 /* STABLE */ 
     });

@@ -7,13 +7,17 @@
 
       <!-- Config Import -->
       <template v-if="displayInitialConfig">
-        <OtisConfig :importStarting="importStarting" :importActive="importActive" :syncAllActive="syncAllActive" 
-        @credentials="updateCredentials" :toggleConfigSyncConfirm="toggleConfigSyncConfirm" />
+        <OtisConfig
+          :importStarting="importStarting" :importActive="importActive" :syncAllActive="syncAllActive" 
+          @credentials="updateCredentials" :toggleConfigSyncConfirm="toggleConfigSyncConfirm" 
+        />
       </template>
 
       <!-- POI Import -->
       <template v-else>
-        <InitialPOIImport :importStarting="importStarting" :credentialsNeeded="credentialsNeeded" :triggerInitialImport="triggerInitialImport" />
+        <InitialPOIImport 
+          :importStarting="importStarting" :credentialsNeeded="credentialsNeeded" :triggerInitialImport="triggerInitialImport" 
+        />
       </template>
     </div>
 
@@ -172,8 +176,10 @@
 
       <!-- OTIS Config -->
       <div class="otis-dashboard__setting otis-dashboard__setting--full-width">
-        <OtisConfig :importStarting="importStarting" :importActive="importActive" :syncAllActive="syncAllActive" 
-        @credentials="updateCredentials" :toggleConfigSyncConfirm="toggleConfigSyncConfirm" />
+        <OtisConfig
+          :importStarting="importStarting" :importActive="importActive" :syncAllActive="syncAllActive" 
+          @credentials="updateCredentials" :toggleConfigSyncConfirm="toggleConfigSyncConfirm"
+        />
       </div>
 
       <!-- Import log preview -->
