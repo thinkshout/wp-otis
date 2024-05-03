@@ -5,9 +5,16 @@
     <!-- Initial import -->
     <div v-if="displayInitialImport" class="otis-dashboard__banner">
 
-      <!-- New -->
-      <InitialPOIImport :importStarting="importStarting" :credentialsNeeded="credentialsNeeded" :triggerInitialImport="triggerInitialImport" />
+      <!-- Config Import -->
+      <template v-if="displayInitialConfig">
+        <OtisConfig :importStarting="importStarting" :importActive="importActive" :syncAllActive="syncAllActive" 
+        @credentials="updateCredentials" :toggleConfigSyncConfirm="toggleConfigSyncConfirm" />
+      </template>
 
+      <!-- POI Import -->
+      <template v-else>
+        <InitialPOIImport :importStarting="importStarting" :credentialsNeeded="credentialsNeeded" :triggerInitialImport="triggerInitialImport" />
+      </template>
     </div>
 
     <!-- POI import and update, reset and status -->
@@ -309,6 +316,7 @@
   const showStopAllModal = ref(false);
   const showOtisSyncModal = ref(false);
   const { triggerAction } = useApi();
+  const displayInitialConfig = ref(true);
 
   // Computed
   const lastImport = computed(() => {
