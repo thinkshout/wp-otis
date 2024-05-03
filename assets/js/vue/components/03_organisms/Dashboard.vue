@@ -476,11 +476,10 @@
     await triggerAction("otis_stop_all");
     await otisStatus();
   };
-  const triggerSyncOtisConfig = async (credentials) => {
-    console.log('credentials are', credentials);
-    const { data } = await triggerAction("otis_save_credentials", { credentials });
-    console.log('data from sync', data);
-    console.log("Syncing config");
+  const triggerSyncOtisConfig = async () => {
+    if (credentials.value.username && credentials.value.password) {
+      const { data } = await triggerAction("otis_save_credentials", credentials.value );
+    }
   };
   const toggleSyncConfirm = () => {
     showSyncModal.value = !showSyncModal.value;
@@ -498,9 +497,9 @@
     showStopAllModal.value = !showStopAllModal.value;
   };
   const updateCredentials = (newCredentials) => {
-    console.log('newCredentials', newCredentials);
-    username.value = newCredentials.username;
-    password.value = newCredentials.password;
+    if (newCredentials.username && newCredentials.password) {
+      credentials.value = newCredentials;
+    }
   };
 
   // On Mount

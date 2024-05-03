@@ -60439,13 +60439,10 @@ exports.default = {
             await triggerAction("otis_stop_all");
             await otisStatus();
         };
-        const triggerSyncOtisConfig = async (credentials)=>{
-            console.log("credentials are", credentials);
-            const { data } = await triggerAction("otis_save_credentials", {
-                credentials
-            });
-            console.log("data from sync", data);
-            console.log("Syncing config");
+        const triggerSyncOtisConfig = async ()=>{
+            if (credentials.value.username && credentials.value.password) {
+                const { data } = await triggerAction("otis_save_credentials", credentials.value);
+            }
         };
         const toggleSyncConfirm = ()=>{
             showSyncModal.value = !showSyncModal.value;
@@ -60463,9 +60460,7 @@ exports.default = {
             showStopAllModal.value = !showStopAllModal.value;
         };
         const updateCredentials = (newCredentials)=>{
-            console.log("newCredentials", newCredentials);
-            username.value = newCredentials.username;
-            password.value = newCredentials.password;
+            if (newCredentials.username && newCredentials.password) credentials.value = newCredentials;
         };
         // On Mount
         (0, _vue.onMounted)(async ()=>{
@@ -65081,7 +65076,66 @@ if (module.hot) {
 }
 exports.default = script;
 
-},{"fb01a38a159ff10c":"96vIx","a6421673610fe9ec":"fFawY","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","f03f3676ce86c0c3":"lhe5q"}],"96vIx":[function(require,module,exports) {
+},{"f03f3676ce86c0c3":"lhe5q","fb01a38a159ff10c":"96vIx","a6421673610fe9ec":"fFawY","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"lhe5q":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _vue = require("vue");
+var _cardVue = require("../02_molecules/Card.vue");
+var _cardVueDefault = parcelHelpers.interopDefault(_cardVue);
+exports.default = {
+    __name: "OtisConfig",
+    props: {
+        importStarting: {
+            type: Boolean,
+            default: false
+        },
+        importActive: {
+            type: Boolean,
+            default: false
+        },
+        syncAllActive: {
+            type: Boolean,
+            default: false
+        },
+        toggleConfigSyncConfirm: {
+            type: Function,
+            default: ()=>{}
+        }
+    },
+    emits: [
+        "credentials"
+    ],
+    setup (__props, { expose: __expose, emit: __emit }) {
+        __expose();
+        const username = (0, _vue.ref)("");
+        const password = (0, _vue.ref)("");
+        const props = __props;
+        const emit = __emit;
+        const emitCredentials = ()=>{
+            emit("credentials", {
+                username: username.value,
+                password: password.value
+            });
+            props.toggleConfigSyncConfirm();
+        };
+        const __returned__ = {
+            username,
+            password,
+            props,
+            emit,
+            emitCredentials,
+            ref: (0, _vue.ref),
+            Card: (0, _cardVueDefault.default)
+        };
+        Object.defineProperty(__returned__, "__isScriptSetup", {
+            enumerable: false,
+            value: true
+        });
+        return __returned__;
+    }
+};
+
+},{"vue":"gzxs9","../02_molecules/Card.vue":"eZkOW","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"96vIx":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "render", ()=>render);
@@ -65159,72 +65213,13 @@ if (module.hot) module.hot.accept(()=>{
     __VUE_HMR_RUNTIME__.rerender("9eb6ae-hmr", render);
 });
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","vue":"gzxs9"}],"fFawY":[function(require,module,exports) {
+},{"vue":"gzxs9","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"fFawY":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 let NOOP = ()=>{};
 exports.default = (script)=>{};
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"lhe5q":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _vue = require("vue");
-var _cardVue = require("../02_molecules/Card.vue");
-var _cardVueDefault = parcelHelpers.interopDefault(_cardVue);
-exports.default = {
-    __name: "OtisConfig",
-    props: {
-        importStarting: {
-            type: Boolean,
-            default: false
-        },
-        importActive: {
-            type: Boolean,
-            default: false
-        },
-        syncAllActive: {
-            type: Boolean,
-            default: false
-        },
-        toggleConfigSyncConfirm: {
-            type: Function,
-            default: ()=>{}
-        }
-    },
-    emits: [
-        "credentials"
-    ],
-    setup (__props, { expose: __expose, emit: __emit }) {
-        __expose();
-        const username = (0, _vue.ref)("");
-        const password = (0, _vue.ref)("");
-        const props = __props;
-        const emit = __emit;
-        const emitCredentials = ()=>{
-            emit("credentials", {
-                username: username.value,
-                password: password.value
-            });
-            props.toggleConfigSyncConfirm();
-        };
-        const __returned__ = {
-            username,
-            password,
-            props,
-            emit,
-            emitCredentials,
-            ref: (0, _vue.ref),
-            Card: (0, _cardVueDefault.default)
-        };
-        Object.defineProperty(__returned__, "__isScriptSetup", {
-            enumerable: false,
-            value: true
-        });
-        return __returned__;
-    }
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../02_molecules/Card.vue":"eZkOW","vue":"gzxs9"}],"dF4Uf":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dF4Uf":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "render", ()=>render);
