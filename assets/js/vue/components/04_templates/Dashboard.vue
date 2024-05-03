@@ -10,6 +10,7 @@
         <OtisConfig
           :importStarting="importStarting" :importActive="importActive" :syncAllActive="syncAllActive" 
           @credentials="updateCredentials" :toggleConfigSyncConfirm="toggleConfigSyncConfirm" 
+          :storedCredentials="storedCredentials"
         />
       </template>
 
@@ -179,6 +180,8 @@
         <OtisConfig
           :importStarting="importStarting" :importActive="importActive" :syncAllActive="syncAllActive" 
           @credentials="updateCredentials" :toggleConfigSyncConfirm="toggleConfigSyncConfirm"
+          :storedCredentials="storedCredentials"
+          :countsLoading="countsLoading"
         />
       </div>
 
@@ -480,7 +483,8 @@
     if (pendingCredentials.value.username && pendingCredentials.value.password) {
       credentials.value = pendingCredentials.value;
       pendingCredentials.value = {};
-      const { data } = await triggerAction("otis_save_credentials", credentials.value );
+      await triggerAction("otis_save_credentials", credentials.value );
+      await otisStatus();
     }
   };
   const cancelSyncOtisConfig = () => {

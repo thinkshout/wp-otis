@@ -60447,7 +60447,8 @@ exports.default = {
             if (pendingCredentials.value.username && pendingCredentials.value.password) {
                 credentials.value = pendingCredentials.value;
                 pendingCredentials.value = {};
-                const { data } = await triggerAction("otis_save_credentials", credentials.value);
+                await triggerAction("otis_save_credentials", credentials.value);
+                await otisStatus();
             }
         };
         const cancelSyncOtisConfig = ()=>{
@@ -65095,6 +65096,7 @@ parcelHelpers.defineInteropFlag(exports);
 var _vue = require("vue");
 var _cardVue = require("../02_molecules/Card.vue");
 var _cardVueDefault = parcelHelpers.interopDefault(_cardVue);
+// Props.
 exports.default = {
     __name: "OtisConfig",
     props: {
@@ -65113,6 +65115,17 @@ exports.default = {
         toggleConfigSyncConfirm: {
             type: Function,
             default: ()=>{}
+        },
+        storedCredentials: {
+            type: Object,
+            default: {
+                username: "",
+                password: ""
+            }
+        },
+        countsLoading: {
+            type: Boolean,
+            default: false
         }
     },
     emits: [
@@ -65120,9 +65133,11 @@ exports.default = {
     ],
     setup (__props, { expose: __expose, emit: __emit }) {
         __expose();
+        const props = __props;
+        // Refs.
         const username = (0, _vue.ref)("");
         const password = (0, _vue.ref)("");
-        const props = __props;
+        // Emit.
         const emit = __emit;
         const emitCredentials = ()=>{
             emit("credentials", {
@@ -65132,9 +65147,9 @@ exports.default = {
             props.toggleConfigSyncConfirm();
         };
         const __returned__ = {
+            props,
             username,
             password,
-            props,
             emit,
             emitCredentials,
             ref: (0, _vue.ref),
@@ -65160,14 +65175,22 @@ const _hoisted_2 = {
     class: "otis-dashboard__fieldset"
 };
 const _hoisted_3 = {
+    id: "otis-dashboard__description",
+    class: "otis-dashboard__description"
+};
+const _hoisted_4 = {
     class: "otis-dashboard__fieldset"
 };
-const _hoisted_4 = [
+const _hoisted_5 = {
+    id: "otis-dashboard__description",
+    class: "otis-dashboard__description"
+};
+const _hoisted_6 = [
     "disabled"
 ];
-const _hoisted_5 = /*#__PURE__*/ (0, _vue.createElementVNode)("span", null, "Sync Config", -1 /* HOISTED */ );
-const _hoisted_6 = [
-    _hoisted_5
+const _hoisted_7 = /*#__PURE__*/ (0, _vue.createElementVNode)("span", null, "Update Credentials", -1 /* HOISTED */ );
+const _hoisted_8 = [
+    _hoisted_7
 ];
 function render(_ctx, _cache, $props, $setup, $data, $options) {
     const _component_va_input = (0, _vue.resolveComponent)("va-input");
@@ -65178,38 +65201,42 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
         content: (0, _vue.withCtx)(()=>[
                 (0, _vue.createCommentVNode)(" Form grid "),
                 (0, _vue.createElementVNode)("div", _hoisted_1, [
-                    (0, _vue.createCommentVNode)(" Login "),
+                    (0, _vue.createCommentVNode)(" Username "),
                     (0, _vue.createElementVNode)("fieldset", _hoisted_2, [
                         (0, _vue.createVNode)(_component_va_input, {
                             modelValue: $setup.username,
                             "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event)=>$setup.username = $event),
                             placeholder: "Enter value",
-                            label: "Username"
+                            label: "Username",
+                            "aria-describedby": "otis-dashboard__description"
                         }, null, 8 /* PROPS */ , [
                             "modelValue"
-                        ])
+                        ]),
+                        (0, _vue.createElementVNode)("p", _hoisted_3, "Current username: " + (0, _vue.toDisplayString)($props.storedCredentials.username), 1 /* TEXT */ )
                     ]),
-                    (0, _vue.createCommentVNode)(" Login "),
-                    (0, _vue.createElementVNode)("fieldset", _hoisted_3, [
+                    (0, _vue.createCommentVNode)(" Password "),
+                    (0, _vue.createElementVNode)("fieldset", _hoisted_4, [
                         (0, _vue.createVNode)(_component_va_input, {
                             modelValue: $setup.password,
                             "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event)=>$setup.password = $event),
                             placeholder: "Enter value",
-                            label: "Password"
+                            label: "Password",
+                            "aria-describedby": "otis-dashboard__description"
                         }, null, 8 /* PROPS */ , [
                             "modelValue"
-                        ])
+                        ]),
+                        (0, _vue.createElementVNode)("p", _hoisted_5, "Current password: " + (0, _vue.toDisplayString)($props.storedCredentials.password), 1 /* TEXT */ )
                     ])
                 ])
             ]),
         actions: (0, _vue.withCtx)(()=>[
                 (0, _vue.createElementVNode)("button", {
                     class: "button button-primary",
-                    disabled: $props.importStarting || $props.importActive || $props.syncAllActive,
+                    disabled: $props.importStarting || $props.importActive || $props.syncAllActive || $props.countsLoading,
                     onClick: $setup.emitCredentials
                 }, [
-                    ..._hoisted_6
-                ], 8 /* PROPS */ , _hoisted_4)
+                    ..._hoisted_8
+                ], 8 /* PROPS */ , _hoisted_6)
             ]),
         _: 1 /* STABLE */ 
     });
@@ -65537,11 +65564,13 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                 importActive: $setup.importActive,
                 syncAllActive: $setup.syncAllActive,
                 onCredentials: $setup.updateCredentials,
-                toggleConfigSyncConfirm: $setup.toggleConfigSyncConfirm
+                toggleConfigSyncConfirm: $setup.toggleConfigSyncConfirm,
+                storedCredentials: $setup.storedCredentials
             }, null, 8 /* PROPS */ , [
                 "importStarting",
                 "importActive",
-                "syncAllActive"
+                "syncAllActive",
+                "storedCredentials"
             ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)((0, _vue.Fragment), {
                 key: 1
             }, [
@@ -65704,11 +65733,15 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                         importActive: $setup.importActive,
                         syncAllActive: $setup.syncAllActive,
                         onCredentials: $setup.updateCredentials,
-                        toggleConfigSyncConfirm: $setup.toggleConfigSyncConfirm
+                        toggleConfigSyncConfirm: $setup.toggleConfigSyncConfirm,
+                        storedCredentials: $setup.storedCredentials,
+                        countsLoading: $setup.countsLoading
                     }, null, 8 /* PROPS */ , [
                         "importStarting",
                         "importActive",
-                        "syncAllActive"
+                        "syncAllActive",
+                        "storedCredentials",
+                        "countsLoading"
                     ])
                 ]),
                 (0, _vue.createCommentVNode)(" Import log preview "),

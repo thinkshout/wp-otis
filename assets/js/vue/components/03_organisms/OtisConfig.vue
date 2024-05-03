@@ -11,18 +11,20 @@
 
         <!-- Username -->
         <fieldset class="otis-dashboard__fieldset">
-          <va-input v-model="username" placeholder="Enter value" label="Username" />
+          <va-input v-model="username" placeholder="Enter value" label="Username" aria-describedby="otis-dashboard__description" />
+          <p id="otis-dashboard__description"  class="otis-dashboard__description">Current username: {{ storedCredentials.username }}</p>
         </fieldset>
 
         <!-- Password -->
         <fieldset class="otis-dashboard__fieldset">
-          <va-input v-model="password" placeholder="Enter value" label="Password" />
+          <va-input v-model="password" placeholder="Enter value" label="Password" aria-describedby="otis-dashboard__description" />
+          <p id="otis-dashboard__description"  class="otis-dashboard__description">Current password: {{ storedCredentials.password }}</p>
         </fieldset>
       </div>
 
     </template>
     <template #actions>
-      <button class="button button-primary" :disabled="importStarting || importActive || syncAllActive" @click="emitCredentials">
+      <button class="button button-primary" :disabled="importStarting || importActive || syncAllActive || countsLoading" @click="emitCredentials">
         <span>Update Credentials</span>
       </button>
     </template>
@@ -33,9 +35,7 @@
   import { ref } from "vue";
   import Card from '../02_molecules/Card.vue';
 
-  const username = ref('');
-  const password = ref('');
-
+  // Props.
   const props = defineProps({
     importStarting: {
       type: Boolean,
@@ -55,12 +55,20 @@
     },
     storedCredentials: {
       type: Object,
-      default: {},
+      default: { username: '', password: '' },
+    },
+    countsLoading: {
+      type: Boolean,
+      default: false,
     },
   });
 
-  const emit = defineEmits(['credentials']);
+  // Refs.
+  const username = ref('');
+  const password = ref('');
 
+  // Emit.
+  const emit = defineEmits(['credentials']);
   const emitCredentials = () => {
     emit('credentials', { username: username.value, password: password.value });
     props.toggleConfigSyncConfirm();

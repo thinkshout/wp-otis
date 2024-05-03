@@ -233,3 +233,8 @@
   flex-wrap: wrap;
   gap: 2rem;
 }
+
+/* Description */
+.otis-dashboard__description {
+  opacity: 0.8;
+}

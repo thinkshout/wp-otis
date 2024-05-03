@@ -16971,4 +16971,8 @@ body[data-v-565a54] {
   gap: 2rem;
   display: flex;
 }
+
+.otis-dashboard__description {
+  opacity: .8;
+}
 /*# sourceMappingURL=otis.css.map */
