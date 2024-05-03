@@ -181,44 +181,8 @@
 
       <!-- OTIS Config -->
       <div class="otis-dashboard__setting otis-dashboard__setting--full-width">
-        <Card>
-          <template #title>
-            OTIS Config
-          </template>
-          <template #content>
-
-            <!-- Form grid -->
-            <div class="otis-dashboard__form-grid">
-
-              <!-- Login -->
-              <fieldset class="otis-dashboard__fieldset">
-                <legend class="va-h6">Login</legend>
-                <va-input v-model="value" placeholder="1234" label="Current Value" disabled />
-                <va-input v-model="value" placeholder="Enter value" label="New Value" />
-              </fieldset>
-  
-              <!-- Login -->
-              <fieldset class="otis-dashboard__fieldset">
-                <legend class="va-h6">Password</legend>
-                <va-input v-model="value" placeholder="a1b2c3" label="Current Value" disabled />
-                <va-input v-model="value" placeholder="Enter value" label="New Value" />
-              </fieldset>
-
-              <!-- Login -->
-              <fieldset class="otis-dashboard__fieldset">
-                <legend class="va-h6">Sint cupidatat</legend>
-                <va-input v-model="value" placeholder="1KML2" label="Current Value" disabled />
-                <va-input v-model="value" placeholder="Enter value" label="New Value" />
-              </fieldset>
-            </div>
-
-          </template>
-          <template #actions>
-            <button class="button button-primary" :disabled="importStarting || importActive || syncAllActive" @click="toggleConfigSyncConfirm">
-              <span>Sync Config</span>
-            </button>
-          </template>
-        </Card>
+        <OtisConfig :importStarting="importStarting" :importActive="importActive" :syncAllActive="syncAllActive" 
+        @credentials="updateCredentials" :toggleConfigSyncConfirm="toggleConfigSyncConfirm" />
       </div>
 
       <!-- Import log preview -->
@@ -320,7 +284,7 @@
     </Modal>
 
     <!-- Modal - Confirm OTIS sync -->
-    <Modal v-model="showOtisSyncModal" title="Confirm OTIS config sync" cancel-text="No, do not sync." ok-text="Yes, sync config." @ok="triggerSyncOtisConfig">
+    <Modal v-model="showOtisSyncModal" title="Confirm OTIS config sync" cancel-text="No, do not sync." ok-text="Yes, sync config." @ok="triggerSyncOtisConfig" @cancel="cancelSyncOtisConfig">
       <p>Are you sure you want to sync OTIS configuration?</p>
     </Modal>
   </div>
@@ -337,6 +301,7 @@
   import Alert from "../02_molecules/Alert.vue";
   import Modal from "../02_molecules/Modal.vue";
   import useApi from "../../composables/useApi";
+  import OtisConfig from "./OtisConfig.vue";
 
   // Refs
   const modifiedDate = ref(new Date());
@@ -352,6 +317,7 @@
   const activeFilters = ref([]);
   const credentials = ref({});
   const storedCredentials = ref({});
+  const pendingCredentials = ref({});
   const showSyncModal = ref(false);
   const showCancelModal = ref(false);
   const showImportModal = ref(false);
@@ -511,8 +477,15 @@
     await triggerAction("otis_stop_all");
     await otisStatus();
   };
-  const triggerSyncOtisConfig = () => {
-    console.log("Syncing config");
+  const triggerSyncOtisConfig = async () => {
+    if (pendingCredentials.value.username && pendingCredentials.value.password) {
+      credentials.value = pendingCredentials.value;
+      pendingCredentials.value = {};
+      const { data } = await triggerAction("otis_save_credentials", credentials.value );
+    }
+  };
+  const cancelSyncOtisConfig = () => {
+    pendingCredentials.value = {};
   };
   const toggleSyncConfirm = () => {
     showSyncModal.value = !showSyncModal.value;
@@ -528,6 +501,11 @@
   };
   const toggleStopAllConfirm = () => {
     showStopAllModal.value = !showStopAllModal.value;
+  };
+  const updateCredentials = (newCredentials) => {
+    if (newCredentials.username && newCredentials.password) {
+      pendingCredentials.value = newCredentials;
+    }
   };
 
   // On Mount
