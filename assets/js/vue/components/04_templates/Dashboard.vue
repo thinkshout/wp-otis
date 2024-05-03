@@ -11,6 +11,7 @@
           :importStarting="importStarting" :importActive="importActive" :syncAllActive="syncAllActive" 
           @credentials="updateCredentials" :toggleConfigSyncConfirm="toggleConfigSyncConfirm" 
           :storedCredentials="storedCredentials"
+          :countsLoading="countsLoading"
         />
       </template>
 

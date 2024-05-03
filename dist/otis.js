@@ -65565,12 +65565,14 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                 syncAllActive: $setup.syncAllActive,
                 onCredentials: $setup.updateCredentials,
                 toggleConfigSyncConfirm: $setup.toggleConfigSyncConfirm,
-                storedCredentials: $setup.storedCredentials
+                storedCredentials: $setup.storedCredentials,
+                countsLoading: $setup.countsLoading
             }, null, 8 /* PROPS */ , [
                 "importStarting",
                 "importActive",
                 "syncAllActive",
-                "storedCredentials"
+                "storedCredentials",
+                "countsLoading"
             ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)((0, _vue.Fragment), {
                 key: 1
             }, [
