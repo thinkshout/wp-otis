@@ -284,7 +284,7 @@
     </Modal>
 
     <!-- Modal - Confirm OTIS sync -->
-    <Modal v-model="showOtisSyncModal" title="Confirm OTIS config sync" cancel-text="No, do not sync." ok-text="Yes, sync config." @ok="triggerSyncOtisConfig">
+    <Modal v-model="showOtisSyncModal" title="Confirm OTIS config sync" cancel-text="No, do not sync." ok-text="Yes, sync config." @ok="triggerSyncOtisConfig" @cancel="cancelSyncOtisConfig">
       <p>Are you sure you want to sync OTIS configuration?</p>
     </Modal>
   </div>
@@ -317,6 +317,7 @@
   const activeFilters = ref([]);
   const credentials = ref({});
   const storedCredentials = ref({});
+  const pendingCredentials = ref({});
   const showSyncModal = ref(false);
   const showCancelModal = ref(false);
   const showImportModal = ref(false);
@@ -477,9 +478,14 @@
     await otisStatus();
   };
   const triggerSyncOtisConfig = async () => {
-    if (credentials.value.username && credentials.value.password) {
+    if (pendingCredentials.value.username && pendingCredentials.value.password) {
+      credentials.value = pendingCredentials.value;
+      pendingCredentials.value = {};
       const { data } = await triggerAction("otis_save_credentials", credentials.value );
     }
+  };
+  const cancelSyncOtisConfig = () => {
+    pendingCredentials.value = {};
   };
   const toggleSyncConfirm = () => {
     showSyncModal.value = !showSyncModal.value;
@@ -498,7 +504,7 @@
   };
   const updateCredentials = (newCredentials) => {
     if (newCredentials.username && newCredentials.password) {
-      credentials.value = newCredentials;
+      pendingCredentials.value = newCredentials;
     }
   };
 

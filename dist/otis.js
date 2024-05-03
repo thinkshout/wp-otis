@@ -60281,6 +60281,7 @@ exports.default = {
         const activeFilters = (0, _vue.ref)([]);
         const credentials = (0, _vue.ref)({});
         const storedCredentials = (0, _vue.ref)({});
+        const pendingCredentials = (0, _vue.ref)({});
         const showSyncModal = (0, _vue.ref)(false);
         const showCancelModal = (0, _vue.ref)(false);
         const showImportModal = (0, _vue.ref)(false);
@@ -60440,9 +60441,14 @@ exports.default = {
             await otisStatus();
         };
         const triggerSyncOtisConfig = async ()=>{
-            if (credentials.value.username && credentials.value.password) {
+            if (pendingCredentials.value.username && pendingCredentials.value.password) {
+                credentials.value = pendingCredentials.value;
+                pendingCredentials.value = {};
                 const { data } = await triggerAction("otis_save_credentials", credentials.value);
             }
+        };
+        const cancelSyncOtisConfig = ()=>{
+            pendingCredentials.value = {};
         };
         const toggleSyncConfirm = ()=>{
             showSyncModal.value = !showSyncModal.value;
@@ -60460,7 +60466,7 @@ exports.default = {
             showStopAllModal.value = !showStopAllModal.value;
         };
         const updateCredentials = (newCredentials)=>{
-            if (newCredentials.username && newCredentials.password) credentials.value = newCredentials;
+            if (newCredentials.username && newCredentials.password) pendingCredentials.value = newCredentials;
         };
         // On Mount
         (0, _vue.onMounted)(async ()=>{
@@ -60484,6 +60490,7 @@ exports.default = {
             activeFilters,
             credentials,
             storedCredentials,
+            pendingCredentials,
             showSyncModal,
             showCancelModal,
             showImportModal,
@@ -60511,6 +60518,7 @@ exports.default = {
             triggerSyncPois,
             triggerStopAll,
             triggerSyncOtisConfig,
+            cancelSyncOtisConfig,
             toggleSyncConfirm,
             toggleConfigSyncConfirm,
             toggleCancelConfirm,
@@ -65765,7 +65773,8 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
             title: "Confirm OTIS config sync",
             "cancel-text": "No, do not sync.",
             "ok-text": "Yes, sync config.",
-            onOk: $setup.triggerSyncOtisConfig
+            onOk: $setup.triggerSyncOtisConfig,
+            onCancel: $setup.cancelSyncOtisConfig
         }, {
             default: (0, _vue.withCtx)(()=>[
                     _hoisted_67
