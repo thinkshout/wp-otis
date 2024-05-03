@@ -11,13 +11,11 @@
 
         <!-- Login -->
         <fieldset class="otis-dashboard__fieldset">
-          <legend class="va-h6">Username</legend>
           <va-input v-model="username" placeholder="Enter value" label="Username" />
         </fieldset>
 
         <!-- Login -->
         <fieldset class="otis-dashboard__fieldset">
-          <legend class="va-h6">Password</legend>
           <va-input v-model="password" placeholder="Enter value" label="Password" />
         </fieldset>
       </div>

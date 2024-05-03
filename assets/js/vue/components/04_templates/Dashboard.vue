@@ -4,26 +4,21 @@
 
     <!-- Initial import -->
     <div v-if="displayInitialImport" class="otis-dashboard__banner">
-      <Card>
-        <!-- Title -->
-        <template #title>
-          <h2>Initial POI Import</h2>
-        </template>
-        <template #content>
-          <LoadingIndicator v-if="importStarting" />
-          <p>Start here if this is your first time running the plugin. This interface will let you store your OTIS credentials and start your initial import.</p>
-          <p><em>Note: The importer will run based on the wp_otis_listings filter if it is set in your theme or a different plugin.</em></p>
-        </template>
-        <template #actions>
-          <p v-if="importStarting">POI import starting, please wait this usually takes a few minutes...</p>
-          <button class="button button-primary" :disabled="importStarting || credentialsNeeded" @click="triggerInitialImport">
-            <span v-if="importStarting">
-              Import Starting Please Wait...
-            </span>
-            <span v-else>Start Importing POIs</span>
-          </button>
-        </template>
-      </Card>
+
+      <!-- Config Import -->
+      <template v-if="displayInitialConfig">
+        <OtisConfig
+          :importStarting="importStarting" :importActive="importActive" :syncAllActive="syncAllActive" 
+          @credentials="updateCredentials" :toggleConfigSyncConfirm="toggleConfigSyncConfirm" 
+        />
+      </template>
+
+      <!-- POI Import -->
+      <template v-else>
+        <InitialPOIImport 
+          :importStarting="importStarting" :credentialsNeeded="credentialsNeeded" :triggerInitialImport="triggerInitialImport" 
+        />
+      </template>
     </div>
 
     <!-- POI import and update, reset and status -->
@@ -181,8 +176,10 @@
 
       <!-- OTIS Config -->
       <div class="otis-dashboard__setting otis-dashboard__setting--full-width">
-        <OtisConfig :importStarting="importStarting" :importActive="importActive" :syncAllActive="syncAllActive" 
-        @credentials="updateCredentials" :toggleConfigSyncConfirm="toggleConfigSyncConfirm" />
+        <OtisConfig
+          :importStarting="importStarting" :importActive="importActive" :syncAllActive="syncAllActive" 
+          @credentials="updateCredentials" :toggleConfigSyncConfirm="toggleConfigSyncConfirm"
+        />
       </div>
 
       <!-- Import log preview -->
@@ -302,6 +299,7 @@
   import Modal from "../02_molecules/Modal.vue";
   import useApi from "../../composables/useApi";
   import OtisConfig from "../03_organisms/OtisConfig.vue";
+  import InitialPOIImport from "../03_organisms/InitialPOIImport.vue";
 
   // Refs
   const modifiedDate = ref(new Date());
@@ -324,6 +322,7 @@
   const showStopAllModal = ref(false);
   const showOtisSyncModal = ref(false);
   const { triggerAction } = useApi();
+  const displayInitialConfig = ref(true);
 
   // Computed
   const lastImport = computed(() => {

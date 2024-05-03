@@ -598,7 +598,7 @@ var _vue = require("vue");
 var _vueDatepicker = require("@vuepic/vue-datepicker");
 var _vueDatepickerDefault = parcelHelpers.interopDefault(_vueDatepicker);
 var _mainCss = require("@vuepic/vue-datepicker/dist/main.css");
-var _dashboardVue = require("./vue/components/03_organisms/Dashboard.vue");
+var _dashboardVue = require("./vue/components/04_templates/Dashboard.vue");
 var _dashboardVueDefault = parcelHelpers.interopDefault(_dashboardVue);
 var _vuesticUi = require("vuestic-ui");
 function dashboardVue() {
@@ -621,7 +621,7 @@ function dashboardVue() {
     app.mount("#otis-dashboard-mount");
 }
 
-},{"vue":"gzxs9","@vuepic/vue-datepicker":"lOLHi","@vuepic/vue-datepicker/dist/main.css":"d7I8C","vuestic-ui":"8BiRm","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./vue/components/03_organisms/Dashboard.vue":"4pY62"}],"gzxs9":[function(require,module,exports) {
+},{"vue":"gzxs9","@vuepic/vue-datepicker":"lOLHi","@vuepic/vue-datepicker/dist/main.css":"d7I8C","vuestic-ui":"8BiRm","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./vue/components/04_templates/Dashboard.vue":"3Snlp"}],"gzxs9":[function(require,module,exports) {
 /**
 * vue v3.4.22
 * (c) 2018-present Yuxi (Evan) You and Vue contributors
@@ -60221,32 +60221,32 @@ const usePlugin = (app, plugin, ...options)=>{
     else app.use(plugin);
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4pY62":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3Snlp":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 let script;
 let initialize = ()=>{
-    script = require("53df3cf81b744e73");
+    script = require("c1eabb2df19d3cf4");
     if (script.__esModule) script = script.default;
-    script.render = require("187c869fd2436f6e").render;
-    script.__cssModules = require("312d96f4f836f5d").default;
-    require("b513872e22961e9a").default(script);
-    script.__scopeId = "data-v-f4c30f";
-    script.__file = "/Users/jordank/Sites/tror/web/wp-content/plugins/wp-otis/assets/js/vue/components/03_organisms/Dashboard.vue";
+    script.render = require("a2611b4026b811a").render;
+    script.__cssModules = require("5f6824dd6b9c1f8f").default;
+    require("2933b535d1ff850e").default(script);
+    script.__scopeId = "data-v-565a54";
+    script.__file = "/Users/jordank/Sites/tror/web/wp-content/plugins/wp-otis/assets/js/vue/components/04_templates/Dashboard.vue";
 };
 initialize();
 if (module.hot) {
-    script.__hmrId = "f4c30f-hmr";
+    script.__hmrId = "565a54-hmr";
     module.hot.accept(()=>{
         setTimeout(()=>{
             initialize();
-            if (!__VUE_HMR_RUNTIME__.createRecord("f4c30f-hmr", script)) __VUE_HMR_RUNTIME__.reload("f4c30f-hmr", script);
+            if (!__VUE_HMR_RUNTIME__.createRecord("565a54-hmr", script)) __VUE_HMR_RUNTIME__.reload("565a54-hmr", script);
         }, 0);
     });
 }
 exports.default = script;
 
-},{"53df3cf81b744e73":"8SQQk","187c869fd2436f6e":"dF4Uf","312d96f4f836f5d":"1uUx5","b513872e22961e9a":"c3Nee","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"8SQQk":[function(require,module,exports) {
+},{"c1eabb2df19d3cf4":"8i5c4","a2611b4026b811a":"dudkv","5f6824dd6b9c1f8f":"7TpLY","2933b535d1ff850e":"iKgNc","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"8i5c4":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _vue = require("vue");
@@ -60260,8 +60260,10 @@ var _modalVue = require("../02_molecules/Modal.vue");
 var _modalVueDefault = parcelHelpers.interopDefault(_modalVue);
 var _useApi = require("../../composables/useApi");
 var _useApiDefault = parcelHelpers.interopDefault(_useApi);
-var _otisConfigVue = require("./OtisConfig.vue");
+var _otisConfigVue = require("../03_organisms/OtisConfig.vue");
 var _otisConfigVueDefault = parcelHelpers.interopDefault(_otisConfigVue);
+var _initialPOIImportVue = require("../03_organisms/InitialPOIImport.vue");
+var _initialPOIImportVueDefault = parcelHelpers.interopDefault(_initialPOIImportVue);
 // Refs
 exports.default = {
     __name: "Dashboard",
@@ -60288,6 +60290,7 @@ exports.default = {
         const showStopAllModal = (0, _vue.ref)(false);
         const showOtisSyncModal = (0, _vue.ref)(false);
         const { triggerAction } = (0, _useApiDefault.default)();
+        const displayInitialConfig = (0, _vue.ref)(true);
         // Computed
         const lastImport = (0, _vue.computed)(()=>{
             if (!lastImportDate.value) return "N/A";
@@ -60497,6 +60500,7 @@ exports.default = {
             showStopAllModal,
             showOtisSyncModal,
             triggerAction,
+            displayInitialConfig,
             lastImport,
             nextImport,
             importerStatus,
@@ -60535,7 +60539,8 @@ exports.default = {
             get useApi () {
                 return 0, _useApiDefault.default;
             },
-            OtisConfig: (0, _otisConfigVueDefault.default)
+            OtisConfig: (0, _otisConfigVueDefault.default),
+            InitialPOIImport: (0, _initialPOIImportVueDefault.default)
         };
         Object.defineProperty(__returned__, "__isScriptSetup", {
             enumerable: false,
@@ -60545,7 +60550,7 @@ exports.default = {
     }
 };
 
-},{"vue":"gzxs9","../01_atoms/LoadingIndicator.vue":"8RWTs","../02_molecules/Card.vue":"eZkOW","../02_molecules/Alert.vue":"cdGyZ","../02_molecules/Modal.vue":"aPaKd","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../../composables/useApi":"cMhyd","./OtisConfig.vue":"77HTZ"}],"8RWTs":[function(require,module,exports) {
+},{"vue":"gzxs9","../01_atoms/LoadingIndicator.vue":"8RWTs","../02_molecules/Card.vue":"eZkOW","../02_molecules/Alert.vue":"cdGyZ","../02_molecules/Modal.vue":"aPaKd","../../composables/useApi":"cMhyd","../03_organisms/OtisConfig.vue":"77HTZ","../03_organisms/InitialPOIImport.vue":"5n22R","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"8RWTs":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 let script;
@@ -65154,21 +65159,15 @@ const _hoisted_1 = {
 const _hoisted_2 = {
     class: "otis-dashboard__fieldset"
 };
-const _hoisted_3 = /*#__PURE__*/ (0, _vue.createElementVNode)("legend", {
-    class: "va-h6"
-}, "Username", -1 /* HOISTED */ );
-const _hoisted_4 = {
+const _hoisted_3 = {
     class: "otis-dashboard__fieldset"
 };
-const _hoisted_5 = /*#__PURE__*/ (0, _vue.createElementVNode)("legend", {
-    class: "va-h6"
-}, "Password", -1 /* HOISTED */ );
-const _hoisted_6 = [
+const _hoisted_4 = [
     "disabled"
 ];
-const _hoisted_7 = /*#__PURE__*/ (0, _vue.createElementVNode)("span", null, "Sync Config", -1 /* HOISTED */ );
-const _hoisted_8 = [
-    _hoisted_7
+const _hoisted_5 = /*#__PURE__*/ (0, _vue.createElementVNode)("span", null, "Sync Config", -1 /* HOISTED */ );
+const _hoisted_6 = [
+    _hoisted_5
 ];
 function render(_ctx, _cache, $props, $setup, $data, $options) {
     const _component_va_input = (0, _vue.resolveComponent)("va-input");
@@ -65181,7 +65180,6 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                 (0, _vue.createElementVNode)("div", _hoisted_1, [
                     (0, _vue.createCommentVNode)(" Login "),
                     (0, _vue.createElementVNode)("fieldset", _hoisted_2, [
-                        _hoisted_3,
                         (0, _vue.createVNode)(_component_va_input, {
                             modelValue: $setup.username,
                             "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event)=>$setup.username = $event),
@@ -65192,8 +65190,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                         ])
                     ]),
                     (0, _vue.createCommentVNode)(" Login "),
-                    (0, _vue.createElementVNode)("fieldset", _hoisted_4, [
-                        _hoisted_5,
+                    (0, _vue.createElementVNode)("fieldset", _hoisted_3, [
                         (0, _vue.createVNode)(_component_va_input, {
                             modelValue: $setup.password,
                             "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event)=>$setup.password = $event),
@@ -65211,8 +65208,8 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                     disabled: $props.importStarting || $props.importActive || $props.syncAllActive,
                     onClick: $setup.emitCredentials
                 }, [
-                    ..._hoisted_8
-                ], 8 /* PROPS */ , _hoisted_6)
+                    ..._hoisted_6
+                ], 8 /* PROPS */ , _hoisted_4)
             ]),
         _: 1 /* STABLE */ 
     });
@@ -65227,12 +65224,134 @@ parcelHelpers.defineInteropFlag(exports);
 let NOOP = ()=>{};
 exports.default = (script)=>{};
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dF4Uf":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5n22R":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+let script;
+let initialize = ()=>{
+    script = require("a01faf89635561c9");
+    if (script.__esModule) script = script.default;
+    script.render = require("ec998ce39cd75433").render;
+    require("acaf13ac49e5dc44").default(script);
+    script.__scopeId = "data-v-902ec2";
+    script.__file = "/Users/jordank/Sites/tror/web/wp-content/plugins/wp-otis/assets/js/vue/components/03_organisms/InitialPOIImport.vue";
+};
+initialize();
+if (module.hot) {
+    script.__hmrId = "902ec2-hmr";
+    module.hot.accept(()=>{
+        setTimeout(()=>{
+            initialize();
+            if (!__VUE_HMR_RUNTIME__.createRecord("902ec2-hmr", script)) __VUE_HMR_RUNTIME__.reload("902ec2-hmr", script);
+        }, 0);
+    });
+}
+exports.default = script;
+
+},{"a01faf89635561c9":"fHytb","ec998ce39cd75433":"jzAWM","acaf13ac49e5dc44":"3x5p2","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"fHytb":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _vue = require("vue");
+var _cardVue = require("../02_molecules/Card.vue");
+var _cardVueDefault = parcelHelpers.interopDefault(_cardVue);
+var _loadingIndicatorVue = require("../01_atoms/LoadingIndicator.vue");
+var _loadingIndicatorVueDefault = parcelHelpers.interopDefault(_loadingIndicatorVue);
+exports.default = {
+    __name: "InitialPOIImport",
+    props: {
+        importStarting: {
+            type: Boolean,
+            default: false
+        },
+        credentialsNeeded: {
+            type: Boolean,
+            default: false
+        },
+        triggerInitialImport: {
+            type: Function,
+            default: ()=>{}
+        }
+    },
+    setup (__props, { expose: __expose }) {
+        __expose();
+        const props = __props;
+        const __returned__ = {
+            props,
+            ref: (0, _vue.ref),
+            Card: (0, _cardVueDefault.default),
+            LoadingIndicator: (0, _loadingIndicatorVueDefault.default)
+        };
+        Object.defineProperty(__returned__, "__isScriptSetup", {
+            enumerable: false,
+            value: true
+        });
+        return __returned__;
+    }
+};
+
+},{"vue":"gzxs9","../02_molecules/Card.vue":"eZkOW","../01_atoms/LoadingIndicator.vue":"8RWTs","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jzAWM":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "render", ()=>render);
 var _vue = require("vue");
-const _withScopeId = (n)=>((0, _vue.pushScopeId)("data-v-f4c30f"), n = n(), (0, _vue.popScopeId)(), n);
+const _hoisted_1 = /*#__PURE__*/ (0, _vue.createElementVNode)("h2", null, "Initial POI Import", -1 /* HOISTED */ );
+const _hoisted_2 = /*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Start here if this is your first time running the plugin. This interface will let you store your OTIS credentials and start your initial import.", -1 /* HOISTED */ );
+const _hoisted_3 = /*#__PURE__*/ (0, _vue.createElementVNode)("p", null, [
+    /*#__PURE__*/ (0, _vue.createElementVNode)("em", null, "Note: The importer will run based on the wp_otis_listings filter if it is set in your theme or a different plugin.")
+], -1 /* HOISTED */ );
+const _hoisted_4 = {
+    key: 0
+};
+const _hoisted_5 = [
+    "disabled"
+];
+const _hoisted_6 = {
+    key: 0
+};
+const _hoisted_7 = {
+    key: 1
+};
+function render(_ctx, _cache, $props, $setup, $data, $options) {
+    return (0, _vue.openBlock)(), (0, _vue.createBlock)($setup["Card"], null, {
+        title: (0, _vue.withCtx)(()=>[
+                _hoisted_1
+            ]),
+        content: (0, _vue.withCtx)(()=>[
+                $props.importStarting ? ((0, _vue.openBlock)(), (0, _vue.createBlock)($setup["LoadingIndicator"], {
+                    key: 0
+                })) : (0, _vue.createCommentVNode)("v-if", true),
+                _hoisted_2,
+                _hoisted_3
+            ]),
+        actions: (0, _vue.withCtx)(()=>[
+                $props.importStarting ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("p", _hoisted_4, "POI import starting, please wait this usually takes a few minutes...")) : (0, _vue.createCommentVNode)("v-if", true),
+                (0, _vue.createElementVNode)("button", {
+                    class: "button button-primary",
+                    disabled: $props.importStarting || $props.credentialsNeeded,
+                    onClick: _cache[0] || (_cache[0] = (...args)=>$props.triggerInitialImport && $props.triggerInitialImport(...args))
+                }, [
+                    $props.importStarting ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_6, " Import Starting Please Wait... ")) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_7, "Start Importing POIs"))
+                ], 8 /* PROPS */ , _hoisted_5)
+            ]),
+        _: 1 /* STABLE */ 
+    });
+}
+if (module.hot) module.hot.accept(()=>{
+    __VUE_HMR_RUNTIME__.rerender("902ec2-hmr", render);
+});
+
+},{"vue":"gzxs9","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3x5p2":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+let NOOP = ()=>{};
+exports.default = (script)=>{};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"dudkv":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "render", ()=>render);
+var _vue = require("vue");
+const _withScopeId = (n)=>((0, _vue.pushScopeId)("data-v-565a54"), n = n(), (0, _vue.popScopeId)(), n);
 const _hoisted_1 = {
     class: "otis-dashboard"
 };
@@ -65241,138 +65360,144 @@ const _hoisted_3 = {
     key: 0,
     class: "otis-dashboard__banner"
 };
-const _hoisted_4 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("h2", null, "Initial POI Import", -1 /* HOISTED */ ));
-const _hoisted_5 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Start here if this is your first time running the plugin. This interface will let you store your OTIS credentials and start your initial import.", -1 /* HOISTED */ ));
-const _hoisted_6 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, [
-        /*#__PURE__*/ (0, _vue.createElementVNode)("em", null, "Note: The importer will run based on the wp_otis_listings filter if it is set in your theme or a different plugin.")
-    ], -1 /* HOISTED */ ));
-const _hoisted_7 = {
-    key: 0
-};
-const _hoisted_8 = [
-    "disabled"
-];
-const _hoisted_9 = {
-    key: 0
-};
-const _hoisted_10 = {
-    key: 1
-};
-const _hoisted_11 = {
+const _hoisted_4 = {
     class: "otis-dashboard__settings"
 };
-const _hoisted_12 = {
+const _hoisted_5 = {
     class: "otis-dashboard__setting-group"
 };
-const _hoisted_13 = {
+const _hoisted_6 = {
     class: "otis-dashboard__setting"
 };
-const _hoisted_14 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Start an import of POIs that have been modified since a given date. POIs that already exist on the site will be updated or trashed if the have been updated or deleted on or after that date.", -1 /* HOISTED */ ));
-const _hoisted_15 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, [
+const _hoisted_7 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Start an import of POIs that have been modified since a given date. POIs that already exist on the site will be updated or trashed if the have been updated or deleted on or after that date.", -1 /* HOISTED */ ));
+const _hoisted_8 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, [
         /*#__PURE__*/ (0, _vue.createElementVNode)("em", null, "Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme or a different plugin.")
     ], -1 /* HOISTED */ ));
-const _hoisted_16 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("label", {
+const _hoisted_9 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("label", {
         for: "modified-date"
     }, "Date To Import From", -1 /* HOISTED */ ));
-const _hoisted_17 = [
+const _hoisted_10 = [
     "disabled"
 ];
-const _hoisted_18 = {
+const _hoisted_11 = {
     key: 0
 };
-const _hoisted_19 = {
+const _hoisted_12 = {
     key: 1
 };
-const _hoisted_20 = {
+const _hoisted_13 = {
     key: 2
 };
-const _hoisted_21 = {
+const _hoisted_14 = {
     key: 3
 };
-const _hoisted_22 = {
+const _hoisted_15 = {
     class: "otis-dashboard__statuses"
 };
-const _hoisted_23 = {
+const _hoisted_16 = {
     class: "otis-dashboard__status"
+};
+const _hoisted_17 = {
+    key: 0
+};
+const _hoisted_18 = {
+    key: 1
+};
+const _hoisted_19 = {
+    class: "otis-dashboard__status"
+};
+const _hoisted_20 = {
+    key: 0
+};
+const _hoisted_21 = {
+    key: 1
+};
+const _hoisted_22 = {
+    class: "otis-dashboard__status"
+};
+const _hoisted_23 = {
+    key: 0
 };
 const _hoisted_24 = {
-    key: 0
+    key: 1
 };
 const _hoisted_25 = {
-    key: 1
-};
-const _hoisted_26 = {
-    class: "otis-dashboard__status"
-};
-const _hoisted_27 = {
-    key: 0
-};
-const _hoisted_28 = {
-    key: 1
-};
-const _hoisted_29 = {
-    class: "otis-dashboard__status"
-};
-const _hoisted_30 = {
-    key: 0
-};
-const _hoisted_31 = {
-    key: 1
-};
-const _hoisted_32 = {
     class: "otis-dashboard__status otis-dashboard__status--full-width"
 };
-const _hoisted_33 = {
+const _hoisted_26 = {
     key: 0
 };
-const _hoisted_34 = {
+const _hoisted_27 = {
     key: 1
 };
-const _hoisted_35 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Use this to restart standard automatic imports, useful if automatic imports seem stuck.", -1 /* HOISTED */ ));
-const _hoisted_36 = [
-    _hoisted_35
+const _hoisted_28 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Use this to restart standard automatic imports, useful if automatic imports seem stuck.", -1 /* HOISTED */ ));
+const _hoisted_29 = [
+    _hoisted_28
 ];
-const _hoisted_37 = [
+const _hoisted_30 = [
     "disabled"
 ];
-const _hoisted_38 = {
+const _hoisted_31 = {
     class: "otis-dashboard__setting otis-dashboard__setting--full-width"
 };
-const _hoisted_39 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, [
+const _hoisted_32 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, [
         /*#__PURE__*/ (0, _vue.createElementVNode)("i", null, [
             /*#__PURE__*/ (0, _vue.createElementVNode)("strong", null, "Note:"),
             /*#__PURE__*/ (0, _vue.createTextVNode)(" This is a lengthy and resource intensive process")
         ])
     ], -1 /* HOISTED */ ));
-const _hoisted_40 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "This will sync all relevant POIs that are active in OTIS with WordPress using the Otis filters you have set. This is useful if you find there are POIs that are stale/should have been imported/deleted.", -1 /* HOISTED */ ));
-const _hoisted_41 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "This process is split into several actions and each action is split into pages. The process will run until all pages have been processed. You can cancel the process at any time but it will need to be started from the beginning if canceled.", -1 /* HOISTED */ ));
-const _hoisted_42 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, [
+const _hoisted_33 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "This will sync all relevant POIs that are active in OTIS with WordPress using the Otis filters you have set. This is useful if you find there are POIs that are stale/should have been imported/deleted.", -1 /* HOISTED */ ));
+const _hoisted_34 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "This process is split into several actions and each action is split into pages. The process will run until all pages have been processed. You can cancel the process at any time but it will need to be started from the beginning if canceled.", -1 /* HOISTED */ ));
+const _hoisted_35 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, [
         /*#__PURE__*/ (0, _vue.createElementVNode)("strong", null, "This process will trash POI posts if they've been removed from OTIS.")
     ], -1 /* HOISTED */ ));
-const _hoisted_43 = [
+const _hoisted_36 = [
     "disabled"
 ];
-const _hoisted_44 = {
+const _hoisted_37 = {
     key: 0
 };
-const _hoisted_45 = {
+const _hoisted_38 = {
     key: 1
 };
-const _hoisted_46 = {
+const _hoisted_39 = {
     class: "otis-dashboard__setting otis-dashboard__setting--full-width"
 };
-const _hoisted_47 = {
+const _hoisted_40 = {
     class: "otis-dashboard__setting"
 };
-const _hoisted_48 = {
+const _hoisted_41 = {
     key: 0
 };
-const _hoisted_49 = {
+const _hoisted_42 = {
     key: 1
 };
-const _hoisted_50 = [
+const _hoisted_43 = [
     "href"
 ];
+const _hoisted_44 = {
+    class: "va-table-responsive"
+};
+const _hoisted_45 = {
+    class: "va-table va-table--striped"
+};
+const _hoisted_46 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("thead", null, [
+        /*#__PURE__*/ (0, _vue.createElementVNode)("tr", null, [
+            /*#__PURE__*/ (0, _vue.createElementVNode)("th", null, "Log Entry")
+        ])
+    ], -1 /* HOISTED */ ));
+const _hoisted_47 = [
+    "href"
+];
+const _hoisted_48 = {
+    class: "otis-dashboard__setting"
+};
+const _hoisted_49 = {
+    key: 0
+};
+const _hoisted_50 = {
+    key: 1
+};
 const _hoisted_51 = {
     class: "va-table-responsive"
 };
@@ -65381,92 +65506,71 @@ const _hoisted_52 = {
 };
 const _hoisted_53 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("thead", null, [
         /*#__PURE__*/ (0, _vue.createElementVNode)("tr", null, [
-            /*#__PURE__*/ (0, _vue.createElementVNode)("th", null, "Log Entry")
+            /*#__PURE__*/ (0, _vue.createElementVNode)("th", null, "Status"),
+            /*#__PURE__*/ (0, _vue.createElementVNode)("th", null, "Count")
         ])
     ], -1 /* HOISTED */ ));
 const _hoisted_54 = [
     "href"
 ];
 const _hoisted_55 = {
-    class: "otis-dashboard__setting"
-};
-const _hoisted_56 = {
-    key: 0
-};
-const _hoisted_57 = {
-    key: 1
-};
-const _hoisted_58 = {
-    class: "va-table-responsive"
-};
-const _hoisted_59 = {
-    class: "va-table va-table--striped"
-};
-const _hoisted_60 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("thead", null, [
-        /*#__PURE__*/ (0, _vue.createElementVNode)("tr", null, [
-            /*#__PURE__*/ (0, _vue.createElementVNode)("th", null, "Status"),
-            /*#__PURE__*/ (0, _vue.createElementVNode)("th", null, "Count")
-        ])
-    ], -1 /* HOISTED */ ));
-const _hoisted_61 = [
-    "href"
-];
-const _hoisted_62 = {
     key: 2,
     class: "otis-dashboard__notifications"
 };
-const _hoisted_63 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, [
+const _hoisted_56 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, [
         /*#__PURE__*/ (0, _vue.createElementVNode)("strong", null, "Are you sure you want to sync all POIs?")
     ], -1 /* HOISTED */ ));
-const _hoisted_64 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "This action could take several hours to complete. You may close this browser window while the sync is running.", -1 /* HOISTED */ ));
-const _hoisted_65 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Are you sure you want to cancel?", -1 /* HOISTED */ ));
-const _hoisted_66 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Are you sure you want to restart automatic imports?", -1 /* HOISTED */ ));
-const _hoisted_67 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Are you sure you want to sync OTIS configuration?", -1 /* HOISTED */ ));
+const _hoisted_57 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "This action could take several hours to complete. You may close this browser window while the sync is running.", -1 /* HOISTED */ ));
+const _hoisted_58 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Are you sure you want to cancel?", -1 /* HOISTED */ ));
+const _hoisted_59 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Are you sure you want to restart automatic imports?", -1 /* HOISTED */ ));
+const _hoisted_60 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Are you sure you want to sync OTIS configuration?", -1 /* HOISTED */ ));
 function render(_ctx, _cache, $props, $setup, $data, $options) {
     const _component_Datepicker = (0, _vue.resolveComponent)("Datepicker");
     return (0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_1, [
         _hoisted_2,
         (0, _vue.createCommentVNode)(" Initial import "),
         $setup.displayInitialImport ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_3, [
-            (0, _vue.createVNode)($setup["Card"], null, {
-                title: (0, _vue.withCtx)(()=>[
-                        _hoisted_4
-                    ]),
-                content: (0, _vue.withCtx)(()=>[
-                        $setup.importStarting ? ((0, _vue.openBlock)(), (0, _vue.createBlock)($setup["LoadingIndicator"], {
-                            key: 0
-                        })) : (0, _vue.createCommentVNode)("v-if", true),
-                        _hoisted_5,
-                        _hoisted_6
-                    ]),
-                actions: (0, _vue.withCtx)(()=>[
-                        $setup.importStarting ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("p", _hoisted_7, "POI import starting, please wait this usually takes a few minutes...")) : (0, _vue.createCommentVNode)("v-if", true),
-                        (0, _vue.createElementVNode)("button", {
-                            class: "button button-primary",
-                            disabled: $setup.importStarting || $setup.credentialsNeeded,
-                            onClick: $setup.triggerInitialImport
-                        }, [
-                            $setup.importStarting ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_9, " Import Starting Please Wait... ")) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_10, "Start Importing POIs"))
-                        ], 8 /* PROPS */ , _hoisted_8)
-                    ]),
-                _: 1 /* STABLE */ 
-            })
+            (0, _vue.createCommentVNode)(" Config Import "),
+            $setup.displayInitialConfig ? ((0, _vue.openBlock)(), (0, _vue.createBlock)($setup["OtisConfig"], {
+                key: 0,
+                importStarting: $setup.importStarting,
+                importActive: $setup.importActive,
+                syncAllActive: $setup.syncAllActive,
+                onCredentials: $setup.updateCredentials,
+                toggleConfigSyncConfirm: $setup.toggleConfigSyncConfirm
+            }, null, 8 /* PROPS */ , [
+                "importStarting",
+                "importActive",
+                "syncAllActive"
+            ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)((0, _vue.Fragment), {
+                key: 1
+            }, [
+                (0, _vue.createCommentVNode)(" POI Import "),
+                (0, _vue.createVNode)($setup["InitialPOIImport"], {
+                    importStarting: $setup.importStarting,
+                    credentialsNeeded: $setup.credentialsNeeded,
+                    triggerInitialImport: $setup.triggerInitialImport
+                }, null, 8 /* PROPS */ , [
+                    "importStarting",
+                    "credentialsNeeded"
+                ])
+            ], 64 /* STABLE_FRAGMENT */ ))
         ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)((0, _vue.Fragment), {
             key: 1
         }, [
             (0, _vue.createCommentVNode)(" POI import and update, reset and status "),
-            (0, _vue.createElementVNode)("div", _hoisted_11, [
-                (0, _vue.createElementVNode)("div", _hoisted_12, [
+            (0, _vue.createElementVNode)("div", _hoisted_4, [
+                (0, _vue.createElementVNode)("div", _hoisted_5, [
                     (0, _vue.createCommentVNode)(" POI import and update "),
-                    (0, _vue.createElementVNode)("div", _hoisted_13, [
+                    (0, _vue.createElementVNode)("div", _hoisted_6, [
                         (0, _vue.createVNode)($setup["Card"], null, {
                             title: (0, _vue.withCtx)(()=>[
                                     (0, _vue.createTextVNode)(" POI Import & Update ")
                                 ]),
                             content: (0, _vue.withCtx)(()=>[
-                                    _hoisted_14,
-                                    _hoisted_15,
-                                    _hoisted_16,
+                                    _hoisted_7,
+                                    _hoisted_8,
+                                    _hoisted_9,
                                     (0, _vue.createVNode)(_component_Datepicker, {
                                         modelValue: $setup.modifiedDate,
                                         "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event)=>$setup.modifiedDate = $event),
@@ -65484,8 +65588,8 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                         disabled: !$setup.dateIsValid || $setup.importStarting || $setup.importActive || $setup.syncAllActive,
                                         onClick: $setup.toggleImportConfirm
                                     }, [
-                                        $setup.importStarting ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_18, " Import Starting Please Wait... ")) : $setup.importActive ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_19, "Import Running Please Wait...")) : $setup.syncAllActive ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_20, "Sync Running Please Wait...")) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_21, "Start Importing Modified POIs"))
-                                    ], 8 /* PROPS */ , _hoisted_17),
+                                        $setup.importStarting ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_11, " Import Starting Please Wait... ")) : $setup.importActive ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_12, "Import Running Please Wait...")) : $setup.syncAllActive ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_13, "Sync Running Please Wait...")) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_14, "Start Importing Modified POIs"))
+                                    ], 8 /* PROPS */ , _hoisted_10),
                                     $setup.importActive ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("button", {
                                         key: 0,
                                         class: "button button-primary",
@@ -65496,60 +65600,60 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                         })
                     ]),
                     (0, _vue.createCommentVNode)(" Statuses and reset "),
-                    (0, _vue.createElementVNode)("div", _hoisted_22, [
+                    (0, _vue.createElementVNode)("div", _hoisted_15, [
                         (0, _vue.createCommentVNode)(" Last Import "),
-                        (0, _vue.createElementVNode)("div", _hoisted_23, [
+                        (0, _vue.createElementVNode)("div", _hoisted_16, [
                             (0, _vue.createVNode)($setup["Card"], null, {
                                 title: (0, _vue.withCtx)(()=>[
                                         (0, _vue.createTextVNode)(" Last Import ")
                                     ]),
                                 content: (0, _vue.withCtx)(()=>[
-                                        $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_24, [
+                                        $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_17, [
                                             (0, _vue.createVNode)($setup["LoadingIndicator"])
-                                        ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_25, (0, _vue.toDisplayString)($setup.lastImport), 1 /* TEXT */ ))
+                                        ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_18, (0, _vue.toDisplayString)($setup.lastImport), 1 /* TEXT */ ))
                                     ]),
                                 _: 1 /* STABLE */ 
                             })
                         ]),
                         (0, _vue.createCommentVNode)(" Next import "),
-                        (0, _vue.createElementVNode)("div", _hoisted_26, [
+                        (0, _vue.createElementVNode)("div", _hoisted_19, [
                             (0, _vue.createVNode)($setup["Card"], null, {
                                 title: (0, _vue.withCtx)(()=>[
                                         (0, _vue.createTextVNode)(" Next Import ")
                                     ]),
                                 content: (0, _vue.withCtx)(()=>[
-                                        $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_27, [
+                                        $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_20, [
                                             (0, _vue.createVNode)($setup["LoadingIndicator"])
-                                        ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_28, (0, _vue.toDisplayString)($setup.nextImport), 1 /* TEXT */ ))
+                                        ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_21, (0, _vue.toDisplayString)($setup.nextImport), 1 /* TEXT */ ))
                                     ]),
                                 _: 1 /* STABLE */ 
                             })
                         ]),
                         (0, _vue.createCommentVNode)(" Status "),
-                        (0, _vue.createElementVNode)("div", _hoisted_29, [
+                        (0, _vue.createElementVNode)("div", _hoisted_22, [
                             (0, _vue.createVNode)($setup["Card"], null, {
                                 title: (0, _vue.withCtx)(()=>[
                                         (0, _vue.createTextVNode)(" Importer Status ")
                                     ]),
                                 content: (0, _vue.withCtx)(()=>[
-                                        $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_30, [
+                                        $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_23, [
                                             (0, _vue.createVNode)($setup["LoadingIndicator"])
-                                        ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_31, (0, _vue.toDisplayString)($setup.importerStatus), 1 /* TEXT */ ))
+                                        ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_24, (0, _vue.toDisplayString)($setup.importerStatus), 1 /* TEXT */ ))
                                     ]),
                                 _: 1 /* STABLE */ 
                             })
                         ]),
                         (0, _vue.createCommentVNode)(" Reset Importer Processes "),
-                        (0, _vue.createElementVNode)("div", _hoisted_32, [
+                        (0, _vue.createElementVNode)("div", _hoisted_25, [
                             (0, _vue.createVNode)($setup["Card"], null, {
                                 title: (0, _vue.withCtx)(()=>[
                                         (0, _vue.createTextVNode)(" Reset Importer Processes ")
                                     ]),
                                 content: (0, _vue.withCtx)(()=>[
-                                        $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_33, [
+                                        $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_26, [
                                             (0, _vue.createVNode)($setup["LoadingIndicator"])
-                                        ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_34, [
-                                            ..._hoisted_36
+                                        ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_27, [
+                                            ..._hoisted_29
                                         ]))
                                     ]),
                                 actions: (0, _vue.withCtx)(()=>[
@@ -65557,7 +65661,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                             class: "button button-primary",
                                             disabled: $setup.importActive || $setup.syncAllActive,
                                             onClick: $setup.toggleStopAllConfirm
-                                        }, " Reset Importer Processes ", 8 /* PROPS */ , _hoisted_37)
+                                        }, " Reset Importer Processes ", 8 /* PROPS */ , _hoisted_30)
                                     ]),
                                 _: 1 /* STABLE */ 
                             })
@@ -65565,16 +65669,16 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                     ])
                 ]),
                 (0, _vue.createCommentVNode)(" Sync all POIs "),
-                (0, _vue.createElementVNode)("div", _hoisted_38, [
+                (0, _vue.createElementVNode)("div", _hoisted_31, [
                     (0, _vue.createVNode)($setup["Card"], null, {
                         title: (0, _vue.withCtx)(()=>[
                                 (0, _vue.createTextVNode)(" Sync All POIs ")
                             ]),
                         content: (0, _vue.withCtx)(()=>[
-                                _hoisted_39,
-                                _hoisted_40,
-                                _hoisted_41,
-                                _hoisted_42
+                                _hoisted_32,
+                                _hoisted_33,
+                                _hoisted_34,
+                                _hoisted_35
                             ]),
                         actions: (0, _vue.withCtx)(()=>[
                                 (0, _vue.createElementVNode)("button", {
@@ -65582,8 +65686,8 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                     disabled: $setup.importStarting || $setup.importActive || $setup.syncAllActive,
                                     onClick: $setup.toggleSyncConfirm
                                 }, [
-                                    $setup.importStarting || $setup.importActive || $setup.syncAllActive ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_44, "Sync Running Please Wait...")) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_45, "Sync POIs"))
-                                ], 8 /* PROPS */ , _hoisted_43),
+                                    $setup.importStarting || $setup.importActive || $setup.syncAllActive ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_37, "Sync Running Please Wait...")) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_38, "Sync POIs"))
+                                ], 8 /* PROPS */ , _hoisted_36),
                                 $setup.syncAllActive ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("button", {
                                     key: 0,
                                     class: "button button-primary",
@@ -65594,7 +65698,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                     })
                 ]),
                 (0, _vue.createCommentVNode)(" OTIS Config "),
-                (0, _vue.createElementVNode)("div", _hoisted_46, [
+                (0, _vue.createElementVNode)("div", _hoisted_39, [
                     (0, _vue.createVNode)($setup["OtisConfig"], {
                         importStarting: $setup.importStarting,
                         importActive: $setup.importActive,
@@ -65608,25 +65712,25 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                     ])
                 ]),
                 (0, _vue.createCommentVNode)(" Import log preview "),
-                (0, _vue.createElementVNode)("div", _hoisted_47, [
+                (0, _vue.createElementVNode)("div", _hoisted_40, [
                     (0, _vue.createVNode)($setup["Card"], null, {
                         title: (0, _vue.withCtx)(()=>[
                                 (0, _vue.createTextVNode)(" Import Log Preview ")
                             ]),
                         content: (0, _vue.withCtx)(()=>[
-                                $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_48, [
+                                $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_41, [
                                     (0, _vue.createVNode)($setup["LoadingIndicator"])
-                                ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_49, [
+                                ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_42, [
                                     (0, _vue.createElementVNode)("p", null, [
                                         (0, _vue.createTextVNode)("The last 15 entries in the import log. The full import log is available under "),
                                         (0, _vue.createElementVNode)("a", {
                                             href: $setup.importLogUrl
-                                        }, "POI > Import Log", 8 /* PROPS */ , _hoisted_50),
+                                        }, "POI > Import Log", 8 /* PROPS */ , _hoisted_43),
                                         (0, _vue.createTextVNode)(".")
                                     ]),
-                                    (0, _vue.createElementVNode)("div", _hoisted_51, [
-                                        (0, _vue.createElementVNode)("table", _hoisted_52, [
-                                            _hoisted_53,
+                                    (0, _vue.createElementVNode)("div", _hoisted_44, [
+                                        (0, _vue.createElementVNode)("table", _hoisted_45, [
+                                            _hoisted_46,
                                             (0, _vue.createElementVNode)("tbody", null, [
                                                 ((0, _vue.openBlock)(true), (0, _vue.createElementBlock)((0, _vue.Fragment), null, (0, _vue.renderList)($setup.importLog, ({ post_content }, index)=>{
                                                     return (0, _vue.openBlock)(), (0, _vue.createElementBlock)("tr", {
@@ -65645,24 +65749,24 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                     href: $setup.importLogUrl,
                                     role: "button",
                                     class: "button"
-                                }, "View Full Import Log", 8 /* PROPS */ , _hoisted_54)
+                                }, "View Full Import Log", 8 /* PROPS */ , _hoisted_47)
                             ]),
                         _: 1 /* STABLE */ 
                     })
                 ]),
                 (0, _vue.createCommentVNode)(" POI counts "),
-                (0, _vue.createElementVNode)("div", _hoisted_55, [
+                (0, _vue.createElementVNode)("div", _hoisted_48, [
                     (0, _vue.createVNode)($setup["Card"], null, {
                         title: (0, _vue.withCtx)(()=>[
                                 (0, _vue.createTextVNode)(" POI Counts ")
                             ]),
                         content: (0, _vue.withCtx)(()=>[
-                                $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_56, [
+                                $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_49, [
                                     (0, _vue.createVNode)($setup["LoadingIndicator"])
-                                ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_57, [
-                                    (0, _vue.createElementVNode)("div", _hoisted_58, [
-                                        (0, _vue.createElementVNode)("table", _hoisted_59, [
-                                            _hoisted_60,
+                                ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_50, [
+                                    (0, _vue.createElementVNode)("div", _hoisted_51, [
+                                        (0, _vue.createElementVNode)("table", _hoisted_52, [
+                                            _hoisted_53,
                                             (0, _vue.createElementVNode)("tbody", null, [
                                                 ((0, _vue.openBlock)(true), (0, _vue.createElementBlock)((0, _vue.Fragment), null, (0, _vue.renderList)($setup.poiCount, (count, status)=>{
                                                     return (0, _vue.openBlock)(), (0, _vue.createElementBlock)("tr", {
@@ -65672,7 +65776,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                                         (0, _vue.createElementVNode)("td", null, [
                                                             (0, _vue.createElementVNode)("a", {
                                                                 href: $setup.poiPostsUrl(status)
-                                                            }, (0, _vue.toDisplayString)(count), 9 /* TEXT, PROPS */ , _hoisted_61)
+                                                            }, (0, _vue.toDisplayString)(count), 9 /* TEXT, PROPS */ , _hoisted_54)
                                                         ])
                                                     ]);
                                                 }), 128 /* KEYED_FRAGMENT */ ))
@@ -65687,7 +65791,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
             ])
         ], 2112 /* STABLE_FRAGMENT, DEV_ROOT_FRAGMENT */ )),
         (0, _vue.createCommentVNode)(" Notifications "),
-        $setup.importStarted ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_62, [
+        $setup.importStarted ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_55, [
             (0, _vue.createVNode)($setup["Alert"], {
                 modelValue: $setup.importStarted,
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event)=>$setup.importStarted = $event),
@@ -65711,8 +65815,8 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
             onOk: $setup.triggerSyncPois
         }, {
             default: (0, _vue.withCtx)(()=>[
-                    _hoisted_63,
-                    _hoisted_64
+                    _hoisted_56,
+                    _hoisted_57
                 ]),
             _: 1 /* STABLE */ 
         }, 8 /* PROPS */ , [
@@ -65728,7 +65832,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
             onOk: $setup.cancelImporter
         }, {
             default: (0, _vue.withCtx)(()=>[
-                    _hoisted_65
+                    _hoisted_58
                 ]),
             _: 1 /* STABLE */ 
         }, 8 /* PROPS */ , [
@@ -65760,7 +65864,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
             onOk: $setup.triggerStopAll
         }, {
             default: (0, _vue.withCtx)(()=>[
-                    _hoisted_66
+                    _hoisted_59
                 ]),
             _: 1 /* STABLE */ 
         }, 8 /* PROPS */ , [
@@ -65777,7 +65881,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
             onCancel: $setup.cancelSyncOtisConfig
         }, {
             default: (0, _vue.withCtx)(()=>[
-                    _hoisted_67
+                    _hoisted_60
                 ]),
             _: 1 /* STABLE */ 
         }, 8 /* PROPS */ , [
@@ -65786,10 +65890,10 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     ]);
 }
 if (module.hot) module.hot.accept(()=>{
-    __VUE_HMR_RUNTIME__.rerender("f4c30f-hmr", render);
+    __VUE_HMR_RUNTIME__.rerender("565a54-hmr", render);
 });
 
-},{"vue":"gzxs9","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"1uUx5":[function() {},{}],"c3Nee":[function(require,module,exports) {
+},{"vue":"gzxs9","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7TpLY":[function() {},{}],"iKgNc":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 let NOOP = ()=>{};
