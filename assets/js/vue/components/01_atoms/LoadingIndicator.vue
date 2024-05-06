@@ -1,5 +1,5 @@
 <template>
-  <va-progress-bar indeterminate />
+  <va-progress-bar indeterminate color="info"  />
 </template>
 
 <script>

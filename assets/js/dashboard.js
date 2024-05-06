@@ -10,14 +10,16 @@ export default function dashboardVue() {
 	app.use(createVuestic({
 		config: {
 			colors: {
-				primary: '#23e066',
-				secondary: '#002c85',
-				success: '#40e583',
-				info: '#2c82e0',
-				danger: '#e34b4a',
-				warning: '#ffc200',
-				gray: '#babfc2',
-				dark: '#34495e',
+				variables: {
+					primary: 'rgb(100, 154, 165)',
+					secondary: 'rgb(53, 108, 118)',
+					success: '#23e066',
+					info: '#e67520',
+					danger: '#e34b4a',
+					warning: '#ffc200',
+					gray: '#bdbdbd',
+					dark: '#34495e',
+				}
 			}
 		}
 	}));

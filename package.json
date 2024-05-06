@@ -18,6 +18,6 @@
     "axios": "^1.2.1",
     "vue": "^3.2.45",
     "vue-moment": "^4.1.0",
-    "vuestic-ui": "^1.5.2"
+    "vuestic-ui": "^1.9"
   }
 }

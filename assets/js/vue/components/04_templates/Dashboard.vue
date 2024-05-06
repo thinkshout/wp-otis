@@ -1,294 +1,340 @@
 <template>
-  <div class="otis-dashboard">
-    <h1>OTIS Dashboard</h1>
+  <VaLayout
+    :top="{ fixed: false,  order: 2 }"
+    :left="{ fixed: false, order: 1 }"
+    style="min-height: calc(100vh - 32px);"
+  >
+    <template #top>
+      <VaNavbar
+        color="primary"
+        :shadowed="true"
+      >
+        <template #left>
+          <VaNavbarItem>
+            <h1>WP Otis Dashboard</h1>
+          </VaNavbarItem>
+        </template>
+      </VaNavbar>
+    </template>
+    <template v-if="!displayInitialImport" #left>
+      <VaSidebar>
+        <VaSidebarItem :active="activeDashboardView == 'home'" @click="toggleView('home')">
+          <VaSidebarItemContent>
+            <VaIcon name="home"/>
+            <VaSidebarItemTitle>
+              Home
+            </VaSidebarItemTitle>
+          </VaSidebarItemContent>
+        </VaSidebarItem>
 
-    <!-- Initial import -->
-    <div v-if="displayInitialImport" class="otis-dashboard__banner">
+        <VaSidebarItem :active="activeDashboardView == 'import'" @click="toggleView('import')">
+          <VaSidebarItemContent>
+            <VaIcon name="input"/>
+            <VaSidebarItemTitle>
+              Import
+            </VaSidebarItemTitle>
+          </VaSidebarItemContent>
+        </VaSidebarItem>
 
-      <!-- Config Import -->
-      <template v-if="displayInitialConfig">
-        <OtisConfig
-          :importStarting="importStarting" :importActive="importActive" :syncAllActive="syncAllActive" 
-          @credentials="updateCredentials" :toggleConfigSyncConfirm="toggleConfigSyncConfirm" 
-          :storedCredentials="storedCredentials"
-          :countsLoading="countsLoading"
-        />
-      </template>
+        <VaSidebarItem :active="activeDashboardView == 'settings'" @click="toggleView('settings')">
+          <VaSidebarItemContent>
+            <VaIcon name="settings"/>
+            <VaSidebarItemTitle>
+              Settings
+            </VaSidebarItemTitle>
+          </VaSidebarItemContent>
+        </VaSidebarItem>
+      </VaSidebar>
+    </template>
+    <template #content>
+      <div class="otis-dashboard">
+        <!-- Initial import -->
+        <div v-if="displayInitialImport" class="otis-dashboard__banner">
 
-      <!-- POI Import -->
-      <template v-else>
-        <InitialPOIImport 
-          :importStarting="importStarting" :credentialsNeeded="credentialsNeeded" :triggerInitialImport="triggerInitialImport" 
-        />
-      </template>
-    </div>
+          <!-- Config Import -->
+          <template v-if="displayInitialConfig">
+            <OtisConfig
+              :importStarting="importStarting" :importActive="importActive" :syncAllActive="syncAllActive" 
+              @credentials="updateCredentials" :toggleConfigSyncConfirm="toggleConfigSyncConfirm" 
+              :storedCredentials="storedCredentials"
+              :countsLoading="countsLoading"
+            />
+          </template>
 
-    <!-- POI import and update, reset and status -->
-    <div v-else class="otis-dashboard__settings">
-      <div class="otis-dashboard__setting-group">
-
-        <!-- POI import and update -->
-        <div class="otis-dashboard__setting">
-          <Card>
-
-            <!-- Title -->
-            <template #title>
-              POI Import & Update
-            </template>
-
-            <!-- Content -->
-            <template #content>
-
-              <p>Start an import of POIs that have been modified since a given date. POIs that already exist on the site will be updated or trashed if the have been updated or deleted on or after that date.</p>
-              <p><em>Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme or a different plugin.</em></p>
-              <label for="modified-date">Date To Import From</label>
-              <Datepicker
-                v-model="modifiedDate"
-                :enable-time-picker="false"
-                :max-date="maxDate"
-                format="MM/dd/yyyy"
-              />
-            </template>
-
-            <!-- Actions -->
-            <template #actions>
-              <button class="button button-primary" 
-                :disabled="!dateIsValid || importStarting || importActive || syncAllActive" @click="toggleImportConfirm"
-              >
-                <span v-if="importStarting">
-                  Import Starting Please Wait...
-                </span>
-                <span v-else-if="importActive">Import Running Please Wait...</span>
-                <span v-else-if="syncAllActive">Sync Running Please Wait...</span>
-                <span v-else>Start Importing Modified POIs</span>
-              </button>
-              <button v-if="importActive" class="button button-primary" @click="toggleCancelConfirm">
-                Cancel Import
-              </button>
-            </template>
-
-          </Card>
+          <!-- POI Import -->
+          <template v-else>
+            <InitialPOIImport 
+              :importStarting="importStarting" :credentialsNeeded="credentialsNeeded" :triggerInitialImport="triggerInitialImport" 
+            />
+          </template>
         </div>
 
-        <!-- Statuses and reset -->
-        <div class="otis-dashboard__statuses">
+        <!-- POI import and update, reset and status -->
+        <div v-else class="otis-dashboard__settings">
+          <!-- Statuses -->
+          <DashboardSettingGroup v-if="activeDashboardView == 'home'">
+            <!-- Last Import -->
+            <DashboardStatus>
+              <Card>
+                  
+                  <!-- Title -->
+                  <template #title>
+                    Last Import
+                  </template>
 
-          <!-- Last Import -->
-          <div class="otis-dashboard__status">
-            <Card>
-                
-                <!-- Title -->
+                  <!-- Content -->
+                  <template #content>
+                    <div v-if="countsLoading">
+                      <LoadingIndicator />
+                    </div>
+                    <div v-else>
+                      {{ lastImport }}
+                    </div>
+                  </template>
+              </Card>
+            </DashboardStatus>
+
+            <!-- Next import -->
+            <DashboardStatus>
+              <Card>
                 <template #title>
-                  Last Import
+                  Next Import
                 </template>
-  
-                <!-- Content -->
                 <template #content>
                   <div v-if="countsLoading">
                     <LoadingIndicator />
                   </div>
                   <div v-else>
-                    {{ lastImport }}
+                    {{ nextImport }}
                   </div>
                 </template>
-            </Card>
-          </div>
-          
-          <!-- Next import -->
-          <div class="otis-dashboard__status">
-            <Card>
-              <template #title>
-                Next Import
-              </template>
-              <template #content>
-                <div v-if="countsLoading">
-                  <LoadingIndicator />
-                </div>
-                <div v-else>
-                  {{ nextImport }}
-                </div>
-              </template>
-            </Card>
-          </div>
+              </Card>
+            </DashboardStatus>
 
-          <!-- Status -->
-          <div class="otis-dashboard__status">
-            <Card>
-              <template #title>
-                Importer Status
-              </template>
-              <template #content>
-                <div v-if="countsLoading">
-                  <LoadingIndicator />
-                </div>
-                <div v-else>
-                  {{ importerStatus }}
-                </div>
-              </template>
-            </Card>
-          </div>
+            <!-- Status -->
+            <DashboardStatus>
+              <Card>
+                <template #title>
+                  Importer Status
+                </template>
+                <template #content>
+                  <div v-if="countsLoading">
+                    <LoadingIndicator />
+                  </div>
+                  <div v-else>
+                    {{ importerStatus }}
+                  </div>
+                </template>
+              </Card>
+            </DashboardStatus>
+          </DashboardSettingGroup>
+          <!-- Log & Counts -->
+          <DashboardSettingGroup v-if="activeDashboardView == 'home'">
+            <!-- Import log preview -->
+            <DashboardSetting>
+              <Card>
+                <template #title>
+                  Import Log Preview
+                </template>
+                <template #content>
+                  <div v-if="countsLoading">
+                    <LoadingIndicator />
+                  </div>
+                  <div v-else>
+                    <p>The last 15 entries in the import log. The full import log is available under <a :href="importLogUrl">POI > Import Log</a>.</p>
+                    <div class="va-table-responsive">
+                      <table class="va-table va-table--striped">
+                        <thead>
+                          <tr>
+                            <th>Log Entry</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="({ post_content }, index) of importLog" :key="index">
+                            <td>{{ post_content }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </template>
+                <template #actions>
+                  <a :href="importLogUrl" role="button" class="button">View Full Import Log</a>
+                </template>
+              </Card>
+            </DashboardSetting>
 
-          <!-- Reset Importer Processes -->
-          <div class="otis-dashboard__status otis-dashboard__status--full-width">
-            <Card>
-              <template #title>
-                Reset Importer Processes
-              </template>
-              <template #content>
-                <div v-if="countsLoading">
-                  <LoadingIndicator />
-                </div>
-                <div v-else>
-                  <p>Use this to restart standard automatic imports, useful if automatic imports seem stuck.</p>
-                </div>
-              </template>
-              <template #actions>
-                <button class="button button-primary" :disabled="importActive || syncAllActive" @click="toggleStopAllConfirm">
+            <!-- POI counts -->
+            <DashboardSetting>
+              <Card>
+                <template #title>
+                  POI Counts
+                </template>
+                <template #content>
+                  <div v-if="countsLoading">
+                    <LoadingIndicator />
+                  </div>
+                  <div v-else>
+                    <div class="va-table-responsive">
+                      <table class="va-table va-table--striped">
+                        <thead>
+                          <tr>
+                            <th>Status</th>
+                            <th>Count</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(count, status) of poiCount" :key="status">
+                            <td>{{ status }}</td>
+                            <td><a :href="poiPostsUrl(status)">{{ count }}</a></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </template>
+              </Card>
+            </DashboardSetting>
+          </DashboardSettingGroup>
+          <DashboardSettingGroup v-if="activeDashboardView == 'import'">
+            <!-- POI import and update -->
+            <DashboardSetting>
+              <Card>
+
+                <!-- Title -->
+                <template #title>
+                  POI Import & Update
+                </template>
+
+                <!-- Content -->
+                <template #content>
+
+                  <p>Start an import of POIs that have been modified since a given date. POIs that already exist on the site will be updated or trashed if the have been updated or deleted on or after that date.</p>
+                  <p><em>Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme or a different plugin.</em></p>
+                  <label for="modified-date">Date To Import From</label>
+                  <!-- <Datepicker
+                    v-model="modifiedDate"
+                    :enable-time-picker="false"
+                    :max-date="maxDate"
+                    format="MM/dd/yyyy"
+                  /> -->
+                  <VaDateInput v-model="modifiedDate" />
+                </template>
+
+                <!-- Actions -->
+                <template #actions>
+                  <VaButton class="button button-primary" 
+                    :disabled="!dateIsValid || importStarting || importActive || syncAllActive" @click="toggleImportConfirm"
+                  >
+                    <span v-if="importStarting">
+                      Import Starting Please Wait...
+                    </span>
+                    <span v-else-if="importActive">Import Running Please Wait...</span>
+                    <span v-else-if="syncAllActive">Sync Running Please Wait...</span>
+                    <span v-else>Start Importing Modified POIs</span>
+                  </VaButton>
+                  <VaButton v-if="importActive" class="button button-primary" @click="toggleCancelConfirm">
+                    Cancel Import
+                  </VaButton>
+                </template>
+
+              </Card>
+            </DashboardSetting>
+            <!-- Reset Importer Processes -->
+            <DashboardSetting>
+              <Card>
+                <template #title>
                   Reset Importer Processes
-                </button>
-              </template>
-            </Card>
-          </div>
+                </template>
+                <template #content>
+                  <div v-if="countsLoading">
+                    <LoadingIndicator />
+                  </div>
+                  <div v-else>
+                    <p>Use this to restart standard automatic imports, useful if automatic imports seem stuck.</p>
+                  </div>
+                </template>
+                <template #actions>
+                  <VaButton class="button button-primary" :disabled="importActive || syncAllActive" @click="toggleStopAllConfirm">
+                    Reset Importer Processes
+                  </VaButton>
+                </template>
+              </Card>
+            </DashboardSetting>
+            <!-- Sync all POIs -->
+            <DashboardSetting :isFullWidth="true">
+              <Card>
+                <template #title>
+                  Sync All POIs
+                </template>
+                <template #content>
+                  <p><i><strong>Note:</strong> This is a lengthy and resource intensive process</i></p>
+                  <p>This will sync all relevant POIs that are active in OTIS with WordPress using the Otis filters you have set. This is useful if you find there are POIs that are stale/should have been imported/deleted.</p>
+                  <p>This process is split into several actions and each action is split into pages. The process will run until all pages have been processed. You can cancel the process at any time but it will need to be started from the beginning if canceled.</p>
+                  <p><strong>This process will trash POI posts if they've been removed from OTIS.</strong></p>
+                </template>
+                <template #actions>
+                  <VaButton class="button button-primary" :disabled="importStarting || importActive || syncAllActive" @click="toggleSyncConfirm">
+                    <span v-if="importStarting || importActive || syncAllActive">Sync Running Please Wait...</span>
+                    <span v-else>Sync POIs</span>
+                  </VaButton>
+                  <VaButton v-if="syncAllActive" class="button button-primary" @click="toggleCancelConfirm">
+                    Cancel Sync All
+                  </VaButton>
+                </template>
+              </Card>
+            </DashboardSetting>
+          </DashboardSettingGroup>
+          <DashboardSettingGroup v-if="activeDashboardView == 'settings'">
+            <!-- OTIS Config -->
+            <DashboardSetting>
+              <OtisConfig
+                :importStarting="importStarting" :importActive="importActive" :syncAllActive="syncAllActive" 
+                @credentials="updateCredentials" :toggleConfigSyncConfirm="toggleConfigSyncConfirm"
+                :storedCredentials="storedCredentials"
+                :countsLoading="countsLoading"
+              />
+            </DashboardSetting>
+          </DashboardSettingGroup>    
         </div>
+
+        <!-- Notifications -->
+        <div v-if="importStarted" class="otis-dashboard__notifications">
+          <Alert v-model="importStarted" color="success">
+            <template #message>
+              OTIS Importer Started.
+            </template>
+          </Alert>
+        </div>
+
+        <!-- Modal - Confirm Sync -->
+        <Modal v-model="showSyncModal" title="Confirm Sync All POIs" cancel-text="No, do not start the sync." ok-text="Yes, start the sync process." @ok="triggerSyncPois">
+          <p><strong>Are you sure you want to sync all POIs?</strong></p>
+          <p>This action could take several hours to complete. You may close this browser window while the sync is running.</p>
+        </Modal>
+
+        <!-- Modal - Confirm Cancel -->
+        <Modal v-model="showCancelModal" title="Confirm Cancellation" cancel-text="No, continue the process." ok-text="Yes, cancel the process." @ok="cancelImporter">
+          <p>Are you sure you want to cancel?</p>
+        </Modal>
+
+        <!-- Modal - Confirm import -->
+        <Modal v-model="showImportModal" title="Confirm POI Import" cancel-text="No, do not start the import." ok-text="Yes, start the import process." @ok="triggerModifiedImport">
+          <p>Are you sure you want to start the importer using the date: {{modifiedDateString}}?</p>
+        </Modal>
+
+        <!-- Modal - Confirm Stop All -->
+        <Modal v-model="showStopAllModal" title="Confirm Reset" cancel-text="No, do not reset importer." ok-text="Yes, reset importer." @ok="triggerStopAll">
+          <p>Are you sure you want to restart automatic imports?</p>
+        </Modal>
+
+        <!-- Modal - Confirm OTIS sync -->
+        <Modal v-model="showOtisSyncModal" title="Confirm OTIS config sync" cancel-text="No, do not sync." ok-text="Yes, sync config." @ok="triggerSyncOtisConfig" @cancel="cancelSyncOtisConfig">
+          <p>Are you sure you want to sync OTIS configuration?</p>
+        </Modal>
       </div>
-
-      <!-- Sync all POIs -->
-      <div class="otis-dashboard__setting otis-dashboard__setting--full-width">
-        <Card>
-          <template #title>
-            Sync All POIs
-          </template>
-          <template #content>
-            <p><i><strong>Note:</strong> This is a lengthy and resource intensive process</i></p>
-            <p>This will sync all relevant POIs that are active in OTIS with WordPress using the Otis filters you have set. This is useful if you find there are POIs that are stale/should have been imported/deleted.</p>
-            <p>This process is split into several actions and each action is split into pages. The process will run until all pages have been processed. You can cancel the process at any time but it will need to be started from the beginning if canceled.</p>
-            <p><strong>This process will trash POI posts if they've been removed from OTIS.</strong></p>
-          </template>
-          <template #actions>
-            <button class="button button-primary" :disabled="importStarting || importActive || syncAllActive" @click="toggleSyncConfirm">
-              <span v-if="importStarting || importActive || syncAllActive">Sync Running Please Wait...</span>
-              <span v-else>Sync POIs</span>
-            </button>
-            <button v-if="syncAllActive" class="button button-primary" @click="toggleCancelConfirm">
-              Cancel Sync All
-            </button>
-          </template>
-        </Card>
-      </div>
-
-      <!-- OTIS Config -->
-      <div class="otis-dashboard__setting otis-dashboard__setting--full-width">
-        <OtisConfig
-          :importStarting="importStarting" :importActive="importActive" :syncAllActive="syncAllActive" 
-          @credentials="updateCredentials" :toggleConfigSyncConfirm="toggleConfigSyncConfirm"
-          :storedCredentials="storedCredentials"
-          :countsLoading="countsLoading"
-        />
-      </div>
-
-      <!-- Import log preview -->
-      <div class="otis-dashboard__setting">
-        <Card>
-          <template #title>
-            Import Log Preview
-          </template>
-          <template #content>
-            <div v-if="countsLoading">
-              <LoadingIndicator />
-            </div>
-            <div v-else>
-              <p>The last 15 entries in the import log. The full import log is available under <a :href="importLogUrl">POI > Import Log</a>.</p>
-              <div class="va-table-responsive">
-                <table class="va-table va-table--striped">
-                  <thead>
-                    <tr>
-                      <th>Log Entry</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="({ post_content }, index) of importLog" :key="index">
-                      <td>{{ post_content }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </template>
-          <template #actions>
-            <a :href="importLogUrl" role="button" class="button">View Full Import Log</a>
-          </template>
-        </Card>
-      </div>
-
-      <!-- POI counts -->
-      <div class="otis-dashboard__setting">
-        <Card>
-          <template #title>
-            POI Counts
-          </template>
-          <template #content>
-            <div v-if="countsLoading">
-              <LoadingIndicator />
-            </div>
-            <div v-else>
-              <div class="va-table-responsive">
-                <table class="va-table va-table--striped">
-                  <thead>
-                    <tr>
-                      <th>Status</th>
-                      <th>Count</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(count, status) of poiCount" :key="status">
-                      <td>{{ status }}</td>
-                      <td><a :href="poiPostsUrl(status)">{{ count }}</a></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </template>
-        </Card>
-      </div>
-      
-    </div>
-
-    <!-- Notifications -->
-    <div v-if="importStarted" class="otis-dashboard__notifications">
-      <Alert v-model="importStarted" color="success">
-        <template #message>
-          OTIS Importer Started.
-        </template>
-      </Alert>
-    </div>
-
-    <!-- Modal - Confirm Sync -->
-    <Modal v-model="showSyncModal" title="Confirm Sync All POIs" cancel-text="No, do not start the sync." ok-text="Yes, start the sync process." @ok="triggerSyncPois">
-      <p><strong>Are you sure you want to sync all POIs?</strong></p>
-      <p>This action could take several hours to complete. You may close this browser window while the sync is running.</p>
-    </Modal>
-
-    <!-- Modal - Confirm Cancel -->
-    <Modal v-model="showCancelModal" title="Confirm Cancellation" cancel-text="No, continue the process." ok-text="Yes, cancel the process." @ok="cancelImporter">
-      <p>Are you sure you want to cancel?</p>
-    </Modal>
-
-    <!-- Modal - Confirm import -->
-    <Modal v-model="showImportModal" title="Confirm POI Import" cancel-text="No, do not start the import." ok-text="Yes, start the import process." @ok="triggerModifiedImport">
-      <p>Are you sure you want to start the importer using the date: {{modifiedDateString}}?</p>
-    </Modal>
-
-    <!-- Modal - Confirm Stop All -->
-    <Modal v-model="showStopAllModal" title="Confirm Reset" cancel-text="No, do not reset importer." ok-text="Yes, reset importer." @ok="triggerStopAll">
-      <p>Are you sure you want to restart automatic imports?</p>
-    </Modal>
-
-    <!-- Modal - Confirm OTIS sync -->
-    <Modal v-model="showOtisSyncModal" title="Confirm OTIS config sync" cancel-text="No, do not sync." ok-text="Yes, sync config." @ok="triggerSyncOtisConfig" @cancel="cancelSyncOtisConfig">
-      <p>Are you sure you want to sync OTIS configuration?</p>
-    </Modal>
-  </div>
+    </template>
+  </VaLayout>
 </template>
 
 <style scoped src="vuestic-ui/dist/vuestic-ui.css">
@@ -301,6 +347,9 @@
   import Card from "../02_molecules/Card.vue";
   import Alert from "../02_molecules/Alert.vue";
   import Modal from "../02_molecules/Modal.vue";
+  import DashboardSettingGroup from "../02_molecules/SettingGroup.vue";
+  import DashboardSetting from "../02_molecules/Setting.vue";
+  import DashboardStatus from "../02_molecules/Status.vue";
   import useApi from "../../composables/useApi";
   import OtisConfig from "../03_organisms/OtisConfig.vue";
   import InitialPOIImport from "../03_organisms/InitialPOIImport.vue";
@@ -327,6 +376,7 @@
   const showOtisSyncModal = ref(false);
   const { triggerAction } = useApi();
   const displayInitialConfig = ref(true);
+  const activeDashboardView = ref("home");
 
   // Computed
   const lastImport = computed(() => {
@@ -368,6 +418,7 @@
     return new Date();
   });
   const displayInitialImport = computed(() => {
+    return false;
     if (countsLoading.value) return false;
     let count = 0;
     for (const key in poiCount.value) {
@@ -510,6 +561,9 @@
     if (newCredentials.username && newCredentials.password) {
       pendingCredentials.value = newCredentials;
     }
+  };
+  const toggleView = (view) => {
+    activeDashboardView.value = view;
   };
 
   // On Mount

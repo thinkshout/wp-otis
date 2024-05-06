@@ -1,5 +1,4 @@
 <template>
-  
   <Card>
     <template #title>
       OTIS Config
@@ -13,20 +12,21 @@
         <fieldset class="otis-dashboard__fieldset">
           <va-input v-model="username" placeholder="Enter value" label="Username" aria-describedby="otis-dashboard__description" />
           <p id="otis-dashboard__description"  class="otis-dashboard__description">Current username: {{ storedCredentials.username }}</p>
+          <va-input v-model="password" placeholder="Enter value" label="Password" aria-describedby="otis-dashboard__description" />
+          <p id="otis-dashboard__description"  class="otis-dashboard__description">Current password: {{ storedCredentials.password }}</p>
         </fieldset>
 
         <!-- Password -->
         <fieldset class="otis-dashboard__fieldset">
-          <va-input v-model="password" placeholder="Enter value" label="Password" aria-describedby="otis-dashboard__description" />
-          <p id="otis-dashboard__description"  class="otis-dashboard__description">Current password: {{ storedCredentials.password }}</p>
+          
         </fieldset>
       </div>
 
     </template>
     <template #actions>
-      <button class="button button-primary" :disabled="importStarting || importActive || syncAllActive || countsLoading" @click="emitCredentials">
+      <VaButton :disabled="importStarting || importActive || syncAllActive || countsLoading" @click="emitCredentials">
         <span>Update Credentials</span>
-      </button>
+      </VaButton>
     </template>
   </Card>
 </template>
