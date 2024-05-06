@@ -24349,6 +24349,9 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
         title: $props.title,
         "cancel-text": $props.cancelText,
         "ok-text": $props.okText,
+        "child:okButton": {
+            color: "info"
+        },
         onOk: $options.triggerAction
     }, {
         default: (0, _vue.withCtx)(()=>[
@@ -29716,7 +29719,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                         "ok-text": "Yes, start the sync process.",
                         onOk: $setup.triggerSyncPois
                     }, {
-                        default: (0, _vue.withCtx)(()=>[
+                        content: (0, _vue.withCtx)(()=>[
                                 _hoisted_41,
                                 _hoisted_42
                             ]),
@@ -29733,7 +29736,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                         "ok-text": "Yes, cancel the process.",
                         onOk: $setup.cancelImporter
                     }, {
-                        default: (0, _vue.withCtx)(()=>[
+                        content: (0, _vue.withCtx)(()=>[
                                 _hoisted_43
                             ]),
                         _: 1 /* STABLE */ 
@@ -29749,7 +29752,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                         "ok-text": "Yes, start the import process.",
                         onOk: $setup.triggerModifiedImport
                     }, {
-                        default: (0, _vue.withCtx)(()=>[
+                        content: (0, _vue.withCtx)(()=>[
                                 (0, _vue.createElementVNode)("p", null, "Are you sure you want to start the importer using the date: " + (0, _vue.toDisplayString)($setup.modifiedDateString) + "?", 1 /* TEXT */ )
                             ]),
                         _: 1 /* STABLE */ 
@@ -29765,7 +29768,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                         "ok-text": "Yes, reset importer.",
                         onOk: $setup.triggerStopAll
                     }, {
-                        default: (0, _vue.withCtx)(()=>[
+                        content: (0, _vue.withCtx)(()=>[
                                 _hoisted_44
                             ]),
                         _: 1 /* STABLE */ 
@@ -29782,7 +29785,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                         onOk: $setup.triggerSyncOtisConfig,
                         onCancel: $setup.cancelSyncOtisConfig
                     }, {
-                        default: (0, _vue.withCtx)(()=>[
+                        content: (0, _vue.withCtx)(()=>[
                                 _hoisted_45
                             ]),
                         _: 1 /* STABLE */ 

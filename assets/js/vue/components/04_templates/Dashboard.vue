@@ -306,28 +306,38 @@
 
         <!-- Modal - Confirm Sync -->
         <Modal v-model="showSyncModal" title="Confirm Sync All POIs" cancel-text="No, do not start the sync." ok-text="Yes, start the sync process." @ok="triggerSyncPois">
-          <p><strong>Are you sure you want to sync all POIs?</strong></p>
-          <p>This action could take several hours to complete. You may close this browser window while the sync is running.</p>
+          <template #content>
+            <p><strong>Are you sure you want to sync all POIs?</strong></p>
+            <p>This action could take several hours to complete. You may close this browser window while the sync is running.</p>
+          </template>
         </Modal>
 
         <!-- Modal - Confirm Cancel -->
         <Modal v-model="showCancelModal" title="Confirm Cancellation" cancel-text="No, continue the process." ok-text="Yes, cancel the process." @ok="cancelImporter">
-          <p>Are you sure you want to cancel?</p>
+          <template #content>
+            <p>Are you sure you want to cancel?</p>
+          </template>
         </Modal>
 
         <!-- Modal - Confirm import -->
         <Modal v-model="showImportModal" title="Confirm POI Import" cancel-text="No, do not start the import." ok-text="Yes, start the import process." @ok="triggerModifiedImport">
-          <p>Are you sure you want to start the importer using the date: {{modifiedDateString}}?</p>
+          <template #content>
+            <p>Are you sure you want to start the importer using the date: {{modifiedDateString}}?</p>
+          </template>
         </Modal>
 
         <!-- Modal - Confirm Stop All -->
         <Modal v-model="showStopAllModal" title="Confirm Reset" cancel-text="No, do not reset importer." ok-text="Yes, reset importer." @ok="triggerStopAll">
-          <p>Are you sure you want to restart automatic imports?</p>
+          <template #content>
+            <p>Are you sure you want to restart automatic imports?</p>
+          </template>
         </Modal>
 
         <!-- Modal - Confirm OTIS sync -->
         <Modal v-model="showOtisSyncModal" title="Confirm OTIS config sync" cancel-text="No, do not sync." ok-text="Yes, sync config." @ok="triggerSyncOtisConfig" @cancel="cancelSyncOtisConfig">
-          <p>Are you sure you want to save your OTIS credentials?</p>
+          <template #content>
+            <p>Are you sure you want to save your OTIS credentials?</p>
+          </template>
         </Modal>
       </div>
     </template>

@@ -1,6 +1,6 @@
 <!-- Modal.vue -->
 <template>
-  <va-modal :value="value" @input="updateValue" :title="title" :cancel-text="cancelText" :ok-text="okText" @ok="triggerAction">
+  <va-modal :value="value" @input="updateValue" :title="title" :cancel-text="cancelText" :ok-text="okText" :child:okButton="{ color: 'info' }" @ok="triggerAction">
     <!-- Named slot for the modal content -->
     <slot name="content"></slot>
   </va-modal>
