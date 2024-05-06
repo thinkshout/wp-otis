@@ -9,3 +9,5 @@ active_ids_diff.json
 pois.json
 active_ids.php
 vendor/
+
+.vscode/
