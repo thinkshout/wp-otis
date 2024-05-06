@@ -17,7 +17,9 @@
       </VaNavbar>
     </template>
     <template v-if="!displayInitialImport" #left>
-      <VaSidebar>
+      <VaSidebar
+        style="background-color: var(--va-otis-light-blue);"
+      >
         <VaSidebarItem :active="activeDashboardView == 'home'" @click="toggleView('home')">
           <VaSidebarItemContent>
             <VaIcon name="home"/>
@@ -54,10 +56,12 @@
           <!-- Config Import -->
           <template v-if="displayInitialConfig">
             <OtisConfig
-              :importStarting="importStarting" :importActive="importActive" :syncAllActive="syncAllActive" 
-              @credentials="updateCredentials" :toggleConfigSyncConfirm="toggleConfigSyncConfirm" 
+              :importStarting="importStarting"
+              :importActive="importActive"
+              :syncAllActive="syncAllActive"
               :storedCredentials="storedCredentials"
               :countsLoading="countsLoading"
+              @credentials-updated="updateCredentials" 
             />
           </template>
 
@@ -200,7 +204,6 @@
             <!-- POI import and update -->
             <DashboardSetting>
               <Card>
-
                 <!-- Title -->
                 <template #title>
                   POI Import & Update
@@ -211,20 +214,14 @@
 
                   <p>Start an import of POIs that have been modified since a given date. POIs that already exist on the site will be updated or trashed if the have been updated or deleted on or after that date.</p>
                   <p><em>Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme or a different plugin.</em></p>
-                  <label for="modified-date">Date To Import From</label>
-                  <!-- <Datepicker
-                    v-model="modifiedDate"
-                    :enable-time-picker="false"
-                    :max-date="maxDate"
-                    format="MM/dd/yyyy"
-                  /> -->
-                  <VaDateInput v-model="modifiedDate" />
+                  <OtisFieldset>
+                    <VaDateInput v-model="modifiedDate" label="Date To Import From" :rules="dateValidationRules"/>
+                  </OtisFieldset>
                 </template>
 
                 <!-- Actions -->
                 <template #actions>
-                  <VaButton class="button button-primary" 
-                    :disabled="!dateIsValid || importStarting || importActive || syncAllActive" @click="toggleImportConfirm"
+                  <VaButton color="info" :disabled="!dateIsValid || importStarting || importActive || syncAllActive" @click="toggleImportConfirm"
                   >
                     <span v-if="importStarting">
                       Import Starting Please Wait...
@@ -233,32 +230,11 @@
                     <span v-else-if="syncAllActive">Sync Running Please Wait...</span>
                     <span v-else>Start Importing Modified POIs</span>
                   </VaButton>
-                  <VaButton v-if="importActive" class="button button-primary" @click="toggleCancelConfirm">
+                  <VaButton v-if="importActive" color="info" @click="toggleCancelConfirm">
                     Cancel Import
                   </VaButton>
                 </template>
 
-              </Card>
-            </DashboardSetting>
-            <!-- Reset Importer Processes -->
-            <DashboardSetting>
-              <Card>
-                <template #title>
-                  Reset Importer Processes
-                </template>
-                <template #content>
-                  <div v-if="countsLoading">
-                    <LoadingIndicator />
-                  </div>
-                  <div v-else>
-                    <p>Use this to restart standard automatic imports, useful if automatic imports seem stuck.</p>
-                  </div>
-                </template>
-                <template #actions>
-                  <VaButton class="button button-primary" :disabled="importActive || syncAllActive" @click="toggleStopAllConfirm">
-                    Reset Importer Processes
-                  </VaButton>
-                </template>
               </Card>
             </DashboardSetting>
             <!-- Sync all POIs -->
@@ -274,11 +250,11 @@
                   <p><strong>This process will trash POI posts if they've been removed from OTIS.</strong></p>
                 </template>
                 <template #actions>
-                  <VaButton class="button button-primary" :disabled="importStarting || importActive || syncAllActive" @click="toggleSyncConfirm">
+                  <VaButton color="info" :disabled="importStarting || importActive || syncAllActive" @click="toggleSyncConfirm">
                     <span v-if="importStarting || importActive || syncAllActive">Sync Running Please Wait...</span>
                     <span v-else>Sync POIs</span>
                   </VaButton>
-                  <VaButton v-if="syncAllActive" class="button button-primary" @click="toggleCancelConfirm">
+                  <VaButton v-if="syncAllActive" color="info" @click="toggleCancelConfirm">
                     Cancel Sync All
                   </VaButton>
                 </template>
@@ -286,13 +262,36 @@
             </DashboardSetting>
           </DashboardSettingGroup>
           <DashboardSettingGroup v-if="activeDashboardView == 'settings'">
-            <!-- OTIS Config -->
+            <!-- Reset Importer Processes -->
+            <DashboardSetting :isFullWidth="true">
+              <Card>
+                <template #title>
+                  Reset Importer Processes
+                </template>
+                <template #content>
+                  <div v-if="countsLoading">
+                    <LoadingIndicator />
+                  </div>
+                  <div v-else>
+                    <p>Use this to restart standard automatic imports, useful if automatic imports seem stuck.</p>
+                  </div>
+                </template>
+                <template #actions>
+                  <VaButton color="info" :disabled="importActive || syncAllActive" @click="toggleStopAllConfirm">
+                    Reset Importer Processes
+                  </VaButton>
+                </template>
+              </Card>
+            </DashboardSetting>
+            <!-- OTIS Credentials -->
             <DashboardSetting>
               <OtisConfig
-                :importStarting="importStarting" :importActive="importActive" :syncAllActive="syncAllActive" 
-                @credentials="updateCredentials" :toggleConfigSyncConfirm="toggleConfigSyncConfirm"
+                :importStarting="importStarting"
+                :importActive="importActive"
+                :syncAllActive="syncAllActive" 
                 :storedCredentials="storedCredentials"
                 :countsLoading="countsLoading"
+                @credentials-updated="updateCredentials"
               />
             </DashboardSetting>
           </DashboardSettingGroup>    
@@ -330,7 +329,7 @@
 
         <!-- Modal - Confirm OTIS sync -->
         <Modal v-model="showOtisSyncModal" title="Confirm OTIS config sync" cancel-text="No, do not sync." ok-text="Yes, sync config." @ok="triggerSyncOtisConfig" @cancel="cancelSyncOtisConfig">
-          <p>Are you sure you want to sync OTIS configuration?</p>
+          <p>Are you sure you want to save your OTIS credentials?</p>
         </Modal>
       </div>
     </template>
@@ -350,6 +349,7 @@
   import DashboardSettingGroup from "../02_molecules/SettingGroup.vue";
   import DashboardSetting from "../02_molecules/Setting.vue";
   import DashboardStatus from "../02_molecules/Status.vue";
+  import OtisFieldset from '../02_molecules/Fieldset.vue';
   import useApi from "../../composables/useApi";
   import OtisConfig from "../03_organisms/OtisConfig.vue";
   import InitialPOIImport from "../03_organisms/InitialPOIImport.vue";
@@ -377,6 +377,12 @@
   const { triggerAction } = useApi();
   const displayInitialConfig = ref(true);
   const activeDashboardView = ref("home");
+  const dateValidationRules = ref([
+    (val) => {
+      if (!val) return true;
+      return val <= new Date() ? true : "Date must be in the past";
+    }
+  ]);
 
   // Computed
   const lastImport = computed(() => {
@@ -414,11 +420,7 @@
     if ( importerActive.value ) return "Active";
     return "Inactive";
   });
-  const maxDate = computed(() => {
-    return new Date();
-  });
   const displayInitialImport = computed(() => {
-    return false;
     if (countsLoading.value) return false;
     let count = 0;
     for (const key in poiCount.value) {
@@ -532,12 +534,11 @@
     await otisStatus();
   };
   const triggerSyncOtisConfig = async () => {
-    if (pendingCredentials.value.username && pendingCredentials.value.password) {
-      credentials.value = pendingCredentials.value;
-      pendingCredentials.value = {};
-      await triggerAction("otis_save_credentials", credentials.value );
-      await otisStatus();
-    }
+    if (!pendingCredentials.value.username || !pendingCredentials.value.password) return;
+    credentials.value = pendingCredentials.value;
+    pendingCredentials.value = {};
+    await triggerAction("otis_save_credentials", credentials.value );
+    await otisStatus();
   };
   const cancelSyncOtisConfig = () => {
     pendingCredentials.value = {};
@@ -561,6 +562,7 @@
     if (newCredentials.username && newCredentials.password) {
       pendingCredentials.value = newCredentials;
     }
+    toggleConfigSyncConfirm();
   };
   const toggleView = (view) => {
     activeDashboardView.value = view;

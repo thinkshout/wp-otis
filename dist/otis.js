@@ -610,12 +610,13 @@ function dashboardVue() {
                 variables: {
                     primary: "rgb(100, 154, 165)",
                     secondary: "rgb(53, 108, 118)",
-                    success: "#23e066",
+                    success: "#28834c",
                     info: "#e67520",
                     danger: "#e34b4a",
                     warning: "#ffc200",
                     gray: "#bdbdbd",
-                    dark: "#34495e"
+                    dark: "#34495e",
+                    otis_light_blue: "rgb(228, 240, 242)"
                 }
             }
         }
@@ -23758,6 +23759,8 @@ var _settingVue = require("../02_molecules/Setting.vue");
 var _settingVueDefault = parcelHelpers.interopDefault(_settingVue);
 var _statusVue = require("../02_molecules/Status.vue");
 var _statusVueDefault = parcelHelpers.interopDefault(_statusVue);
+var _fieldsetVue = require("../02_molecules/Fieldset.vue");
+var _fieldsetVueDefault = parcelHelpers.interopDefault(_fieldsetVue);
 var _useApi = require("../../composables/useApi");
 var _useApiDefault = parcelHelpers.interopDefault(_useApi);
 var _otisConfigVue = require("../03_organisms/OtisConfig.vue");
@@ -23792,6 +23795,12 @@ exports.default = {
         const { triggerAction } = (0, _useApiDefault.default)();
         const displayInitialConfig = (0, _vue.ref)(true);
         const activeDashboardView = (0, _vue.ref)("home");
+        const dateValidationRules = (0, _vue.ref)([
+            (val)=>{
+                if (!val) return true;
+                return val <= new Date() ? true : "Date must be in the past";
+            }
+        ]);
         // Computed
         const lastImport = (0, _vue.computed)(()=>{
             if (!lastImportDate.value) return "N/A";
@@ -23828,11 +23837,14 @@ exports.default = {
             if (importerActive.value) return "Active";
             return "Inactive";
         });
-        const maxDate = (0, _vue.computed)(()=>{
-            return new Date();
-        });
         const displayInitialImport = (0, _vue.computed)(()=>{
-            return false;
+            if (countsLoading.value) return false;
+            let count = 0;
+            for(const key in poiCount.value)if (Object.hasOwnProperty.call(poiCount.value, key)) {
+                const statusCount = poiCount.value[key];
+                count += parseInt(statusCount);
+            }
+            return count === 0;
         });
         const credentialsNeeded = (0, _vue.computed)(()=>{
             return credentials.value.username ? false : true;
@@ -23939,12 +23951,11 @@ exports.default = {
             await otisStatus();
         };
         const triggerSyncOtisConfig = async ()=>{
-            if (pendingCredentials.value.username && pendingCredentials.value.password) {
-                credentials.value = pendingCredentials.value;
-                pendingCredentials.value = {};
-                await triggerAction("otis_save_credentials", credentials.value);
-                await otisStatus();
-            }
+            if (!pendingCredentials.value.username || !pendingCredentials.value.password) return;
+            credentials.value = pendingCredentials.value;
+            pendingCredentials.value = {};
+            await triggerAction("otis_save_credentials", credentials.value);
+            await otisStatus();
         };
         const cancelSyncOtisConfig = ()=>{
             pendingCredentials.value = {};
@@ -23966,6 +23977,7 @@ exports.default = {
         };
         const updateCredentials = (newCredentials)=>{
             if (newCredentials.username && newCredentials.password) pendingCredentials.value = newCredentials;
+            toggleConfigSyncConfirm();
         };
         const toggleView = (view)=>{
             activeDashboardView.value = view;
@@ -24001,10 +24013,10 @@ exports.default = {
             triggerAction,
             displayInitialConfig,
             activeDashboardView,
+            dateValidationRules,
             lastImport,
             nextImport,
             importerStatus,
-            maxDate,
             displayInitialImport,
             credentialsNeeded,
             dateIsValid,
@@ -24040,6 +24052,7 @@ exports.default = {
             DashboardSettingGroup: (0, _settingGroupVueDefault.default),
             DashboardSetting: (0, _settingVueDefault.default),
             DashboardStatus: (0, _statusVueDefault.default),
+            OtisFieldset: (0, _fieldsetVueDefault.default),
             get useApi () {
                 return 0, _useApiDefault.default;
             },
@@ -24054,7 +24067,7 @@ exports.default = {
     }
 };
 
-},{"vue":"gzxs9","../01_atoms/LoadingIndicator.vue":"8RWTs","../02_molecules/Card.vue":"eZkOW","../02_molecules/Alert.vue":"cdGyZ","../02_molecules/Modal.vue":"aPaKd","../../composables/useApi":"cMhyd","../03_organisms/OtisConfig.vue":"77HTZ","../03_organisms/InitialPOIImport.vue":"5n22R","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../02_molecules/Setting.vue":"kB8mX","../02_molecules/Status.vue":"2t1zI","../02_molecules/SettingGroup.vue":"dV7XX"}],"8RWTs":[function(require,module,exports) {
+},{"vue":"gzxs9","../01_atoms/LoadingIndicator.vue":"8RWTs","../02_molecules/Card.vue":"eZkOW","../02_molecules/Alert.vue":"cdGyZ","../02_molecules/Modal.vue":"aPaKd","../../composables/useApi":"cMhyd","../03_organisms/OtisConfig.vue":"77HTZ","../03_organisms/InitialPOIImport.vue":"5n22R","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../02_molecules/Setting.vue":"kB8mX","../02_molecules/Status.vue":"2t1zI","../02_molecules/SettingGroup.vue":"dV7XX","../02_molecules/Fieldset.vue":"k8NnY"}],"8RWTs":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 let script;
@@ -28600,6 +28613,8 @@ parcelHelpers.defineInteropFlag(exports);
 var _vue = require("vue");
 var _cardVue = require("../02_molecules/Card.vue");
 var _cardVueDefault = parcelHelpers.interopDefault(_cardVue);
+var _fieldsetVue = require("../02_molecules/Fieldset.vue");
+var _fieldsetVueDefault = parcelHelpers.interopDefault(_fieldsetVue);
 // Props.
 exports.default = {
     __name: "OtisConfig",
@@ -28616,10 +28631,6 @@ exports.default = {
             type: Boolean,
             default: false
         },
-        toggleConfigSyncConfirm: {
-            type: Function,
-            default: ()=>{}
-        },
         storedCredentials: {
             type: Object,
             default: {
@@ -28633,7 +28644,7 @@ exports.default = {
         }
     },
     emits: [
-        "credentials"
+        "credentials-updated"
     ],
     setup (__props, { expose: __expose, emit: __emit }) {
         __expose();
@@ -28641,23 +28652,42 @@ exports.default = {
         // Refs.
         const username = (0, _vue.ref)("");
         const password = (0, _vue.ref)("");
+        const editCredentials = (0, _vue.ref)(false);
+        // Computed.
+        const hasCredentials = (0, _vue.computed)(()=>{
+            return props.storedCredentials.username && props.storedCredentials.password && !editCredentials.value ? true : false;
+        });
+        // Methods.
+        const toggleEditCredentials = ()=>{
+            editCredentials.value = !editCredentials.value;
+        };
         // Emit.
         const emit = __emit;
         const emitCredentials = ()=>{
-            emit("credentials", {
+            emit("credentials-updated", {
                 username: username.value,
                 password: password.value
             });
-            props.toggleConfigSyncConfirm();
         };
+        // On Mounted.
+        (0, _vue.onMounted)(()=>{
+            username.value = props.storedCredentials.username;
+            password.value = props.storedCredentials.password;
+        });
         const __returned__ = {
             props,
             username,
             password,
+            editCredentials,
+            hasCredentials,
+            toggleEditCredentials,
             emit,
             emitCredentials,
             ref: (0, _vue.ref),
-            Card: (0, _cardVueDefault.default)
+            onMounted: (0, _vue.onMounted),
+            computed: (0, _vue.computed),
+            Card: (0, _cardVueDefault.default),
+            OtisFieldset: (0, _fieldsetVueDefault.default)
         };
         Object.defineProperty(__returned__, "__isScriptSetup", {
             enumerable: false,
@@ -28667,78 +28697,148 @@ exports.default = {
     }
 };
 
-},{"vue":"gzxs9","../02_molecules/Card.vue":"eZkOW","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"96vIx":[function(require,module,exports) {
+},{"vue":"gzxs9","../02_molecules/Card.vue":"eZkOW","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../02_molecules/Fieldset.vue":"k8NnY"}],"k8NnY":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+let script;
+let initialize = ()=>{
+    script = {};
+    script.render = require("566c76fb35c3ccb1").render;
+    require("c1ba5321721aa867").default(script);
+    script.__scopeId = "data-v-341098";
+    script.__file = "/Users/james/Sites/ts-base/web/wp-content/plugins/wp-otis/assets/js/vue/components/02_molecules/Fieldset.vue";
+};
+initialize();
+if (module.hot) {
+    script.__hmrId = "341098-hmr";
+    module.hot.accept(()=>{
+        setTimeout(()=>{
+            initialize();
+            if (!__VUE_HMR_RUNTIME__.createRecord("341098-hmr", script)) __VUE_HMR_RUNTIME__.reload("341098-hmr", script);
+        }, 0);
+    });
+}
+exports.default = script;
+
+},{"566c76fb35c3ccb1":"3iuvg","c1ba5321721aa867":"gE6sM","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3iuvg":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "render", ()=>render);
 var _vue = require("vue");
 const _hoisted_1 = {
-    class: "otis-dashboard__form-grid"
-};
-const _hoisted_2 = {
     class: "otis-dashboard__fieldset"
 };
-const _hoisted_3 = {
+function render(_ctx, _cache) {
+    return (0, _vue.openBlock)(), (0, _vue.createElementBlock)("fieldset", _hoisted_1, [
+        (0, _vue.renderSlot)(_ctx.$slots, "default")
+    ]);
+}
+if (module.hot) module.hot.accept(()=>{
+    __VUE_HMR_RUNTIME__.rerender("341098-hmr", render);
+});
+
+},{"vue":"gzxs9","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gE6sM":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+let NOOP = ()=>{};
+exports.default = (script)=>{};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"96vIx":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "render", ()=>render);
+var _vue = require("vue");
+const _hoisted_1 = /*#__PURE__*/ (0, _vue.createElementVNode)("p", {
     id: "otis-dashboard__description",
     class: "otis-dashboard__description"
-};
-const _hoisted_4 = {
-    id: "otis-dashboard__description",
-    class: "otis-dashboard__description"
-};
-const _hoisted_5 = /*#__PURE__*/ (0, _vue.createElementVNode)("fieldset", {
-    class: "otis-dashboard__fieldset"
-}, null, -1 /* HOISTED */ );
-const _hoisted_6 = /*#__PURE__*/ (0, _vue.createElementVNode)("span", null, "Update Credentials", -1 /* HOISTED */ );
+}, [
+    /*#__PURE__*/ (0, _vue.createTextVNode)("Please enter your credentials for "),
+    /*#__PURE__*/ (0, _vue.createElementVNode)("a", {
+        href: "https://otis.traveloregon.com/"
+    }, "https://otis.traveloregon.com/"),
+    /*#__PURE__*/ (0, _vue.createTextVNode)(".")
+], -1 /* HOISTED */ );
+const _hoisted_2 = /*#__PURE__*/ (0, _vue.createElementVNode)("span", null, "Save Credentials", -1 /* HOISTED */ );
+const _hoisted_3 = /*#__PURE__*/ (0, _vue.createElementVNode)("span", null, "Edit Credentials", -1 /* HOISTED */ );
+const _hoisted_4 = /*#__PURE__*/ (0, _vue.createElementVNode)("span", null, "Cancel", -1 /* HOISTED */ );
 function render(_ctx, _cache, $props, $setup, $data, $options) {
     const _component_va_input = (0, _vue.resolveComponent)("va-input");
     const _component_VaButton = (0, _vue.resolveComponent)("VaButton");
     return (0, _vue.openBlock)(), (0, _vue.createBlock)($setup["Card"], null, {
         title: (0, _vue.withCtx)(()=>[
-                (0, _vue.createTextVNode)(" OTIS Config ")
+                (0, _vue.createTextVNode)(" OTIS Credentials ")
             ]),
         content: (0, _vue.withCtx)(()=>[
-                (0, _vue.createCommentVNode)(" Form grid "),
-                (0, _vue.createElementVNode)("div", _hoisted_1, [
-                    (0, _vue.createCommentVNode)(" Username "),
-                    (0, _vue.createElementVNode)("fieldset", _hoisted_2, [
-                        (0, _vue.createVNode)(_component_va_input, {
-                            modelValue: $setup.username,
-                            "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event)=>$setup.username = $event),
-                            placeholder: "Enter value",
-                            label: "Username",
-                            "aria-describedby": "otis-dashboard__description"
-                        }, null, 8 /* PROPS */ , [
-                            "modelValue"
+                (0, _vue.createVNode)($setup["OtisFieldset"], null, {
+                    default: (0, _vue.withCtx)(()=>[
+                            (0, _vue.createVNode)(_component_va_input, {
+                                modelValue: $setup.username,
+                                "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event)=>$setup.username = $event),
+                                type: "text",
+                                placeholder: "Your OTIS Username",
+                                label: "Username",
+                                "aria-describedby": "otis-dashboard__description",
+                                readonly: $setup.hasCredentials,
+                                disabled: $setup.hasCredentials
+                            }, null, 8 /* PROPS */ , [
+                                "modelValue",
+                                "readonly",
+                                "disabled"
+                            ]),
+                            (0, _vue.createVNode)(_component_va_input, {
+                                modelValue: $setup.password,
+                                "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event)=>$setup.password = $event),
+                                type: "password",
+                                placeholder: "Your OTIS Password",
+                                label: "Password",
+                                "aria-describedby": "otis-dashboard__description",
+                                readonly: $setup.hasCredentials,
+                                disabled: $setup.hasCredentials
+                            }, null, 8 /* PROPS */ , [
+                                "modelValue",
+                                "readonly",
+                                "disabled"
+                            ]),
+                            _hoisted_1
                         ]),
-                        (0, _vue.createElementVNode)("p", _hoisted_3, "Current username: " + (0, _vue.toDisplayString)($props.storedCredentials.username), 1 /* TEXT */ ),
-                        (0, _vue.createVNode)(_component_va_input, {
-                            modelValue: $setup.password,
-                            "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event)=>$setup.password = $event),
-                            placeholder: "Enter value",
-                            label: "Password",
-                            "aria-describedby": "otis-dashboard__description"
-                        }, null, 8 /* PROPS */ , [
-                            "modelValue"
-                        ]),
-                        (0, _vue.createElementVNode)("p", _hoisted_4, "Current password: " + (0, _vue.toDisplayString)($props.storedCredentials.password), 1 /* TEXT */ )
-                    ]),
-                    (0, _vue.createCommentVNode)(" Password "),
-                    _hoisted_5
-                ])
+                    _: 1 /* STABLE */ 
+                })
             ]),
         actions: (0, _vue.withCtx)(()=>[
                 (0, _vue.createVNode)(_component_VaButton, {
-                    disabled: $props.importStarting || $props.importActive || $props.syncAllActive || $props.countsLoading,
+                    disabled: $props.importStarting || $props.importActive || $props.syncAllActive || $props.countsLoading || $setup.hasCredentials,
+                    color: "info",
                     onClick: $setup.emitCredentials
                 }, {
                     default: (0, _vue.withCtx)(()=>[
-                            _hoisted_6
+                            _hoisted_2
                         ]),
                     _: 1 /* STABLE */ 
                 }, 8 /* PROPS */ , [
                     "disabled"
-                ])
+                ]),
+                $setup.hasCredentials && !$setup.editCredentials ? ((0, _vue.openBlock)(), (0, _vue.createBlock)(_component_VaButton, {
+                    key: 0,
+                    disabled: !$setup.hasCredentials,
+                    onClick: $setup.toggleEditCredentials
+                }, {
+                    default: (0, _vue.withCtx)(()=>[
+                            _hoisted_3
+                        ]),
+                    _: 1 /* STABLE */ 
+                }, 8 /* PROPS */ , [
+                    "disabled"
+                ])) : (0, _vue.createCommentVNode)("v-if", true),
+                !$setup.hasCredentials && $setup.editCredentials ? ((0, _vue.openBlock)(), (0, _vue.createBlock)(_component_VaButton, {
+                    key: 1,
+                    color: "warning",
+                    onClick: $setup.toggleEditCredentials
+                }, {
+                    default: (0, _vue.withCtx)(()=>[
+                            _hoisted_4
+                        ]),
+                    _: 1 /* STABLE */ 
+                })) : (0, _vue.createCommentVNode)("v-if", true)
             ]),
         _: 1 /* STABLE */ 
     });
@@ -29146,59 +29246,56 @@ const _hoisted_24 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.create
 const _hoisted_25 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, [
         /*#__PURE__*/ (0, _vue.createElementVNode)("em", null, "Note: This will run the importer based on the wp_otis_listings filter if it is set in your theme or a different plugin.")
     ], -1 /* HOISTED */ ));
-const _hoisted_26 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("label", {
-        for: "modified-date"
-    }, "Date To Import From", -1 /* HOISTED */ ));
-const _hoisted_27 = {
+const _hoisted_26 = {
     key: 0
+};
+const _hoisted_27 = {
+    key: 1
 };
 const _hoisted_28 = {
-    key: 1
-};
-const _hoisted_29 = {
     key: 2
 };
-const _hoisted_30 = {
+const _hoisted_29 = {
     key: 3
 };
-const _hoisted_31 = {
-    key: 0
-};
-const _hoisted_32 = {
-    key: 1
-};
-const _hoisted_33 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Use this to restart standard automatic imports, useful if automatic imports seem stuck.", -1 /* HOISTED */ ));
-const _hoisted_34 = [
-    _hoisted_33
-];
-const _hoisted_35 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, [
+const _hoisted_30 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, [
         /*#__PURE__*/ (0, _vue.createElementVNode)("i", null, [
             /*#__PURE__*/ (0, _vue.createElementVNode)("strong", null, "Note:"),
             /*#__PURE__*/ (0, _vue.createTextVNode)(" This is a lengthy and resource intensive process")
         ])
     ], -1 /* HOISTED */ ));
-const _hoisted_36 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "This will sync all relevant POIs that are active in OTIS with WordPress using the Otis filters you have set. This is useful if you find there are POIs that are stale/should have been imported/deleted.", -1 /* HOISTED */ ));
-const _hoisted_37 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "This process is split into several actions and each action is split into pages. The process will run until all pages have been processed. You can cancel the process at any time but it will need to be started from the beginning if canceled.", -1 /* HOISTED */ ));
-const _hoisted_38 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, [
+const _hoisted_31 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "This will sync all relevant POIs that are active in OTIS with WordPress using the Otis filters you have set. This is useful if you find there are POIs that are stale/should have been imported/deleted.", -1 /* HOISTED */ ));
+const _hoisted_32 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "This process is split into several actions and each action is split into pages. The process will run until all pages have been processed. You can cancel the process at any time but it will need to be started from the beginning if canceled.", -1 /* HOISTED */ ));
+const _hoisted_33 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, [
         /*#__PURE__*/ (0, _vue.createElementVNode)("strong", null, "This process will trash POI posts if they've been removed from OTIS.")
     ], -1 /* HOISTED */ ));
-const _hoisted_39 = {
+const _hoisted_34 = {
     key: 0
 };
-const _hoisted_40 = {
+const _hoisted_35 = {
     key: 1
 };
-const _hoisted_41 = {
+const _hoisted_36 = {
+    key: 0
+};
+const _hoisted_37 = {
+    key: 1
+};
+const _hoisted_38 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Use this to restart standard automatic imports, useful if automatic imports seem stuck.", -1 /* HOISTED */ ));
+const _hoisted_39 = [
+    _hoisted_38
+];
+const _hoisted_40 = {
     key: 2,
     class: "otis-dashboard__notifications"
 };
-const _hoisted_42 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, [
+const _hoisted_41 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, [
         /*#__PURE__*/ (0, _vue.createElementVNode)("strong", null, "Are you sure you want to sync all POIs?")
     ], -1 /* HOISTED */ ));
-const _hoisted_43 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "This action could take several hours to complete. You may close this browser window while the sync is running.", -1 /* HOISTED */ ));
-const _hoisted_44 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Are you sure you want to cancel?", -1 /* HOISTED */ ));
-const _hoisted_45 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Are you sure you want to restart automatic imports?", -1 /* HOISTED */ ));
-const _hoisted_46 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Are you sure you want to sync OTIS configuration?", -1 /* HOISTED */ ));
+const _hoisted_42 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "This action could take several hours to complete. You may close this browser window while the sync is running.", -1 /* HOISTED */ ));
+const _hoisted_43 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Are you sure you want to cancel?", -1 /* HOISTED */ ));
+const _hoisted_44 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Are you sure you want to restart automatic imports?", -1 /* HOISTED */ ));
+const _hoisted_45 = /*#__PURE__*/ _withScopeId(()=>/*#__PURE__*/ (0, _vue.createElementVNode)("p", null, "Are you sure you want to save your OTIS credentials?", -1 /* HOISTED */ ));
 function render(_ctx, _cache, $props, $setup, $data, $options) {
     const _component_VaNavbarItem = (0, _vue.resolveComponent)("VaNavbarItem");
     const _component_VaNavbar = (0, _vue.resolveComponent)("VaNavbar");
@@ -29249,10 +29346,9 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                             importStarting: $setup.importStarting,
                             importActive: $setup.importActive,
                             syncAllActive: $setup.syncAllActive,
-                            onCredentials: $setup.updateCredentials,
-                            toggleConfigSyncConfirm: $setup.toggleConfigSyncConfirm,
                             storedCredentials: $setup.storedCredentials,
-                            countsLoading: $setup.countsLoading
+                            countsLoading: $setup.countsLoading,
+                            onCredentialsUpdated: $setup.updateCredentials
                         }, null, 8 /* PROPS */ , [
                             "importStarting",
                             "importActive",
@@ -29441,23 +29537,29 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                                         content: (0, _vue.withCtx)(()=>[
                                                                 _hoisted_24,
                                                                 _hoisted_25,
-                                                                _hoisted_26,
-                                                                (0, _vue.createCommentVNode)(' <Datepicker\n                    v-model="modifiedDate"\n                    :enable-time-picker="false"\n                    :max-date="maxDate"\n                    format="MM/dd/yyyy"\n                  /> '),
-                                                                (0, _vue.createVNode)(_component_VaDateInput, {
-                                                                    modelValue: $setup.modifiedDate,
-                                                                    "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event)=>$setup.modifiedDate = $event)
-                                                                }, null, 8 /* PROPS */ , [
-                                                                    "modelValue"
-                                                                ])
+                                                                (0, _vue.createVNode)($setup["OtisFieldset"], null, {
+                                                                    default: (0, _vue.withCtx)(()=>[
+                                                                            (0, _vue.createVNode)(_component_VaDateInput, {
+                                                                                modelValue: $setup.modifiedDate,
+                                                                                "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event)=>$setup.modifiedDate = $event),
+                                                                                label: "Date To Import From",
+                                                                                rules: $setup.dateValidationRules
+                                                                            }, null, 8 /* PROPS */ , [
+                                                                                "modelValue",
+                                                                                "rules"
+                                                                            ])
+                                                                        ]),
+                                                                    _: 1 /* STABLE */ 
+                                                                })
                                                             ]),
                                                         actions: (0, _vue.withCtx)(()=>[
                                                                 (0, _vue.createVNode)(_component_VaButton, {
-                                                                    class: "button button-primary",
+                                                                    color: "info",
                                                                     disabled: !$setup.dateIsValid || $setup.importStarting || $setup.importActive || $setup.syncAllActive,
                                                                     onClick: $setup.toggleImportConfirm
                                                                 }, {
                                                                     default: (0, _vue.withCtx)(()=>[
-                                                                            $setup.importStarting ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_27, " Import Starting Please Wait... ")) : $setup.importActive ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_28, "Import Running Please Wait...")) : $setup.syncAllActive ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_29, "Sync Running Please Wait...")) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_30, "Start Importing Modified POIs"))
+                                                                            $setup.importStarting ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_26, " Import Starting Please Wait... ")) : $setup.importActive ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_27, "Import Running Please Wait...")) : $setup.syncAllActive ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_28, "Sync Running Please Wait...")) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_29, "Start Importing Modified POIs"))
                                                                         ]),
                                                                     _: 1 /* STABLE */ 
                                                                 }, 8 /* PROPS */ , [
@@ -29465,7 +29567,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                                                 ]),
                                                                 $setup.importActive ? ((0, _vue.openBlock)(), (0, _vue.createBlock)(_component_VaButton, {
                                                                     key: 0,
-                                                                    class: "button button-primary",
+                                                                    color: "info",
                                                                     onClick: $setup.toggleCancelConfirm
                                                                 }, {
                                                                     default: (0, _vue.withCtx)(()=>[
@@ -29473,39 +29575,6 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                                                         ]),
                                                                     _: 1 /* STABLE */ 
                                                                 })) : (0, _vue.createCommentVNode)("v-if", true)
-                                                            ]),
-                                                        _: 1 /* STABLE */ 
-                                                    })
-                                                ]),
-                                            _: 1 /* STABLE */ 
-                                        }),
-                                        (0, _vue.createCommentVNode)(" Reset Importer Processes "),
-                                        (0, _vue.createVNode)($setup["DashboardSetting"], null, {
-                                            default: (0, _vue.withCtx)(()=>[
-                                                    (0, _vue.createVNode)($setup["Card"], null, {
-                                                        title: (0, _vue.withCtx)(()=>[
-                                                                (0, _vue.createTextVNode)(" Reset Importer Processes ")
-                                                            ]),
-                                                        content: (0, _vue.withCtx)(()=>[
-                                                                $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_31, [
-                                                                    (0, _vue.createVNode)($setup["LoadingIndicator"])
-                                                                ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_32, [
-                                                                    ..._hoisted_34
-                                                                ]))
-                                                            ]),
-                                                        actions: (0, _vue.withCtx)(()=>[
-                                                                (0, _vue.createVNode)(_component_VaButton, {
-                                                                    class: "button button-primary",
-                                                                    disabled: $setup.importActive || $setup.syncAllActive,
-                                                                    onClick: $setup.toggleStopAllConfirm
-                                                                }, {
-                                                                    default: (0, _vue.withCtx)(()=>[
-                                                                            (0, _vue.createTextVNode)(" Reset Importer Processes ")
-                                                                        ]),
-                                                                    _: 1 /* STABLE */ 
-                                                                }, 8 /* PROPS */ , [
-                                                                    "disabled"
-                                                                ])
                                                             ]),
                                                         _: 1 /* STABLE */ 
                                                     })
@@ -29522,19 +29591,19 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                                                 (0, _vue.createTextVNode)(" Sync All POIs ")
                                                             ]),
                                                         content: (0, _vue.withCtx)(()=>[
-                                                                _hoisted_35,
-                                                                _hoisted_36,
-                                                                _hoisted_37,
-                                                                _hoisted_38
+                                                                _hoisted_30,
+                                                                _hoisted_31,
+                                                                _hoisted_32,
+                                                                _hoisted_33
                                                             ]),
                                                         actions: (0, _vue.withCtx)(()=>[
                                                                 (0, _vue.createVNode)(_component_VaButton, {
-                                                                    class: "button button-primary",
+                                                                    color: "info",
                                                                     disabled: $setup.importStarting || $setup.importActive || $setup.syncAllActive,
                                                                     onClick: $setup.toggleSyncConfirm
                                                                 }, {
                                                                     default: (0, _vue.withCtx)(()=>[
-                                                                            $setup.importStarting || $setup.importActive || $setup.syncAllActive ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_39, "Sync Running Please Wait...")) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_40, "Sync POIs"))
+                                                                            $setup.importStarting || $setup.importActive || $setup.syncAllActive ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_34, "Sync Running Please Wait...")) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_35, "Sync POIs"))
                                                                         ]),
                                                                     _: 1 /* STABLE */ 
                                                                 }, 8 /* PROPS */ , [
@@ -29542,7 +29611,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                                                 ]),
                                                                 $setup.syncAllActive ? ((0, _vue.openBlock)(), (0, _vue.createBlock)(_component_VaButton, {
                                                                     key: 0,
-                                                                    class: "button button-primary",
+                                                                    color: "info",
                                                                     onClick: $setup.toggleCancelConfirm
                                                                 }, {
                                                                     default: (0, _vue.withCtx)(()=>[
@@ -29563,17 +29632,51 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                                 key: 3
                             }, {
                                 default: (0, _vue.withCtx)(()=>[
-                                        (0, _vue.createCommentVNode)(" OTIS Config "),
+                                        (0, _vue.createCommentVNode)(" Reset Importer Processes "),
+                                        (0, _vue.createVNode)($setup["DashboardSetting"], {
+                                            isFullWidth: true
+                                        }, {
+                                            default: (0, _vue.withCtx)(()=>[
+                                                    (0, _vue.createVNode)($setup["Card"], null, {
+                                                        title: (0, _vue.withCtx)(()=>[
+                                                                (0, _vue.createTextVNode)(" Reset Importer Processes ")
+                                                            ]),
+                                                        content: (0, _vue.withCtx)(()=>[
+                                                                $setup.countsLoading ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_36, [
+                                                                    (0, _vue.createVNode)($setup["LoadingIndicator"])
+                                                                ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_37, [
+                                                                    ..._hoisted_39
+                                                                ]))
+                                                            ]),
+                                                        actions: (0, _vue.withCtx)(()=>[
+                                                                (0, _vue.createVNode)(_component_VaButton, {
+                                                                    color: "info",
+                                                                    disabled: $setup.importActive || $setup.syncAllActive,
+                                                                    onClick: $setup.toggleStopAllConfirm
+                                                                }, {
+                                                                    default: (0, _vue.withCtx)(()=>[
+                                                                            (0, _vue.createTextVNode)(" Reset Importer Processes ")
+                                                                        ]),
+                                                                    _: 1 /* STABLE */ 
+                                                                }, 8 /* PROPS */ , [
+                                                                    "disabled"
+                                                                ])
+                                                            ]),
+                                                        _: 1 /* STABLE */ 
+                                                    })
+                                                ]),
+                                            _: 1 /* STABLE */ 
+                                        }),
+                                        (0, _vue.createCommentVNode)(" OTIS Credentials "),
                                         (0, _vue.createVNode)($setup["DashboardSetting"], null, {
                                             default: (0, _vue.withCtx)(()=>[
                                                     (0, _vue.createVNode)($setup["OtisConfig"], {
                                                         importStarting: $setup.importStarting,
                                                         importActive: $setup.importActive,
                                                         syncAllActive: $setup.syncAllActive,
-                                                        onCredentials: $setup.updateCredentials,
-                                                        toggleConfigSyncConfirm: $setup.toggleConfigSyncConfirm,
                                                         storedCredentials: $setup.storedCredentials,
-                                                        countsLoading: $setup.countsLoading
+                                                        countsLoading: $setup.countsLoading,
+                                                        onCredentialsUpdated: $setup.updateCredentials
                                                     }, null, 8 /* PROPS */ , [
                                                         "importStarting",
                                                         "importActive",
@@ -29590,7 +29693,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                         ])
                     ], 2112 /* STABLE_FRAGMENT, DEV_ROOT_FRAGMENT */ )),
                     (0, _vue.createCommentVNode)(" Notifications "),
-                    $setup.importStarted ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_41, [
+                    $setup.importStarted ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("div", _hoisted_40, [
                         (0, _vue.createVNode)($setup["Alert"], {
                             modelValue: $setup.importStarted,
                             "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event)=>$setup.importStarted = $event),
@@ -29614,8 +29717,8 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                         onOk: $setup.triggerSyncPois
                     }, {
                         default: (0, _vue.withCtx)(()=>[
-                                _hoisted_42,
-                                _hoisted_43
+                                _hoisted_41,
+                                _hoisted_42
                             ]),
                         _: 1 /* STABLE */ 
                     }, 8 /* PROPS */ , [
@@ -29631,7 +29734,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                         onOk: $setup.cancelImporter
                     }, {
                         default: (0, _vue.withCtx)(()=>[
-                                _hoisted_44
+                                _hoisted_43
                             ]),
                         _: 1 /* STABLE */ 
                     }, 8 /* PROPS */ , [
@@ -29663,7 +29766,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                         onOk: $setup.triggerStopAll
                     }, {
                         default: (0, _vue.withCtx)(()=>[
-                                _hoisted_45
+                                _hoisted_44
                             ]),
                         _: 1 /* STABLE */ 
                     }, 8 /* PROPS */ , [
@@ -29680,7 +29783,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                         onCancel: $setup.cancelSyncOtisConfig
                     }, {
                         default: (0, _vue.withCtx)(()=>[
-                                _hoisted_46
+                                _hoisted_45
                             ]),
                         _: 1 /* STABLE */ 
                     }, 8 /* PROPS */ , [
@@ -29693,7 +29796,11 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
         !$setup.displayInitialImport ? {
             name: "left",
             fn: (0, _vue.withCtx)(()=>[
-                    (0, _vue.createVNode)(_component_VaSidebar, null, {
+                    (0, _vue.createVNode)(_component_VaSidebar, {
+                        style: {
+                            "background-color": "var(--va-otis-light-blue)"
+                        }
+                    }, {
                         default: (0, _vue.withCtx)(()=>[
                                 (0, _vue.createVNode)(_component_VaSidebarItem, {
                                     active: $setup.activeDashboardView == "home",

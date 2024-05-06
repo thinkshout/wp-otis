@@ -1,39 +1,35 @@
 <template>
   <Card>
     <template #title>
-      OTIS Config
+      OTIS Credentials
     </template>
     <template #content>
 
-      <!-- Form grid -->
-      <div class="otis-dashboard__form-grid">
-
-        <!-- Username -->
-        <fieldset class="otis-dashboard__fieldset">
-          <va-input v-model="username" placeholder="Enter value" label="Username" aria-describedby="otis-dashboard__description" />
-          <p id="otis-dashboard__description"  class="otis-dashboard__description">Current username: {{ storedCredentials.username }}</p>
-          <va-input v-model="password" placeholder="Enter value" label="Password" aria-describedby="otis-dashboard__description" />
-          <p id="otis-dashboard__description"  class="otis-dashboard__description">Current password: {{ storedCredentials.password }}</p>
-        </fieldset>
-
-        <!-- Password -->
-        <fieldset class="otis-dashboard__fieldset">
-          
-        </fieldset>
-      </div>
+      <OtisFieldset>
+        <va-input v-model="username" type="text" placeholder="Your OTIS Username" label="Username" aria-describedby="otis-dashboard__description" :readonly="hasCredentials" :disabled="hasCredentials" />
+        <va-input v-model="password" type="password" placeholder="Your OTIS Password" label="Password" aria-describedby="otis-dashboard__description" :readonly="hasCredentials" :disabled="hasCredentials" />
+        <p id="otis-dashboard__description" class="otis-dashboard__description">Please enter your credentials for <a href="https://otis.traveloregon.com/">https://otis.traveloregon.com/</a>.</p>
+      </OtisFieldset>
 
     </template>
     <template #actions>
-      <VaButton :disabled="importStarting || importActive || syncAllActive || countsLoading" @click="emitCredentials">
-        <span>Update Credentials</span>
+      <VaButton :disabled="importStarting || importActive || syncAllActive || countsLoading || hasCredentials" color="info" @click="emitCredentials">
+        <span>Save Credentials</span>
+      </VaButton>
+      <VaButton v-if="hasCredentials && !editCredentials" :disabled="!hasCredentials" @click="toggleEditCredentials">
+        <span>Edit Credentials</span>
+      </VaButton>
+      <VaButton v-if="!hasCredentials && editCredentials" color="warning" @click="toggleEditCredentials">
+        <span>Cancel</span>
       </VaButton>
     </template>
   </Card>
 </template>
 
 <script setup>
-  import { ref } from "vue";
+  import { ref, onMounted, computed } from "vue";
   import Card from '../02_molecules/Card.vue';
+  import OtisFieldset from '../02_molecules/Fieldset.vue';
 
   // Props.
   const props = defineProps({
@@ -49,10 +45,6 @@
       type: Boolean,
       default: false,
     },
-    toggleConfigSyncConfirm: {
-      type: Function,
-      default: () => {},
-    },
     storedCredentials: {
       type: Object,
       default: { username: '', password: '' },
@@ -66,11 +58,27 @@
   // Refs.
   const username = ref('');
   const password = ref('');
+  const editCredentials = ref(false);
+
+  // Computed.
+  const hasCredentials = computed(() => {
+    return props.storedCredentials.username && props.storedCredentials.password && !editCredentials.value ? true : false;
+  });
+
+  // Methods.
+  const toggleEditCredentials = () => {
+    editCredentials.value = !editCredentials.value;
+  };
 
   // Emit.
-  const emit = defineEmits(['credentials']);
+  const emit = defineEmits(['credentials-updated']);
   const emitCredentials = () => {
-    emit('credentials', { username: username.value, password: password.value });
-    props.toggleConfigSyncConfirm();
+    emit('credentials-updated', { username: username.value, password: password.value });
   };
+
+  // On Mounted.
+  onMounted(() => {
+    username.value = props.storedCredentials.username;
+    password.value = props.storedCredentials.password;
+  });
 </script>

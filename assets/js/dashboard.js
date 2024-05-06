@@ -13,12 +13,13 @@ export default function dashboardVue() {
 				variables: {
 					primary: 'rgb(100, 154, 165)',
 					secondary: 'rgb(53, 108, 118)',
-					success: '#23e066',
+					success: '#28834c',
 					info: '#e67520',
 					danger: '#e34b4a',
 					warning: '#ffc200',
 					gray: '#bdbdbd',
 					dark: '#34495e',
+					otis_light_blue: 'rgb(228, 240, 242)',
 				}
 			}
 		}
