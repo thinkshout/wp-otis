@@ -67,9 +67,7 @@
 
           <!-- POI Import -->
           <template v-else>
-            <InitialPOIImport 
-              :importStarting="importStarting" :credentialsNeeded="credentialsNeeded" :triggerInitialImport="triggerInitialImport" 
-            />
+            <InitialPOIImport :importStarting="importStarting" :triggerInitialImport="triggerInitialImport" />
           </template>
         </div>
 
@@ -375,7 +373,6 @@
   const showStopAllModal = ref(false);
   const showOtisSyncModal = ref(false);
   const { triggerAction } = useApi();
-  const displayInitialConfig = ref(true);
   const activeDashboardView = ref("home");
   const dateValidationRules = ref([
     (val) => {
@@ -430,6 +427,9 @@
       }
     }
     return count === 0;
+  });
+  const displayInitialConfig = computed(() => {
+    return !storedCredentials.value.username || !storedCredentials.value.password;
   });
   const credentialsNeeded = computed(() => {
     return credentials.value.username ? false : true;

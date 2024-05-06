@@ -23793,7 +23793,6 @@ exports.default = {
         const showStopAllModal = (0, _vue.ref)(false);
         const showOtisSyncModal = (0, _vue.ref)(false);
         const { triggerAction } = (0, _useApiDefault.default)();
-        const displayInitialConfig = (0, _vue.ref)(true);
         const activeDashboardView = (0, _vue.ref)("home");
         const dateValidationRules = (0, _vue.ref)([
             (val)=>{
@@ -23845,6 +23844,9 @@ exports.default = {
                 count += parseInt(statusCount);
             }
             return count === 0;
+        });
+        const displayInitialConfig = (0, _vue.computed)(()=>{
+            return !storedCredentials.value.username || !storedCredentials.value.password;
         });
         const credentialsNeeded = (0, _vue.computed)(()=>{
             return credentials.value.username ? false : true;
@@ -24011,13 +24013,13 @@ exports.default = {
             showStopAllModal,
             showOtisSyncModal,
             triggerAction,
-            displayInitialConfig,
             activeDashboardView,
             dateValidationRules,
             lastImport,
             nextImport,
             importerStatus,
             displayInitialImport,
+            displayInitialConfig,
             credentialsNeeded,
             dateIsValid,
             importLogUrl,
@@ -28892,10 +28894,6 @@ exports.default = {
             type: Boolean,
             default: false
         },
-        credentialsNeeded: {
-            type: Boolean,
-            default: false
-        },
         triggerInitialImport: {
             type: Function,
             default: ()=>{}
@@ -28931,16 +28929,14 @@ const _hoisted_3 = /*#__PURE__*/ (0, _vue.createElementVNode)("p", null, [
 const _hoisted_4 = {
     key: 0
 };
-const _hoisted_5 = [
-    "disabled"
-];
-const _hoisted_6 = {
+const _hoisted_5 = {
     key: 0
 };
-const _hoisted_7 = {
+const _hoisted_6 = {
     key: 1
 };
 function render(_ctx, _cache, $props, $setup, $data, $options) {
+    const _component_VaButton = (0, _vue.resolveComponent)("VaButton");
     return (0, _vue.openBlock)(), (0, _vue.createBlock)($setup["Card"], null, {
         title: (0, _vue.withCtx)(()=>[
                 _hoisted_1
@@ -28954,13 +28950,19 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
             ]),
         actions: (0, _vue.withCtx)(()=>[
                 $props.importStarting ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("p", _hoisted_4, "POI import starting, please wait this usually takes a few minutes...")) : (0, _vue.createCommentVNode)("v-if", true),
-                (0, _vue.createElementVNode)("button", {
-                    class: "button button-primary",
-                    disabled: $props.importStarting || $props.credentialsNeeded,
-                    onClick: _cache[0] || (_cache[0] = (...args)=>$props.triggerInitialImport && $props.triggerInitialImport(...args))
-                }, [
-                    $props.importStarting ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_6, " Import Starting Please Wait... ")) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_7, "Start Importing POIs"))
-                ], 8 /* PROPS */ , _hoisted_5)
+                (0, _vue.createVNode)(_component_VaButton, {
+                    color: "info",
+                    disabled: $props.importStarting,
+                    onClick: $props.triggerInitialImport
+                }, {
+                    default: (0, _vue.withCtx)(()=>[
+                            $props.importStarting ? ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_5, " Import Starting Please Wait... ")) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)("span", _hoisted_6, "Start Importing POIs"))
+                        ]),
+                    _: 1 /* STABLE */ 
+                }, 8 /* PROPS */ , [
+                    "disabled",
+                    "onClick"
+                ])
             ]),
         _: 1 /* STABLE */ 
     });
@@ -29361,11 +29363,9 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
                             (0, _vue.createCommentVNode)(" POI Import "),
                             (0, _vue.createVNode)($setup["InitialPOIImport"], {
                                 importStarting: $setup.importStarting,
-                                credentialsNeeded: $setup.credentialsNeeded,
                                 triggerInitialImport: $setup.triggerInitialImport
                             }, null, 8 /* PROPS */ , [
-                                "importStarting",
-                                "credentialsNeeded"
+                                "importStarting"
                             ])
                         ], 64 /* STABLE_FRAGMENT */ ))
                     ])) : ((0, _vue.openBlock)(), (0, _vue.createElementBlock)((0, _vue.Fragment), {

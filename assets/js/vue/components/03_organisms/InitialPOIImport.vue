@@ -11,12 +11,12 @@
     </template>
     <template #actions>
       <p v-if="importStarting">POI import starting, please wait this usually takes a few minutes...</p>
-      <button class="button button-primary" :disabled="importStarting || credentialsNeeded" @click="triggerInitialImport">
+      <VaButton color="info" :disabled="importStarting" @click="triggerInitialImport">
         <span v-if="importStarting">
           Import Starting Please Wait...
         </span>
         <span v-else>Start Importing POIs</span>
-      </button>
+      </VaButton>
     </template>
   </Card>
 </template>
@@ -28,10 +28,6 @@
 
   const props = defineProps({
     importStarting: {
-      type: Boolean,
-      default: false,
-    },
-    credentialsNeeded: {
       type: Boolean,
       default: false,
     },
