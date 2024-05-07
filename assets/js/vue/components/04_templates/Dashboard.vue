@@ -61,7 +61,7 @@
               :syncAllActive="syncAllActive"
               :storedCredentials="storedCredentials"
               :countsLoading="countsLoading"
-              @credentials-updated="updateCredentials" 
+              @credentials-updated="triggerSyncOtisConfig" 
             />
           </template>
 
@@ -428,7 +428,8 @@
     return "Inactive";
   });
   const displayInitialImport = computed(() => {
-    if (countsLoading.value) return false;
+    if (importerActive.value) return false;
+    if (importerStatus.value === "Fetching Listings") return false;
     let count = 0;
     for (const key in poiCount.value) {
       if (Object.hasOwnProperty.call(poiCount.value, key)) {
@@ -520,6 +521,7 @@
     importStarting.value = true;
     await triggerAction("otis_import", {initial_import: true});
     await otisStatus();
+    notifyImportStarted();
     importStarting.value = false;
   };
   const triggerModifiedImport = async () => {
@@ -543,7 +545,10 @@
     await triggerAction("otis_stop_all");
     await otisStatus();
   };
-  const triggerSyncOtisConfig = async () => {
+  const triggerSyncOtisConfig = async (newCredentials = {}) => {
+    if (newCredentials.username && newCredentials.password) {
+      pendingCredentials.value = newCredentials;
+    }
     if (!pendingCredentials.value.username || !pendingCredentials.value.password) return;
     credentials.value = pendingCredentials.value;
     pendingCredentials.value = {};
@@ -568,7 +573,7 @@
   const toggleStopAllConfirm = () => {
     showStopAllModal.value = !showStopAllModal.value;
   };
-  const updateCredentials = (newCredentials) => {
+  const updateCredentials = (newCredentials = {}) => {
     if (newCredentials.username && newCredentials.password) {
       pendingCredentials.value = newCredentials;
     }
