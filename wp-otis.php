@@ -16,6 +16,8 @@ define( 'WP_OTIS_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WP_OTIS_FIELDS_PATH', plugin_dir_path( __FILE__ ) . 'acf-json/group_58250328ca2ce.json' );
 
 define( 'WP_OTIS_TOKEN', 'wp_otis_token' );
+define( 'WP_OTIS_USERNAME', 'wp_otis_username' );
+define( 'WP_OTIS_PASSWORD', 'wp_otis_password' );
 define( 'WP_OTIS_LAST_IMPORT_DATE', 'wp_otis_last_import_date' );
 define( 'WP_OTIS_IMPORT_ACTIVE', 'wp_otis_import_active' );
 define( 'WP_OTIS_BULK_IMPORT_TRANSIENT', 'wp_otis_bulk_import_transient' );
