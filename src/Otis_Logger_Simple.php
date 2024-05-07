@@ -14,8 +14,8 @@ class Otis_Logger_Simple extends Otis_Logger {
 	/**
 	 * @inheritdoc
 	 */
-	public function log( $message, $parent = 0, $type = '' ) {
-		$full_message = parent::log( $message, $parent, $type );
+	public function log( $message, $parent = 0, $type = '', $log_errors_to_email = true ) {
+		$full_message = parent::log( $message, $parent, $type, $log_errors_to_email );
 
 		$this->logs[] = $full_message;
 

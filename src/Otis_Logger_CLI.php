@@ -9,8 +9,8 @@ class Otis_Logger_CLI extends Otis_Logger {
 	/**
 	 * @inheritdoc
 	 */
-	public function log( $message, $parent = 0, $type = '' ) {
-		$full_message = parent::log( $message, $parent, $type );
+	public function log( $message, $parent = 0, $type = '', $log_errors_to_email = false ) {
+		$full_message = parent::log( $message, $parent, $type, $log_errors_to_email );
 
 		if ( is_callable( 'WP_CLI::' . $type ) ) {
 			WP_CLI::$type( $parent . "\t" . $message );
