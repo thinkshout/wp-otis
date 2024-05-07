@@ -428,6 +428,7 @@
     return "Inactive";
   });
   const displayInitialImport = computed(() => {
+    if (importStarting.value) return false;
     if (importerActive.value) return false;
     if (importerStatus.value === "Fetching Listings") return false;
     let count = 0;
@@ -505,6 +506,7 @@
       }
     });
     countsLoading.value = false;
+    importStarting.value = false;
     await otisLogPreview();
   };
   const otisLogPreview = async () => {
@@ -522,7 +524,6 @@
     await triggerAction("otis_import", {initial_import: true});
     await otisStatus();
     notifyImportStarted();
-    importStarting.value = false;
   };
   const triggerModifiedImport = async () => {
     if (!dateIsValid.value) return;
