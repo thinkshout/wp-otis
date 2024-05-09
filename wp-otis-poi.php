@@ -77,6 +77,7 @@ function wp_otis_poi_init() {
 		'publicly_queryable'  => true,
 		'page-attributes'     => true,
 		'capability_type'     => 'post',
+		'menu_icon'           => 'dashicons-location-alt',
 	);
 	register_post_type( 'poi', $args );
 

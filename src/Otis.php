@@ -73,11 +73,16 @@ class Otis {
 			$token_fetch = true;
 
 			$params = array(
-				'username' => '',
-				'password' => '',
+				'username' => get_option( WP_OTIS_USERNAME, '' ),
+				'password' => get_option( WP_OTIS_PASSWORD, '' ),
 			);
 
-			$params = apply_filters( 'wp_otis_rest_auth', $params );
+			// $params = apply_filters( 'wp_otis_rest_auth', $params );
+
+			if ( ! $params['username'] || ! $params['password'] ) {
+				throw new Otis_Exception( 'Missing username or password' );
+				return '';
+			}
 
 			try {
 				$result = $this->_fetch( self::AUTH_ROOT . '/login/', array(
@@ -111,9 +116,11 @@ class Otis {
 		$headers[] = 'Accept: application/json';
 
 		$token = $this->token();
-		if ( $token ) {
-			$headers[] = 'Authorization: Token ' . $token;
+		if ( !$token ) {
+			return null;
 		}
+
+		$headers[] = 'Authorization: Token ' . $token;
 
 		try {
 			return $this->_fetch( self::API_ROOT . '/' . $path, array(
