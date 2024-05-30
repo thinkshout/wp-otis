@@ -77,7 +77,14 @@ class Otis {
 				'password' => get_option( WP_OTIS_PASSWORD, '' ),
 			);
 
-			// $params = apply_filters( 'wp_otis_rest_auth', $params );
+			$credentials_in_code = apply_filters( 'wp_otis_rest_auth', $params );
+
+			if ( $credentials_in_code['username'] || $credentials_in_code['password'] ) {
+				$params = $credentials_in_code;
+				// Save the credentials to the database.
+				update_option( WP_OTIS_USERNAME, $params['username'] );
+				update_option( WP_OTIS_PASSWORD, $params['password'] );
+			}
 
 			if ( ! $params['username'] || ! $params['password'] ) {
 				throw new Otis_Exception( 'Missing username or password' );
