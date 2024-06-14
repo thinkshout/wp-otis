@@ -10,11 +10,11 @@ class Otis_Dashboard
 
   public function otis_dashboard_scripts() {
     wp_enqueue_media();
-    wp_register_script( 'otis-js', plugins_url( '../dist/otis.js', __FILE__ ), [], '2.1', true );
+    wp_register_script( 'otis-js', plugins_url( '../dist/otis.js', __FILE__ ), [], '2.5.1', true );
     wp_localize_script( 'otis-js', 'otisDash', array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'admin_url' => admin_url() ) );
 
     wp_enqueue_script( 'otis-js' );
-    wp_enqueue_style( 'otis-styles', plugins_url( '../dist/otis.css', __FILE__ ), [], '2.1' );
+    wp_enqueue_style( 'otis-styles', plugins_url( '../dist/otis.css', __FILE__ ), [], '2.5.1' );
   }
 
   public function otis_dashboard_page() {
