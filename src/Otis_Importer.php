@@ -701,7 +701,7 @@ class Otis_Importer {
 			// Action Scheduler expects the top level key of $assoc_args to be 'params'.
 			// This means we need to rewrap the array before passing it to schedule_action().
 			if ( !isset( $assoc_args['params'] ) ) {
-				$assoc_args = [ 'params' => $assoc_args ];
+				$assoc_args = array( 'params' => $assoc_args );
 			}
 			$this->schedule_action( 'wp_otis_delete_removed_listings', $assoc_args );
 			$this->logger->log( 'Scheduling fetch of next page of removed listings' );
