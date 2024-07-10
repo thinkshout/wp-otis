@@ -7,7 +7,7 @@
  * Author URI:      thinkshout.com
  * Text Domain:     wp-otis
  * Domain Path:     /languages
- * Version:         1.2.5
+ * Version:         1.2.5.2
  *
  * @package         Otis
  */
