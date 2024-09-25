@@ -72,6 +72,38 @@ function wp_otis_get_post_id_for_uuid( $uuid ) {
 }
 
 /**
+ * Look up the WordPress post ID array for a given array OTIS UUID value
+ *
+ * @param string $uuid_list
+ *
+ * @return int[] Array of post IDs that match the given UUIDs.
+ */
+function wp_otis_get_post_id_list_for_uuid_list( array $uuid_list ): array {
+	if ( empty( $uuid_list ) || !is_array( $uuid_list ) ) {
+		return [];
+	}
+	try {
+		// Get post w/ meta query for UUID.
+		return get_posts( [
+			'fields'                 => 'ids',
+			'posts_per_page'         => -1,
+			'post_status'            => 'any',
+			'post_type'              => 'poi',
+			'meta_key'               => 'uuid',
+			'meta_query'             => [
+				[
+					'key'     => 'uuid',
+					'value'   => $uuid_list,
+					'compare' => 'IN',
+				],
+			],
+		] );
+	} catch ( Exception $e ) {
+		return [];
+	}
+}
+
+/**
  * Add the acf-json path.
  *
  * @param $paths

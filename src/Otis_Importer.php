@@ -681,15 +681,12 @@ class Otis_Importer {
 			$this->_reset_importer_active_flag();
 			return;
 		}
+		$found_poi_post_id_list = wp_otis_get_post_id_list_for_uuid_list($removed_listings_results);
 		// Loop through removed listings and delete them.
-		foreach ( $removed_listings_results as $removed_listing_uuid ) {
-			// Get the existing listing ID from Wordpress if it exists.
-			$found_poi_post_id = wp_otis_get_post_id_for_uuid( $removed_listing_uuid );
-			// If the listing exists, trash it.
-			if ( $found_poi_post_id ) {
-				$this->logger->log( 'Deleting removed listing ' . $removed_listing_uuid );
-				wp_trash_post( $found_poi_post_id );
-			}
+		foreach ( $found_poi_post_id_list as $found_poi_post_id ) {
+			// Note: Mapping UUIDs to Post IDs would require extra DB queries of questionable value.
+			$this->logger->log( 'Deleting removed listing, post ID:' . $found_poi_post_id );
+			wp_trash_post( $found_poi_post_id );
 		}
 		// Check if there are more pages.
 		$deletes_next = is_null( $removed_listings['next'] ) ? $removed_listings['next'] : trim( $removed_listings['next'] );
