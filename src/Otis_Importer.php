@@ -54,6 +54,7 @@ class Otis_Importer {
 		'cycling_ride_type'                     => 'type',
 		'event_type'                            => 'type',
 		'additional_lodging_types'              => 'type',
+		'transportation_services'								=> 'type',
 		'primary_city'                          => 'city',
 		'primary_region'                        => 'region',
 	];
@@ -193,7 +194,7 @@ class Otis_Importer {
 				$log[] = 'POI import complete.';
 
 				return $log;
-			
+
 			case 'all-listings':
 				if ( empty( $assoc_args['sync_page'] ) ) {
 					$assoc_args['sync_page'] = 1;
@@ -382,20 +383,20 @@ class Otis_Importer {
 		}
 	}
 
-	
+
 	/** Make Listings Transient Key */
 	private function make_listings_transient_key( $listings_type ) {
 		$listings_key_type = strtolower( $listings_type );
 		$listings_key_type = str_replace( ' ', '_', $listings_key_type );
 		return 'wp_otis_listings' . '_' . $listings_key_type;
 	}
-	
+
 	/** Get Listings transient if it exists */
 	private function get_listings_transient( $listings_type = 'pois' ) {
 		$transient_key = $this->make_listings_transient_key( $listings_type );
 		return get_transient( $transient_key );
 	}
-	
+
 	/** Set Listings transient */
 	private function set_listings_transient( $data = [], $listings_type = 'pois' ) {
 		$transient_key = $this->make_listings_transient_key( $listings_type );
@@ -580,7 +581,7 @@ class Otis_Importer {
 		if ( get_option( WP_OTIS_CANCEL_IMPORT, false ) ) {
 			$this->cancel_import();
 			return;
-		} 
+		}
 		// Disable Caching if it's enabled.
 		// $this->_toggle_caching( false );
 
@@ -657,7 +658,7 @@ class Otis_Importer {
 
 		// Check if there's a page in args and set it to the first one if it's not present.
 		$deletes_page = isset( $assoc_args['deletes_page'] ) ? intval( $assoc_args['deletes_page'] ) : 1;
-		
+
 		// Construct API params.
 		$api_params = [];
 		if ( ! is_null( $before ) ) {
@@ -800,7 +801,7 @@ class Otis_Importer {
 		// Schedule the action to sync the listings.
 		$this->schedule_action( 'wp_otis_sync_all_listings_process', [ 'params' => [ 'process_page' => 1 ] ] );
 	}
-	
+
 
 	/** Process activeIds Transient */
 	private function _remove_all_inactive_listings( $assoc_args = [] ) {
