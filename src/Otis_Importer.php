@@ -211,7 +211,7 @@ class Otis_Importer {
 
 	/** Process Transient Data */
 	public function process_listings( $assoc_args ) {
-		$this->logger->log( 'Initialized processing of ' . $assoc_args['import_type'] . ' listing with UUID: ' . $assoc_args['listing_uuid'] );
+		$this->logger->log( 'Initialized processing of ' . $assoc_args['import_type'] ?? ' unspecified ' . ' listing with UUID: ' . $assoc_args['listing_uuid'] );
 		$this->_process_listings( $assoc_args );
 	}
 
@@ -1078,7 +1078,7 @@ class Otis_Importer {
 					default:
 						$field = $field_map[$name]['field'] ?? null;
 						$value = $this->_translate_field_value($field, $value);
-						$is_term = ('taxonomy' === $field['type']);
+						$is_term = ('taxonomy' === $field['type'] ?? '');
 						break;
 				}
 
