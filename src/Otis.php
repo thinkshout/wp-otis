@@ -41,7 +41,7 @@ class Otis {
 			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		}
 		// Retrieve plugin data from the main plugin file.
-		$plugin_data = get_plugin_data( WP_OTIS_PLUGIN_PATH . 'wp-otis.php' );
+		$plugin_data = get_plugin_data( WP_OTIS_PLUGIN_PATH . 'wp-otis.php', false, false );
 		// Check if the plugin version was retrieved successfully.
 		if ( ! isset( $plugin_data['Version'] ) ) {
 			return '';
