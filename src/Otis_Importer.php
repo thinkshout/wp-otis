@@ -212,7 +212,7 @@ class Otis_Importer {
 
 	/** Process Transient Data */
 	public function process_listings( $assoc_args ) {
-		$this->logger->log( 'Initialized processing of ' . $assoc_args['import_type'] . ' listing with UUID: ' . $assoc_args['listing_uuid'] );
+		$this->logger->log( 'Initialized processing of ' . $assoc_args['import_type'] ?? ' unspecified ' . ' listing with UUID: ' . $assoc_args['listing_uuid'] );
 		$this->_process_listings( $assoc_args );
 	}
 
@@ -959,7 +959,10 @@ class Otis_Importer {
 		$field_group = wp_otis_fields_load();
 		$field_map   = [];
 		foreach ( $field_group['fields'] as $field ) {
-			$field_map[ $field['name'] ] = $field;
+			$field_map[ $field['name'] ] = [
+				'field' => $field,
+				'key' => $field['key'],
+			];
 		}
 
 		$type = strtolower( $result['type']['name'] );
@@ -1074,9 +1077,9 @@ class Otis_Importer {
 						break;
 
 					default:
-						$field = $field_map[$name] ?? null;
+						$field = $field_map[$name]['field'] ?? null;
 						$value = $this->_translate_field_value($field, $value);
-						$is_term = ('taxonomy' === $field['type']);
+						$is_term = ('taxonomy' === $field['type'] ?? '');
 						break;
 				}
 
@@ -1121,7 +1124,12 @@ class Otis_Importer {
 
 			foreach ($field_map as $name => $field) {
 				if (isset($data[$name])) {
-					$return = update_field($name, $data[$name], $post_id);
+
+					$return = update_field(
+						$field['key'],
+						$data[$name],
+						$post_id
+					);
 
 					if (is_wp_error($return)) {
 						$this->logger->log('Error: field ' . $name . ', post id ' . $post_id . ', ' . $return->get_error_message());
