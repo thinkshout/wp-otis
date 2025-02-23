@@ -7,7 +7,7 @@
  * Author URI:      thinkshout.com
  * Text Domain:     wp-otis
  * Domain Path:     /languages
- * Version:         1.3
+ * Version:         2.0.0
  *
  * @package         Otis
  */
@@ -58,7 +58,7 @@ function wp_otis_get_post_id_for_uuid( $uuid ) {
 				],
 			],
 		] );
-		
+
 		// Return the first post id found if any.
 		if ( ! empty( $found_pois ) ) {
 			return $found_pois[0];
@@ -246,7 +246,7 @@ add_action( 'wp_otis_delete_removed_listings', function( $params ) {
 }, 10, 1 );
 
 add_action( 'wp_otis_sync_all_listings_fetch', function( $params ) {
-	
+
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
 	}
@@ -279,7 +279,7 @@ add_action( 'wp_otis_sync_all_listings_posts_transient', function() {
 }, 10, 1 );
 
 add_action( 'wp_otis_sync_all_listings_process', function( $params ) {
-	
+
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
 	}
@@ -296,7 +296,7 @@ add_action( 'wp_otis_sync_all_listings_process', function( $params ) {
 }, 10, 1 );
 
 add_action( 'wp_otis_sync_all_listings_import', function( $params ) {
-	
+
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
 	}
