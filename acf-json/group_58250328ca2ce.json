@@ -911,7 +911,7 @@
         },
         {
             "key": "field_5d49c9eba32a6",
-            "label": "Hide Media",
+            "label": "Omit photos from traveloregon.com",
             "name": "hide_media",
             "type": "true_false",
             "instructions": "",
@@ -2565,5 +2565,5 @@
     "hide_on_screen": "",
     "active": 1,
     "description": "",
-    "modified": 1673990579
+    "modified": 1752706938
 }
