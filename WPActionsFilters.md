@@ -193,3 +193,12 @@ apply_filters( 'wp_otis_before_sync_all_listings_args', $assoc_args );
 This filter is used to modify the arguments passed to the WP-OTIS Importer function before syncing all listings. Expected to return an array of arguments.
 ### Parameters
 `$assoc_args` - The arguments passed to the WP-OTIS Importer function.
+
+
+## WP-OTIS Number of POIs Processed Per Batch
+`wp_otis_processing_chunk_size`
+```php
+apply_filters( 'wp_otis_processing_chunk_size', $number_of_posts );
+```
+### Parameters
+`$number_of_posts` - The number of POIs to be processed at a time, defaults to 10 POIs.

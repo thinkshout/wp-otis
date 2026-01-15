@@ -10,15 +10,34 @@ class Otis_Dashboard
 
   public function otis_dashboard_scripts() {
     wp_enqueue_media();
-    wp_register_script( 'otis-js', plugins_url( '../dist/otis.js', __FILE__ ), [], '2.1', true );
+    wp_register_script( 'otis-js', plugins_url( '../dist/otis.js', __FILE__ ), [], '2.5.2', true );
     wp_localize_script( 'otis-js', 'otisDash', array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'admin_url' => admin_url() ) );
 
     wp_enqueue_script( 'otis-js' );
-    wp_enqueue_style( 'otis-styles', plugins_url( '../dist/otis.css', __FILE__ ), [], '2.1' );
+    wp_enqueue_style( 'otis-styles', plugins_url( '../dist/otis.css', __FILE__ ), [], '2.5.2' );
   }
 
   public function otis_dashboard_page() {
-    add_management_page( 'OTIS Dashboard', 'OTIS Dashboard', 'manage_options', 'otis-dashboard', [ $this, 'otis_dashboard_setup' ] );
+    add_menu_page( 'OTIS Dashboard', 'OTIS Dashboard', 'manage_options', 'otis-dashboard', [ $this, 'otis_dashboard_setup' ], 'dashicons-oregon', 95 );
+  }
+
+  public function otis_oregon_dashicon_css() {
+    ?>
+    <style>
+      .dashicons-oregon {
+        background: url('<?php echo plugins_url( '../assets/icons/oregon-icon.svg', __FILE__ ); ?>') no-repeat;
+        background-size: 50%;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+      .current .dashicons-oregon {
+        background: url('<?php echo plugins_url( '../assets/icons/oregon-icon-active.svg', __FILE__ ); ?>') no-repeat;
+        background-size: 50%;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+    </style>
+    <?php
   }
 
   public function otis_dashboard_ui() {
@@ -48,17 +67,13 @@ class Otis_Dashboard
 
   public function otis_init_import() {
     $modified_start = isset($_POST['from_date']) ? _sanitize_text_fields($_POST['from_date']) : false;
-    $initial = isset($_POST['initial_import']);
-    $assoc_args = array(
-      'bulk' => true,
-    );
-    if ($initial) {
-      $assoc_args['type'] = 'pois';
-    } else {
-      $assoc_args['type'] = 'pois-only';
-    }
+    $assoc_args = apply_filters( 'wp_otis_listings', [] );
     if ($modified_start) {
       $assoc_args['modified'] = $modified_start;
+    }
+    // Check if the type filter is set and if it isn't, set it to 'pois'
+    if ( ! isset( $assoc_args['type'] ) ) {
+      $assoc_args['type'] = 'pois';
     }
     try {
       as_enqueue_async_action( 'wp_otis_fetch_listings', ['params' => $assoc_args] );
@@ -84,6 +99,15 @@ class Otis_Dashboard
     $this->importer->cancel_import( 'Resetting importer...', 'Importer reset.' );
   }
 
+  public function otis_save_credentials() {
+    $username = isset($_POST['username']) ? _sanitize_text_fields($_POST['username']) : '';
+    $password = isset($_POST['password']) ? _sanitize_text_fields($_POST['password']) : '';
+    update_option( WP_OTIS_USERNAME, $username );
+    update_option( WP_OTIS_PASSWORD, $password );
+    echo json_encode('Credentials saved');
+    wp_die();
+  }
+
   public function otis_log_preview() {
     $args = [
 			'numberposts' => 15,
@@ -104,6 +128,15 @@ class Otis_Dashboard
     wp_die();
   }
 
+  public function otis_credentials_status() {
+    $username = get_option( WP_OTIS_USERNAME, '' );
+    $password = get_option( WP_OTIS_PASSWORD, '' );
+    return [
+      'username' => $username,
+      'password' => $password ? '********' : '',
+    ];
+  }
+
 
   public function otis_init_pois_sync() {
     // Set up the sync params
@@ -118,7 +151,7 @@ class Otis_Dashboard
     return [
       'importSchedule' => [
         'fetchListings'        => as_next_scheduled_action( 'wp_otis_fetch_listings' ),
-        'processListings'      => as_next_scheduled_action( 'wp_otis_process_listings' ),
+        'processListings'      => as_next_scheduled_action( 'wp_otis_process_single_listing' ),
         'deleteListings'       => as_next_scheduled_action( 'wp_otis_delete_removed_listings' ),
         'syncAllPoisFetch'     => as_next_scheduled_action( 'wp_otis_sync_all_listings_fetch' ),
         'syncAllPoisProcess'   => as_next_scheduled_action( 'wp_otis_sync_all_listings_process' ),
@@ -131,12 +164,14 @@ class Otis_Dashboard
       'lastImportDate' => get_option( WP_OTIS_LAST_IMPORT_DATE ),
       'poiCount' => $this->otis_poi_counts(),
       'activeFilters' => apply_filters( 'wp_otis_listings', [] ),
+      'credentials' => $this->otis_credentials_status(),
     ];
   }
   
   function __construct( $importer ) {
     add_action( 'admin_menu', [ $this, 'otis_dashboard_page' ] );
     add_action( 'admin_enqueue_scripts', [ $this, 'otis_dashboard_scripts' ] );
+    add_action( 'admin_head', [ $this, 'otis_oregon_dashicon_css' ] );
 
     // Ajax Handlers
     add_action( 'wp_ajax_otis_status', [ $this, 'otis_status' ] );
@@ -145,6 +180,7 @@ class Otis_Dashboard
     add_action( 'wp_ajax_otis_cancel_importer', [ $this, 'otis_cancel_import' ] );
     add_action( 'wp_ajax_otis_sync_all_pois', [ $this, 'otis_init_pois_sync' ] );
     add_action( 'wp_ajax_otis_stop_all', [ $this, 'otis_stop_all' ] );
+    add_action( 'wp_ajax_otis_save_credentials', [ $this, 'otis_save_credentials' ] );
 
     $this->importer = $importer;
   }

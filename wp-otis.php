@@ -7,7 +7,7 @@
  * Author URI:      thinkshout.com
  * Text Domain:     wp-otis
  * Domain Path:     /languages
- * Version:         1.1.15
+ * Version:         2.0.1
  *
  * @package         Otis
  */
@@ -16,6 +16,8 @@ define( 'WP_OTIS_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WP_OTIS_FIELDS_PATH', plugin_dir_path( __FILE__ ) . 'acf-json/group_58250328ca2ce.json' );
 
 define( 'WP_OTIS_TOKEN', 'wp_otis_token' );
+define( 'WP_OTIS_USERNAME', 'wp_otis_username' );
+define( 'WP_OTIS_PASSWORD', 'wp_otis_password' );
 define( 'WP_OTIS_LAST_IMPORT_DATE', 'wp_otis_last_import_date' );
 define( 'WP_OTIS_IMPORT_ACTIVE', 'wp_otis_import_active' );
 define( 'WP_OTIS_BULK_IMPORT_TRANSIENT', 'wp_otis_bulk_import_transient' );
@@ -24,7 +26,7 @@ define( 'WP_OTIS_BULK_DISABLE_CACHE', 0 );
 define( 'WP_OTIS_CANCEL_IMPORT', 'wp_otis_cancel_current_import' );
 
 require_once 'wp-otis-poi.php';
-require_once  plugin_dir_path( __FILE__ ) . '/libraries/action-scheduler/action-scheduler.php';
+require_once 'libraries/action-scheduler/action-scheduler.php';
 require_once 'src/Otis_Importer.php';
 require_once 'src/Otis_Logger_Simple.php';
 require_once 'src/Otis_Command.php';
@@ -40,28 +42,65 @@ require_once 'wp-logging/WP_Logging.php';
  * @return false|int
  */
 function wp_otis_get_post_id_for_uuid( $uuid ) {
-	$the_query = new WP_Query( [
-		'no_found_rows'          => true,
-		'update_post_meta_cache' => false,
-		'update_post_term_cache' => false,
-		'posts_per_page'         => 1,
-		'post_status'            => 'any',
-		'post_type'              => 'poi',
-		'meta_key'               => 'uuid',
-		'meta_value'             => $uuid,
-	] );
+	try {
+		// Get post w/ meta query for UUID.
+		$found_pois = get_posts( [
+			'fields'                 => 'ids',
+			'posts_per_page'         => 1,
+			'post_status'            => 'any',
+			'post_type'              => 'poi',
+			'meta_key'               => 'uuid',
+			'meta_query'             => [
+				[
+					'key'     => 'uuid',
+					'value'   => $uuid,
+					'compare' => '=',
+				],
+			],
+		] );
 
-	$post_id = null;
-
-	while ( $the_query->have_posts() ) {
-		$the_query->the_post();
-
-		$post_id = get_the_ID();
+		// Return the first post id found if any.
+		if ( ! empty( $found_pois ) ) {
+			return $found_pois[0];
+		}
+		// Return false if no post found.
+		return false;
+	} catch ( Exception $e ) {
+		// Return false if any exception is thrown.
+		return false;
 	}
+}
 
-	wp_reset_postdata();
-
-	return $post_id;
+/**
+ * Look up the WordPress post ID array for a given array OTIS UUID value
+ *
+ * @param string $uuid_list
+ *
+ * @return int[] Array of post IDs that match the given UUIDs.
+ */
+function wp_otis_get_post_id_list_for_uuid_list( array $uuid_list ): array {
+	if ( empty( $uuid_list ) || !is_array( $uuid_list ) ) {
+		return [];
+	}
+	try {
+		// Get post w/ meta query for UUID.
+		return get_posts( [
+			'fields'                 => 'ids',
+			'posts_per_page'         => -1,
+			'post_status'            => 'any',
+			'post_type'              => 'poi',
+			'meta_key'               => 'uuid',
+			'meta_query'             => [
+				[
+					'key'     => 'uuid',
+					'value'   => $uuid_list,
+					'compare' => 'IN',
+				],
+			],
+		] );
+	} catch ( Exception $e ) {
+		return [];
+	}
 }
 
 /**
@@ -96,6 +135,8 @@ add_action( 'wp_otis_cron', function () {
 	$import_active = get_option( WP_OTIS_IMPORT_ACTIVE, false );
 
 	if ($import_active == false) {
+		// Set the timezone to LA for the duration of the import and get the current date.
+		date_default_timezone_set( 'America/Los_Angeles' );
 		$current_date     = date( 'c' );
 		$last_import_date = get_option( WP_OTIS_LAST_IMPORT_DATE, '' );
 
@@ -168,7 +209,7 @@ add_action( 'wp_otis_fetch_listings', function( $params ) {
 
 }, 10, 1 );
 
-add_action( 'wp_otis_process_listings', function( $params ) {
+add_action( 'wp_otis_process_single_listing', function( $params ) {
 
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
@@ -205,7 +246,7 @@ add_action( 'wp_otis_delete_removed_listings', function( $params ) {
 }, 10, 1 );
 
 add_action( 'wp_otis_sync_all_listings_fetch', function( $params ) {
-	
+
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
 	}
@@ -238,7 +279,7 @@ add_action( 'wp_otis_sync_all_listings_posts_transient', function() {
 }, 10, 1 );
 
 add_action( 'wp_otis_sync_all_listings_process', function( $params ) {
-	
+
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
 	}
@@ -255,7 +296,7 @@ add_action( 'wp_otis_sync_all_listings_process', function( $params ) {
 }, 10, 1 );
 
 add_action( 'wp_otis_sync_all_listings_import', function( $params ) {
-	
+
 	if ( WP_OTIS_BULK_DISABLE_CACHE ) {
 		wp_cache_add_non_persistent_groups( ['acf'] );
 	}
@@ -280,6 +321,13 @@ add_action( 'wp_otis_expire_events', function () {
   if ( WP_OTIS_BULK_DISABLE_CACHE ) {
   	wp_cache_add_non_persistent_groups( ['acf'] );
   }
+
+	// Check if import is already running
+	$import_active = get_option( WP_OTIS_IMPORT_ACTIVE, false );
+
+	if ( $import_active ) {
+		return;
+	}
 
   $logger = new Otis_Logger_Simple();
 

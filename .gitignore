@@ -4,3 +4,10 @@ wp-cli.local.yml
 node_modules/
 .idea
 .parcel-cache
+active_ids.json
+active_ids_diff.json
+pois.json
+active_ids.php
+vendor/
+
+.vscode/

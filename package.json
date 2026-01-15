@@ -14,12 +14,14 @@
     "grunt-wp-i18n": "~1.0.3",
     "grunt-wp-readme-to-markdown": "~2.1.0",
     "parcel": "^2.8.1"
+    "parcel": "^2.8.1",
+    "process": "^0.11.10"
   },
   "dependencies": {
     "@vuepic/vue-datepicker": "^3.6.1",
     "axios": "^1.2.1",
     "vue": "^3.2.45",
     "vue-moment": "^4.1.0",
-    "vuestic-ui": "^1.5.2"
+    "vuestic-ui": "^1.9"
   }
 }

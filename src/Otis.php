@@ -10,14 +10,16 @@ class Otis {
 	const AUTH_ROOT = 'https://otis.traveloregon.com/rest-auth';
 
 	private $ch;
+	private $ua;
 
 	/**
 	 * Otis constructor.
 	 */
 	public function __construct() {
 		$this->ch = curl_init();
+		$this->ua = 'Otis-PHP/' . $this->wp_otis_version();
 
-		curl_setopt( $this->ch, CURLOPT_USERAGENT, 'Otis-PHP/1.2.0beta' );
+		curl_setopt( $this->ch, CURLOPT_USERAGENT, $this->ua );
 		curl_setopt( $this->ch, CURLOPT_HEADER, false );
 		curl_setopt( $this->ch, CURLOPT_RETURNTRANSFER, true );
 		curl_setopt( $this->ch, CURLOPT_CONNECTTIMEOUT, 30 );
@@ -31,6 +33,21 @@ class Otis {
 		if ( is_resource( $this->ch ) ) {
 			curl_close( $this->ch );
 		}
+	}
+
+	protected function wp_otis_version() {
+		// Check if the function is available.
+		if( ! function_exists( 'get_plugin_data' ) ) {
+			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		}
+		// Retrieve plugin data from the main plugin file.
+		$plugin_data = get_plugin_data( WP_OTIS_PLUGIN_PATH . 'wp-otis.php', false, false );
+		// Check if the plugin version was retrieved successfully.
+		if ( ! isset( $plugin_data['Version'] ) ) {
+			return '';
+		}
+		// Return the plugin version number.
+		return $plugin_data['Version'];
 	}
 
 	/**
@@ -56,11 +73,23 @@ class Otis {
 			$token_fetch = true;
 
 			$params = array(
-				'username' => '',
-				'password' => '',
+				'username' => get_option( WP_OTIS_USERNAME, '' ),
+				'password' => get_option( WP_OTIS_PASSWORD, '' ),
 			);
 
-			$params = apply_filters( 'wp_otis_rest_auth', $params );
+			$credentials_in_code = apply_filters( 'wp_otis_rest_auth', $params );
+
+			if ( $credentials_in_code['username'] || $credentials_in_code['password'] ) {
+				$params = $credentials_in_code;
+				// Save the credentials to the database.
+				update_option( WP_OTIS_USERNAME, $params['username'] );
+				update_option( WP_OTIS_PASSWORD, $params['password'] );
+			}
+
+			if ( ! $params['username'] || ! $params['password'] ) {
+				throw new Otis_Exception( 'Missing username or password' );
+				return '';
+			}
 
 			try {
 				$result = $this->_fetch( self::AUTH_ROOT . '/login/', array(
@@ -94,9 +123,11 @@ class Otis {
 		$headers[] = 'Accept: application/json';
 
 		$token = $this->token();
-		if ( $token ) {
-			$headers[] = 'Authorization: Token ' . $token;
+		if ( !$token ) {
+			return null;
 		}
+
+		$headers[] = 'Authorization: Token ' . $token;
 
 		try {
 			return $this->_fetch( self::API_ROOT . '/' . $path, array(
@@ -142,7 +173,7 @@ class Otis {
 		curl_setopt( $this->ch, CURLOPT_TIMEOUT, 30 );
 
 		if ($logger) {
-			$logger->log("About to call url ".$url);
+			$logger->log("About to call url " . $url . ' User Agent: ' . $this->ua);
 		}
 		$response_body = curl_exec( $this->ch );
 		if ($logger && $verbose) {

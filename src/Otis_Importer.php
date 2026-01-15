@@ -54,6 +54,7 @@ class Otis_Importer {
 		'cycling_ride_type'                     => 'type',
 		'event_type'                            => 'type',
 		'additional_lodging_types'              => 'type',
+		'transportation_services'								=> 'type',
 		'primary_city'                          => 'city',
 		'primary_region'                        => 'region',
 	];
@@ -73,8 +74,8 @@ class Otis_Importer {
 	public function __construct( $otis, $logger ) {
 		$this->otis   = $otis;
 		$this->logger = $logger;
-		$this->processing_chunk_size = apply_filters( 'wp_otis_processing_chunk_size', 10 );
-		$this->processing_chunk_size = intval( $this->processing_chunk_size, 10 ) > 0 ? intval( $this->processing_chunk_size, 10 ) : 10;
+		$this->processing_chunk_size = apply_filters( 'wp_otis_processing_chunk_size', 5 );
+		$this->processing_chunk_size = intval( $this->processing_chunk_size, 10 ) > 0 ? intval( $this->processing_chunk_size, 10 ) : 5;
 	}
 
 	/** Cancel current Import and Process */
@@ -123,6 +124,7 @@ class Otis_Importer {
 
 			case 'regions':
 				$assoc_args['type'] = 'Regions';
+				$assoc_args['import_type'] = 'regions';
 				$assoc_args['all']  = true;
 
 				$this->_fetch_otis_listings( $assoc_args );
@@ -133,6 +135,7 @@ class Otis_Importer {
 
 			case 'cities':
 				$assoc_args['type'] = 'Cities';
+				$assoc_args['import_type'] = 'cities';
 				$assoc_args['all']  = true;
 
 				$this->_fetch_otis_listings( $assoc_args );
@@ -145,7 +148,7 @@ class Otis_Importer {
 					$this->import( 'terms', $assoc_args );
 					$this->import( 'regions', $assoc_args );
 					$this->import( 'cities', $assoc_args );
-					$assoc_args['type'] = 'pois';
+					$assoc_args['import_type'] = 'pois';
 
 					$this->_fetch_otis_listings( $assoc_args );
 					// $this->_import_history( $assoc_args );
@@ -155,7 +158,7 @@ class Otis_Importer {
 					return $log;
 
 			case 'pois-only':
-					$assoc_args['type'] = 'pois';
+					$assoc_args['import_type'] = 'pois';
 					$this->_fetch_otis_listings( $assoc_args );
 					// $this->_import_history( $assoc_args );
 
@@ -180,12 +183,18 @@ class Otis_Importer {
 					$assoc_args['uuid'] = $args[1];
 				}
 
-				$this->_import_poi( $assoc_args );
+				try {
+					$this->_import_poi( $assoc_args );
+				} catch ( Exception $exception ) {
+					$this->logger->log( $exception->getMessage(), 0, 'error' );
+					$log[] = 'Error importing POI.';
+					return $log;
+				}
 
 				$log[] = 'POI import complete.';
 
 				return $log;
-			
+
 			case 'all-listings':
 				if ( empty( $assoc_args['sync_page'] ) ) {
 					$assoc_args['sync_page'] = 1;
@@ -203,7 +212,7 @@ class Otis_Importer {
 
 	/** Process Transient Data */
 	public function process_listings( $assoc_args ) {
-		$this->logger->log( 'Processing ' . $assoc_args['type'] . ' listings...' );
+		$this->logger->log( 'Initialized processing of ' . $assoc_args['import_type'] ?? ' unspecified ' . ' listing with UUID: ' . $assoc_args['listing_uuid'] );
 		$this->_process_listings( $assoc_args );
 	}
 
@@ -365,6 +374,7 @@ class Otis_Importer {
 		}
 
 		$post_id = wp_otis_get_post_id_for_uuid( $result['uuid'] );
+		$post_id = $post_id ?: 0;
 
 		try {
 			$post_id = $this->_upsert_poi( $post_id, $result );
@@ -373,24 +383,24 @@ class Otis_Importer {
 		}
 	}
 
-	
+
 	/** Make Listings Transient Key */
 	private function make_listings_transient_key( $listings_type ) {
 		$listings_key_type = strtolower( $listings_type );
 		$listings_key_type = str_replace( ' ', '_', $listings_key_type );
 		return 'wp_otis_listings' . '_' . $listings_key_type;
 	}
-	
+
 	/** Get Listings transient if it exists */
 	private function get_listings_transient( $listings_type = 'pois' ) {
 		$transient_key = $this->make_listings_transient_key( $listings_type );
 		return get_transient( $transient_key );
 	}
-	
+
 	/** Set Listings transient */
 	private function set_listings_transient( $data = [], $listings_type = 'pois' ) {
 		$transient_key = $this->make_listings_transient_key( $listings_type );
-		return set_transient( $transient_key, $data, 3600 );
+		return set_transient( $transient_key, $data, 21600 );
 	}
 
 	/** Delete Listings transient */
@@ -409,10 +419,7 @@ class Otis_Importer {
 
 	/** Unschedule action scheduler action */
 	private function unschedule_action($action, $args = []) {
-		$timestamp = as_next_scheduled_action($action, $args);
-		if ( false !== $timestamp ) {
-			as_unschedule_all_actions($action, $args);
-		}
+		as_unschedule_all_actions($action, $args);
 	}
 
 	/**
@@ -421,7 +428,7 @@ class Otis_Importer {
 	private function _cancel_import( $log_message = 'Import canceled' ) {
 		// Unschedule all actions.
 		$this->unschedule_action( 'wp_otis_fetch_listings' );
-		$this->unschedule_action( 'wp_otis_process_listings' );
+		$this->unschedule_action( 'wp_otis_process_single_listing' );
 		$this->unschedule_action( 'wp_otis_delete_removed_listings' );
 		$this->unschedule_action( 'wp_otis_sync_all_listings' );
 		$this->unschedule_action( 'wp_otis_sync_all_listings_fetch' );
@@ -437,8 +444,25 @@ class Otis_Importer {
 		// Set OTIS import options to false.
 		update_option( WP_OTIS_CANCEL_IMPORT, false );
 		update_option( WP_OTIS_IMPORT_ACTIVE, false );
+		// Enable caching.
+		// $this->_toggle_caching( true );
 		// Log the cancel.
 		$this->logger->log( $log_message );
+	}
+
+	/**
+	 * Toggle caching global
+	 */
+	private function _toggle_caching( $enabled = true ) {
+		if ( $enabled && WP_OTIS_BULK_DISABLE_CACHE ) {
+			// Enable caching.
+			define( 'WP_OTIS_BULK_DISABLE_CACHE', false );
+			$this->logger->log( 'Caching enabled.' );
+		} else if ( ! $enabled && ! WP_OTIS_BULK_DISABLE_CACHE ) {
+			// Disable caching.
+			define( 'WP_OTIS_BULK_DISABLE_CACHE', true );
+			$this->logger->log( 'Caching disabled.' );
+		}
 	}
 
 	/**
@@ -469,8 +493,8 @@ class Otis_Importer {
 
 		// Look for listing page in args and set it to the first one if it's not present.
 		$listings_page = ! empty( $assoc_args['page'] ) ? $assoc_args['page'] : 1;
-		// Look for listing type in args and set it to pois if it's not present.
-		$listings_type = ! empty( $assoc_args['type'] ) ? $assoc_args['type'] : 'pois';
+		// Look for listing import type in args and set it to pois if it's not present.
+		$listings_type = ! empty( $assoc_args['import_type'] ) ? $assoc_args['import_type'] : 'pois';
 		// Create API params to pass to array.
 		$api_params    = [
 			'page'      => $listings_page,
@@ -482,8 +506,12 @@ class Otis_Importer {
 		// Merge API params with passed args.
 		$api_params    = array_merge( $assoc_args, $api_params );
 		// Check if API params type is pois and unset it if so (OTIS listings are all POIs).
-		if ( 'pois' === $api_params['type'] ) {
+		if ( 'pois' === $api_params['type'] || 'pois-only' === $api_params['type'] ) {
 			unset( $api_params['type'] );
+		}
+		// Unset the bulk flag if it's present.
+		if ( isset( $api_params['bulk'] ) ) {
+			unset( $api_params['bulk'] );
 		}
 		// Fetch listings from OTIS.
 		$this->logger->log( 'Fetching page ' . $listings_page . ' of ' . $listings_type );
@@ -491,10 +519,11 @@ class Otis_Importer {
 		// Check if we have any listings and if there are more pages.
 		$listings_next = is_null( $listings['next'] ) ? $listings['next'] : trim( $listings['next'] );
 		$has_next_page = empty( $listings_next ) || 'null' === $listings_next ? false : true;
+		$listings_total = $listings['count'] ?? 0;
 		$listings = $listings['results'] ?? [];
 
 		// Loop through listings and add end date to each one.
-		foreach ($listings as $listing_key => $listing) {
+		foreach ($listings as &$listing) {
 			$end_date = '';
 			if ( ! empty( $listing['attributes'] ) ) {
 				foreach ( $listing['attributes'] as $attribute ) {
@@ -503,7 +532,7 @@ class Otis_Importer {
 					}
 				}
 			}
-			$listings[ $listing_key ]['end_date'] = $end_date;
+			$listing['end_date'] = $end_date;
 		}
 
 		// If we have listings, store them in a transient.
@@ -523,17 +552,26 @@ class Otis_Importer {
 		// Do post fetch actions.
 		do_action( 'wp_otis_after_fetch_listings', $assoc_args );
 
-		// If we don't have more pages, check if there are listings to process and schedule an action if so.
+		// If we don't have more pages, check if there are listings to process and schedule actions for each.
 		if ( count( $listings_transient ) ) {
-			$this->schedule_action( 'wp_otis_process_listings', [ 'params' => $api_params ] );
-			$this->logger->log( 'No more pages to fetch, scheduling process ' . $listings_type . ' action' );
-			return;
+			// Log that we're scheduling processing actions.
+			$this->logger->log( 'No more pages to fetch. Scheduling process actions...' );
+			// Add listings_total to api args to pass forward to processing.
+			$api_params['listings_total'] = $listings_total;
+			foreach ( $listings_transient as $listing_key => $listing ) {
+				$params = [
+					'listing_uuid' => $listing['uuid'],
+					'listing_number' => $listing_key + 1,
+					'import_args' => $api_params,
+				];
+				$this->schedule_action( 'wp_otis_process_single_listing', [ 'params' => $params ] );
+			}
+			$this->logger->log( count( $listings_transient ) . ' process ' . $listings_type . ' actions scheduled.' );
 		}
-		// If we don't have more pages and no listings to process, skip to deletes run.
-		$this->logger->log( 'No more pages to fetch and no ' . $listings_type . ' listings to process.' );
+		// Schedule action to delete removed listings.
 		if ( 'pois' === $listings_type ) {
 			$this->schedule_action( 'wp_otis_delete_removed_listings', [ 'params' => [ 'modified' => $assoc_args['modified'] ] ] );
-			$this->logger->log( 'Scheduling delete removed listings action.' );
+			$this->logger->log( 'Scheduling post processing delete removed listings action.' );
 		}
 	}
 
@@ -544,15 +582,15 @@ class Otis_Importer {
 			$this->cancel_import();
 			return;
 		}
+		// Disable Caching if it's enabled.
+		// $this->_toggle_caching( false );
+
 		// Run actions for before processing listings.
 		do_action( 'wp_otis_before_process_listings', $assoc_args );
 		$assoc_args = apply_filters( 'wp_otis_before_process_listings_args', $assoc_args );
 
-		// Get listings page from args.
-		$listings_page = $assoc_args['modified_process_page'] ? intval( $assoc_args['modified_process_page'] ) : 1;
-
 		// Get listings type from args.
-		$listings_type = $assoc_args['type'] ?? 'pois';
+		$listings_type = $assoc_args['import_args']['import_type'] ?? 'pois';
 		// Get listings from transient.
 		$listings_transient = $this->get_listings_transient( $listings_type );
 		// If we don't have any listings, return.
@@ -561,42 +599,43 @@ class Otis_Importer {
 			return;
 		}
 
-		$listings_chunks = array_chunk( $listings_transient, $this->processing_chunk_size );
-
-		// Apply filters to relevant chunk.
-		$listings_chunks[ $listings_page - 1 ] = apply_filters( 'wp_otis_listings_to_process', $listings_chunks[ $listings_page - 1 ], $listings_type );
-		// Loop over relevant chunk and process listings.
-		foreach ( $listings_chunks[ $listings_page - 1 ] as $listing ) {
-			// Check if the WP_OTIS_CANCEL_IMPORT option is set to true and if so, cancel the import.
-			if ( get_option( WP_OTIS_CANCEL_IMPORT, false ) ) {
-				$this->cancel_import();
-				return;
-			}
-			// Get the existing listing ID from Wordpress if it exists.
-			$found_poi_post_id = wp_otis_get_post_id_for_uuid( $listing['uuid'] );
-			$this->_upsert_poi( $found_poi_post_id, $listing );
-		}
-
-		// If we have more pages, schedule another action to process them.
-		if ( count( $listings_chunks ) > $listings_page ) {
-			$next_page = $listings_page + 1;
-			$total_pages = count( $listings_chunks );
-			$assoc_args['modified_process_page'] = $next_page;
-			$this->schedule_action( 'wp_otis_process_listings', [ 'params' => $assoc_args ] );
-			$this->logger->log( 'Scheduling process page ' . $next_page . ' of ' . $total_pages . ' of ' . $listings_type );
+		// Get the relevant listing from the transient by UUID
+		$transient_listing = array_filter( $listings_transient, function( $listing ) use ( $assoc_args ) {
+			return $listing['uuid'] === $assoc_args['listing_uuid'];
+		} );
+		$transient_listing = array_shift( $transient_listing );
+		// If we don't have a listing, return.
+		if ( false === $transient_listing ) {
+			$this->logger->log( "No $listings_type listing to process" );
 			return;
 		}
+		// Apply filters to relevant listing.
+		$transient_listing = apply_filters( 'wp_otis_listing_to_process', $transient_listing, $listings_type );
 
-		// Delete transient.
-		$this->delete_listings_transient( $listings_type );
-		// Schedule action to delete removed OTIS listings.
-		if ( 'pois' === $listings_type ) {
-			$this->schedule_action( 'wp_otis_delete_removed_listings', [ 'params' => [ 'modified' => $assoc_args['modified'] ] ] );
-			$this->logger->log( 'Scheduling delete removed listings action' );
+		// Process the listing.
+		// Check if the WP_OTIS_CANCEL_IMPORT option is set to true and if so, cancel the import.
+		if ( get_option( WP_OTIS_CANCEL_IMPORT, false ) ) {
+			$this->cancel_import();
+			return;
+		}
+		// Get the existing listing ID from Wordpress if it exists.
+		try {
+			$found_poi_post_id = wp_otis_get_post_id_for_uuid( $transient_listing['uuid'] );
+			$found_poi_post_id = $found_poi_post_id ?: 0;
+			$upserted_post_id = $this->_upsert_poi( $found_poi_post_id, $transient_listing );
+			if ( $upserted_post_id && ! is_wp_error($upserted_post_id) ) {
+				$this->logger->log( 'Successfully processed listing: ' . $transient_listing['name'] . ' (' . $assoc_args['listing_number'] . ' of ' . count($listings_transient) . ')' );
+			} else {
+				$this->logger->log( 'Error processing listing: ' . $transient_listing['name'] );
+			}
+		} catch (\Throwable $th) {
+			$this->logger->log( 'Error processing listing: ' . $transient_listing['name'] );
 		}
 
 		// Run actions for after processing listings.
 		do_action( 'wp_otis_after_process_listings', $assoc_args );
+
+		return;
 	}
 
 	/** Delete listings that have been removed from OTIS */
@@ -618,8 +657,8 @@ class Otis_Importer {
 		$after = $after ? date( 'Y-m-d', strtotime( $after ) ) : null;
 
 		// Check if there's a page in args and set it to the first one if it's not present.
-		$deletes_page = $assoc_args['deletes_page'] ? intval( $assoc_args['deletes_page'] ) : 1;
-		
+		$deletes_page = isset( $assoc_args['deletes_page'] ) ? intval( $assoc_args['deletes_page'] ) : 1;
+
 		// Construct API params.
 		$api_params = [];
 		if ( ! is_null( $before ) ) {
@@ -643,15 +682,12 @@ class Otis_Importer {
 			$this->_reset_importer_active_flag();
 			return;
 		}
+		$found_poi_post_id_list = wp_otis_get_post_id_list_for_uuid_list($removed_listings_results);
 		// Loop through removed listings and delete them.
-		foreach ( $removed_listings_results as $removed_listing_uuid ) {
-			// Get the existing listing ID from Wordpress if it exists.
-			$found_poi_post_id = wp_otis_get_post_id_for_uuid( $removed_listing_uuid );
-			// If the listing exists, trash it.
-			if ( $found_poi_post_id ) {
-				$this->logger->log( 'Deleting removed listing ' . $removed_listing_uuid );
-				wp_trash_post( $found_poi_post_id );
-			}
+		foreach ( $found_poi_post_id_list as $found_poi_post_id ) {
+			// Note: Mapping UUIDs to Post IDs would require extra DB queries of questionable value.
+			$this->logger->log( 'Deleting removed listing, post ID:' . $found_poi_post_id );
+			wp_trash_post( $found_poi_post_id );
 		}
 		// Check if there are more pages.
 		$deletes_next = is_null( $removed_listings['next'] ) ? $removed_listings['next'] : trim( $removed_listings['next'] );
@@ -660,6 +696,11 @@ class Otis_Importer {
 		if ( $has_next_page ) {
 			$assoc_args['deletes_page'] = $deletes_page + 1;
 			$assoc_args = array_merge( $assoc_args, $api_params );
+			// Action Scheduler expects the top level key of $assoc_args to be 'params'.
+			// This means we need to rewrap the array before passing it to schedule_action().
+			if ( !isset( $assoc_args['params'] ) ) {
+				$assoc_args = array( 'params' => $assoc_args );
+			}
 			$this->schedule_action( 'wp_otis_delete_removed_listings', $assoc_args );
 			$this->logger->log( 'Scheduling fetch of next page of removed listings' );
 			return;
@@ -760,7 +801,7 @@ class Otis_Importer {
 		// Schedule the action to sync the listings.
 		$this->schedule_action( 'wp_otis_sync_all_listings_process', [ 'params' => [ 'process_page' => 1 ] ] );
 	}
-	
+
 
 	/** Process activeIds Transient */
 	private function _remove_all_inactive_listings( $assoc_args = [] ) {
@@ -808,7 +849,7 @@ class Otis_Importer {
 			$total_pages = count( $active_poi_post_chunks );
 			$assoc_args['process_page'] = $next_page;
 			$this->schedule_action( 'wp_otis_sync_all_listings_process', [ 'params' => $assoc_args ] );
-			$this->logger->log( "Scheduling process of page $next_page of $total_pages of process active listings" );
+			$this->logger->log( "Scheduling process of page $next_page of $total_pages of remove inactive listings" );
 			return;
 		}
 
@@ -832,6 +873,8 @@ class Otis_Importer {
 			update_option( WP_OTIS_IMPORT_ACTIVE, true );
 			$this->logger->log( 'Pausing automatic imports.' );
 		}
+		// Disable Caching if it's enabled.
+		// $this->_toggle_caching( false );
 
 		// Run actions for before importing all listings.
 		do_action( 'wp_otis_before_import_active_listings', $assoc_args );
@@ -873,6 +916,9 @@ class Otis_Importer {
 		// Run actions for after importing all listings.
 		do_action( 'wp_otis_after_import_active_listings', $assoc_args );
 
+		// Enable Caching if it's disabled.
+		// $this->_toggle_caching( true );
+
 		// Update the WP_OTIS_IMPORT_ACTIVE option to false.
 		$this->_reset_importer_active_flag();
 
@@ -909,11 +955,14 @@ class Otis_Importer {
 	 *
 	 * @throws \Otis_Exception
 	 */
-    private function _upsert_poi( $post_id, $result, $related_only = false ) {
+  private function _upsert_poi( $post_id, $result, $related_only = false ) {
 		$field_group = wp_otis_fields_load();
 		$field_map   = [];
 		foreach ( $field_group['fields'] as $field ) {
-			$field_map[ $field['name'] ] = $field;
+			$field_map[ $field['name'] ] = [
+				'field' => $field,
+				'key' => $field['key'],
+			];
 		}
 
 		$type = strtolower( $result['type']['name'] );
@@ -928,17 +977,17 @@ class Otis_Importer {
 			}
 		}
 
-	    if ( ! empty( $result['listing_credit'] ) ) {
-		    $listing_credit = $result['listing_credit'];
-		    unset($result['listing_credit']);
-	    }
+		if ( ! empty( $result['listing_credit'] ) ) {
+			$listing_credit = $result['listing_credit'];
+			unset($result['listing_credit']);
+		}
 
 		// Prep attribute data for field lookup.
 		foreach ( $result['attributes'] as $attribute ) {
 			$result[ $attribute['schema']['name'] ] = $attribute['value'];
 		}
 
-        $has_related_pois = false;
+		$has_related_pois = false;
 
 		// Prep media data for field lookup.
 		foreach ( $result['media'] as $media_type => $items ) {
@@ -988,130 +1037,134 @@ class Otis_Importer {
 			}
 		}
 
-        // Prep reverse relations data for field lookup.
+		// Prep reverse relations data for field lookup.
 
-        if (isset($result['reverse_relations'])) {
-            // Prep reverse relations data for field lookup.
-            foreach ( $result['reverse_relations'] as $relation ) {
-                $relationship_type = $relation['relationship_type']['name'];
-                switch ( $relationship_type ) {
-	                case 'Additional City':
-	                case 'Additional Region':
-	                case 'Nearby Towns & Cities':
-                    case 'Another Listing':
-                        $has_related_pois = true;
-                        $other_id = wp_otis_get_post_id_for_uuid($relation['uuid']);
-                        $relation['post_id'] = $other_id;
-                        $result[ $relationship_type ][] = $relation;
-                        break;
-                }
-            }
-        }
-        if (!$related_only || ($related_only && $has_related_pois)) {
+		if (isset($result['reverse_relations'])) {
+			// Prep reverse relations data for field lookup.
+			foreach ( $result['reverse_relations'] as $relation ) {
+				$relationship_type = $relation['relationship_type']['name'];
+				switch ( $relationship_type ) {
+					case 'Additional City':
+					case 'Additional Region':
+					case 'Nearby Towns & Cities':
+					case 'Another Listing':
+						$has_related_pois = true;
+						$other_id = wp_otis_get_post_id_for_uuid($relation['uuid']);
+						$relation['post_id'] = $other_id;
+						$result[ $relationship_type ][] = $relation;
+						break;
+				}
+			}
+		}
+		if (!$related_only || ($related_only && $has_related_pois)) {
 
-            // Prep geo data for field lookup.
-            if (isset($result['geo_data'])) {
-                $result['geo_data'] = json_encode($result['geo_data']);
-            }
+			// Prep geo data for field lookup.
+			if (isset($result['geo_data'])) {
+				$result['geo_data'] = json_encode($result['geo_data']);
+			}
 
-            // Normalize and translate OTIS result data into WordPress field data.
-            $data = [];
-            foreach ($result as $key => $value) {
-                $name = $this->_translate_field_name($key);
-                $is_term = null;
+			// Normalize and translate OTIS result data into WordPress field data.
+			$data = [];
+			foreach ($result as $key => $value) {
+				$name = $this->_translate_field_name($key);
+				$is_term = null;
 
-                switch ($name) {
-                    case 'type':
-                    case 'glocats':
-                        $value = $this->_translate_taxonomy_value($name, $value);
-                        $is_term = true;
-                        break;
+				switch ($name) {
+					case 'type':
+					case 'glocats':
+						$value = $this->_translate_taxonomy_value($name, $value);
+						$is_term = true;
+						break;
 
-                    default:
-                        $field = $field_map[$name] ?? null;
-                        $value = $this->_translate_field_value($field, $value);
-                        $is_term = ('taxonomy' === $field['type']);
-                        break;
-                }
+					default:
+						$field = $field_map[$name]['field'] ?? null;
+						$value = $this->_translate_field_value($field, $value);
+						$is_term = ('taxonomy' === $field['type'] ?? '');
+						break;
+				}
 
-                if (!empty($data[$name]) && $is_term) {
-                    $data[$name] = array_merge($data[$name], $value);
-                } else {
-                    $data[$name] = $value;
-                }
-            }
+				if (!empty($data[$name]) && $is_term) {
+					$data[$name] = array_merge($data[$name], $value);
+				} else {
+					$data[$name] = $value;
+				}
+			}
 
-            $upsert_status = $post_id ? 'updated' : 'created';
+			$upsert_status = $post_id ? 'updated' : 'created';
 
-	        // Since we'll re-save related POIs anyway, emptying the listings now ensures removal of any deleted relations in OTIS.
-	        if ( 'updated' === $upsert_status ) {
-		        delete_post_meta($post_id, 'another_listing');
-	        }
+			// Since we'll re-save related POIs anyway, emptying the listings now ensures removal of any deleted relations in OTIS.
+			if ( 'updated' === $upsert_status ) {
+				delete_post_meta($post_id, 'another_listing');
+			}
 
-            $post_status = $this->_get_post_status($result);
-            $post_title = $result['name'];
-            $post_content = empty($result['description']) ? '' : $this->_sanitize_content($result['description']);
-						// Add 8 hours to the modified date to account for the timezone difference between the OTIS and WordPress servers.
-            $post_date = empty($result['modified']) ? '' : date('Y-m-d H:i:s', strtotime($result['modified']) + 28800);
+			$post_status = $this->_get_post_status($result);
+			$post_title = $result['name'];
+			$post_content = empty($result['description']) ? '' : $this->_sanitize_content($result['description']);
+			$post_date = empty($result['modified']) ? '' : date('Y-m-d H:i:s', strtotime($result['modified']));
 
-            $post_result = wp_insert_post([
-                'post_type' => 'poi',
-                'post_status' => $post_status,
-                'ID' => $post_id,
-                'post_title' => $post_title,
-                'post_name' => '', // Empty = auto-generate.
-                'post_content' => $post_content,
-                'post_date_gmt' => $post_date,
-            ], true);
+			$post_result = wp_insert_post([
+				'post_type'     => 'poi',
+				'post_status'   => $post_status,
+				'ID'            => $post_id,
+				'post_title'    => $post_title,
+				'post_name'     => '',              // Empty = auto-generate.
+				'post_content'  => $post_content,
+				'post_date_gmt' => $post_date,
+			], true);
 
-            if (!$post_result) {
-								$this->logger->log('Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid']);
-                throw new Otis_Exception('Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid']);
-            } elseif (is_wp_error($post_result)) {
-								$this->logger->log('Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid']);
-                throw new Otis_Exception('Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid'] . ', ' . $post_result->get_error_message());
-            } else {
-                $post_id = $post_result;
-            }
+			if (!$post_result) {
+				$this->logger->log('Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid']);
+				throw new Otis_Exception('Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid']);
+			} elseif (is_wp_error($post_result)) {
+				$this->logger->log('Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid']);
+				throw new Otis_Exception('Error: POI not ' . $upsert_status . ', uuid ' . $result['uuid'] . ', ' . $post_result->get_error_message());
+			} else {
+				$post_id = $post_result;
+			}
 
-            foreach ($field_map as $name => $field) {
-                if (isset($data[$name])) {
-                    $return = update_field($name, $data[$name], $post_id);
+			foreach ($field_map as $name => $field) {
+				if (isset($data[$name])) {
 
-                    if (is_wp_error($return)) {
-												$this->logger->log('Error: field ' . $name . ', post id ' . $post_id . ', ' . $return->get_error_message());
-                        throw new Otis_Exception('Error: field ' . $name . ', post id ' . $post_id . ', ' . $return->get_error_message());
-                    }
-                }
-            }
+					$return = update_field(
+						$field['key'],
+						$data[$name],
+						$post_id
+					);
 
-	        if ( isset( $listing_credit ) ) {
-		        update_field('listing_credit_id', $listing_credit['id'], $post_id);
-		        update_field('listing_credit_name', $listing_credit['name'], $post_id);
-		        update_field('listing_credit_caption', $listing_credit['caption'], $post_id);
-		        update_field('listing_credit_url', $listing_credit['url'], $post_id);
-	        }
+					if (is_wp_error($return)) {
+						$this->logger->log('Error: field ' . $name . ', post id ' . $post_id . ', ' . $return->get_error_message());
+						throw new Otis_Exception('Error: field ' . $name . ', post id ' . $post_id . ', ' . $return->get_error_message());
+					}
+				}
+			}
 
-            // Save collection, type, and activities.
-            $return = wp_set_object_terms($post_id, $data['type'], 'type');
+			if ( isset( $listing_credit ) ) {
+				update_field('listing_credit_id', $listing_credit['id'], $post_id);
+				update_field('listing_credit_name', $listing_credit['name'], $post_id);
+				update_field('listing_credit_caption', $listing_credit['caption'], $post_id);
+				update_field('listing_credit_url', $listing_credit['url'], $post_id);
+			}
 
-            if (is_wp_error($return)) {
-								$this->logger->log('Error: taxonomy type, post id ' . $post_id . ', ' . $return->get_error_message());
-                throw new Otis_Exception('Error: taxonomy type, post id ' . $post_id . ', ' . $return->get_error_message());
-            }
+			// Save collection, type, and activities.
+			$return = wp_set_object_terms($post_id, $data['type'], 'type');
 
-            // Save global categories.
-            $return = wp_set_object_terms($post_id, $data['glocats'], 'glocats');
+			if (is_wp_error($return)) {
+				$this->logger->log('Error: taxonomy type, post id ' . $post_id . ', ' . $return->get_error_message());
+				throw new Otis_Exception('Error: taxonomy type, post id ' . $post_id . ', ' . $return->get_error_message());
+			}
 
-            if (is_wp_error($return)) {
-								$this->logger->log('Error: taxonomy glocats, post id ' . $post_id . ', ' . $return->get_error_message());
-                throw new Otis_Exception('Error: taxonomy glocats, post id ' . $post_id . ', ' . $return->get_error_message());
-            }
+			// Save global categories.
+			$return = wp_set_object_terms($post_id, $data['glocats'], 'glocats');
 
-            $this->logger->log(ucfirst($upsert_status) . ' POI with UUID: ' . $result['uuid'], $post_id);
+			if (is_wp_error($return)) {
+				$this->logger->log('Error: taxonomy glocats, post id ' . $post_id . ', ' . $return->get_error_message());
+				throw new Otis_Exception('Error: taxonomy glocats, post id ' . $post_id . ', ' . $return->get_error_message());
+			}
 
-            return $post_id;
-        }
+			$this->logger->log(ucfirst($upsert_status) . ' POI with UUID: ' . $result['uuid'], $post_id);
+
+			return $post_id;
+		}
 	}
 
 	/**
