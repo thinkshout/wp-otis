@@ -10,6 +10,10 @@
   "devDependencies": {
     "@parcel/transformer-vue": "^2.8.1",
     "buffer": "^5.7.1",
+    "grunt": "~1.5.3",
+    "grunt-wp-i18n": "~1.0.3",
+    "grunt-wp-readme-to-markdown": "~2.1.0",
+    "parcel": "^2.8.1"
     "parcel": "^2.8.1",
     "process": "^0.11.10"
   },
