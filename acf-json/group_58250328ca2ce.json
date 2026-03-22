@@ -906,6 +906,28 @@
                     "prepend": "",
                     "append": "",
                     "maxlength": ""
+                },
+                {
+                    "key": "field_69c061ff4ffc8",
+                    "label": "Ignore on Travel Oregon",
+                    "name": "ignore_on_to",
+                    "aria-label": "",
+                    "type": "true_false",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "message": "Only for use on TravelOregon.com.",
+                    "default_value": 0,
+                    "allow_in_bindings": 0,
+                    "ui": 0,
+                    "ui_on_text": "",
+                    "ui_off_text": "",
+                    "parent_repeater": "field_585aff638510b"
                 }
             ]
         },
@@ -2584,7 +2606,9 @@
     "label_placement": "top",
     "instruction_placement": "label",
     "hide_on_screen": "",
-    "active": 1,
+    "active": true,
     "description": "",
-    "modified": 1752009738
+    "show_in_rest": 0,
+    "display_title": "",
+    "modified": 1774215752
 }
