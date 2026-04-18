@@ -921,7 +921,7 @@
                         "class": "",
                         "id": ""
                     },
-                    "message": "Not for use on TO proper.",
+                    "message": "",
                     "default_value": 0,
                     "allow_in_bindings": 0,
                     "ui": 0,
