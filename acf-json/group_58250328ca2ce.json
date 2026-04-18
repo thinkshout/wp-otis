@@ -921,7 +921,7 @@
                         "class": "",
                         "id": ""
                     },
-                    "message": "Only for use on TO proper.",
+                    "message": "Not for use on TO proper.",
                     "default_value": 0,
                     "allow_in_bindings": 0,
                     "ui": 0,
@@ -2610,5 +2610,5 @@
     "description": "",
     "show_in_rest": 0,
     "display_title": "",
-    "modified": 1774215753
+    "modified": 1774215754
 }
